@@ -1,15 +1,24 @@
+server:
+  port: 8080
+
 frog:
   database:
     name: ep-data
 
-spring:
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:9173/${frog.database.name}?ApplicationName=${spring.application.name}
-    username: frog_admin
-    password: ODa9CNfFagOu3YHDRd2YjgkXIyKzUX
+#spring:
+#  datasource:
+#    driver-class-name: org.postgresql.Driver
+#    url: jdbc:postgresql://localhost:9173/${frog.database.name}?ApplicationName=${spring.application.name}
+#    username: frog_admin
+#    password: ODa9CNfFagOu3YHDRd2YjgkXIyKzUX
 
 logging:
   level:
     root: WARN
     fr.frogdevelopment: INFO
+    org.atmosphere: WARN
+
+
+# Ensure application is run in Vaadin 14/npm mode
+vaadin:
+  compatibilityMode: false
