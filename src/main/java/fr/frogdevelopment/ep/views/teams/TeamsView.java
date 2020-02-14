@@ -11,9 +11,9 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import fr.frogdevelopment.ep.views.MainView;
 import fr.frogdevelopment.ep.views.BackendService;
-import fr.frogdevelopment.ep.implementation.Employee;
+import fr.frogdevelopment.ep.views.Employee;
+import fr.frogdevelopment.ep.views.MainView;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Route(value = "teams", layout = MainView.class)

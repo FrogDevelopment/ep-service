@@ -1,6 +1,5 @@
 package fr.frogdevelopment.ep.views;
 
-import fr.frogdevelopment.ep.implementation.Employee;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -8,7 +7,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class BackendService {
 
-    private List<Employee> employees;
+    private final List<Employee> employees;
 
     {
     // Init dummy data
