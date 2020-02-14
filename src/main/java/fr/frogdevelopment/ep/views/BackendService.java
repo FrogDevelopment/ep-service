@@ -1,5 +1,6 @@
-package fr.frogdevelopment.ep.implementation;
+package fr.frogdevelopment.ep.views;
 
+import fr.frogdevelopment.ep.implementation.Employee;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
