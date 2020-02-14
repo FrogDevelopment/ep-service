@@ -11,7 +11,7 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import fr.frogdevelopment.ep.MainView;
+import fr.frogdevelopment.ep.views.MainView;
 import fr.frogdevelopment.ep.implementation.BackendService;
 import fr.frogdevelopment.ep.implementation.Employee;
 import org.springframework.beans.factory.annotation.Autowired;

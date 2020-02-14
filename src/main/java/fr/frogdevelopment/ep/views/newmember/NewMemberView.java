@@ -16,7 +16,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import fr.frogdevelopment.ep.MainView;
+import fr.frogdevelopment.ep.views.MainView;
 import fr.frogdevelopment.ep.implementation.Employee;
 
 @Route(value = "add_member", layout = MainView.class)

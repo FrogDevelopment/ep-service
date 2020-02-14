@@ -1,4 +1,4 @@
-package fr.frogdevelopment.ep;
+package fr.frogdevelopment.ep.views;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;

@@ -12,9 +12,9 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
-import fr.frogdevelopment.ep.MainView;
 import fr.frogdevelopment.ep.implementation.BackendService;
 import fr.frogdevelopment.ep.implementation.Employee;
+import fr.frogdevelopment.ep.views.MainView;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Route(value = "members", layout = MainView.class)
@@ -35,12 +35,10 @@ public class MembersView extends Div implements AfterNavigationObserver {
                 GridVariant.LUMO_NO_ROW_BORDERS);
         grid.setHeightFull();
         grid.addColumn(new ComponentRenderer<>(employee -> {
-            H3 h3 = new H3(
-                    employee.getLastname() + ", " + employee.getFirstname());
-            Anchor anchor = new Anchor("mailto:" + employee.getEmail(),
-                    employee.getEmail());
+            var h3 = new H3(employee.getLastname() + ", " + employee.getFirstname());
+            var anchor = new Anchor("mailto:" + employee.getEmail(), employee.getEmail());
             anchor.getElement().getThemeList().add("font-size-xs");
-            Div div = new Div(h3, anchor);
+            var div = new Div(h3, anchor);
             div.addClassName("employee-column");
             return div;
         }));
