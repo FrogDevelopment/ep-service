@@ -12,7 +12,6 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -48,7 +47,7 @@ public class MembersView extends Div implements AfterNavigationObserver {
     public MembersView() {
         setId("members-view");
         HorizontalLayout wrapper = new HorizontalLayout();
-        wrapper.addClassName("button-layout");
+//        wrapper.addClassName("button-layout");
 //        wrapper.setWidthFull();
 //        wrapper.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 
@@ -57,19 +56,16 @@ public class MembersView extends Div implements AfterNavigationObserver {
         searchField.setAutoselect(true);
         searchField.setAutofocus(true);
         searchField.setClearButtonVisible(true);
-        searchField.setValueChangeMode(ValueChangeMode.EAGER);
+        searchField.setValueChangeMode(ValueChangeMode.LAZY);
         searchField.addValueChangeListener(e -> updateList());
         wrapper.add(searchField);
 
         buttonAdd.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        buttonAdd.addClickListener(new ComponentEventListener<ClickEvent<Button>>() {
-            @Override
-            public void onComponentEvent(ClickEvent<Button> event) {
-                Dialog dialog = new Dialog(new NewMemberView());
-                dialog.setCloseOnEsc(false);
-                dialog.setCloseOnOutsideClick(false);
-                dialog.open();
-            }
+        buttonAdd.addClickListener((ComponentEventListener<ClickEvent<Button>>) event -> {
+            Dialog dialog = new Dialog(new NewMemberView());
+            dialog.setCloseOnEsc(false);
+            dialog.setCloseOnOutsideClick(false);
+            dialog.open();
         });
         wrapper.add(buttonAdd);
 
@@ -77,27 +73,30 @@ public class MembersView extends Div implements AfterNavigationObserver {
         grid.setId("list");
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_NO_ROW_BORDERS);
         grid.setHeight("50%");
-        grid.addColumn(new ComponentRenderer<>(employee -> {
-            var h3 = new H3(employee.getLastname() + ", " + employee.getFirstname());
-            var div = new Div(h3);
-            div.addClassName("employee-column");
-            return div;
-        }));
-        grid.addColumn(new ComponentRenderer<>(employee -> {
+        grid.addColumn(Employee::getLastname)
+                .setHeader("Nom")
+                .setSortable(true);
+        grid.addColumn(Employee::getFirstname)
+                .setHeader("Prénom")
+                .setSortable(true);
+        grid.addColumn(createEmailToAnchor())
+                .setHeader("Email");
+
+        add(wrapper, grid);
+    }
+
+    private static ComponentRenderer<Div, Employee> createEmailToAnchor() {
+        return new ComponentRenderer<>(employee -> {
             var anchor = new Anchor("mailto:" + employee.getEmail(), employee.getEmail());
             anchor.getElement().getThemeList().add("font-size-xs");
             var div = new Div(anchor);
             div.addClassName("employee-column");
             return div;
-        }));
-
-        add(wrapper, grid);
+        });
     }
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
-        // Lazy init of the grid items, happens only when we are sure the view will be
-        // shown to the user
         unfilteredData = service.getEmployees();
         grid.setItems(unfilteredData);
     }

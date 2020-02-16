@@ -4,11 +4,10 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabVariant;
 import com.vaadin.flow.component.tabs.Tabs;
-import com.vaadin.flow.dom.Element;
-import com.vaadin.flow.dom.ElementFactory;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.PWA;
@@ -16,8 +15,8 @@ import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 import fr.frogdevelopment.ep.views.members.MembersView;
 import fr.frogdevelopment.ep.views.teams.TeamsView;
+import fr.frogdevelopment.ep.views.upload.UploadView;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The main view is a top-level placeholder for other views.
@@ -30,9 +29,6 @@ public class MainView extends AppLayout {
     private final Tabs menu;
 
     public MainView() {
-        Element logoutLink = ElementFactory.createAnchor("logout", "Logout");
-        getElement().appendChild(logoutLink);
-
         menu = createMenuTabs();
         addToNavbar(menu);
     }
@@ -45,9 +41,11 @@ public class MainView extends AppLayout {
     }
 
     private static Tab[] getAvailableTabs() {
-        final List<Tab> tabs = new ArrayList<>();
+        final var tabs = new ArrayList<Tab>();
         tabs.add(createTab("Members", MembersView.class));
         tabs.add(createTab("Teams", TeamsView.class));
+        tabs.add(createTab("Upload", UploadView.class));
+        tabs.add(createTab(new Anchor("logout", "Logout")));
         return tabs.toArray(new Tab[0]);
     }
 
