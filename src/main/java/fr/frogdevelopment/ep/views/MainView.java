@@ -7,6 +7,8 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabVariant;
 import com.vaadin.flow.component.tabs.Tabs;
+import com.vaadin.flow.dom.Element;
+import com.vaadin.flow.dom.ElementFactory;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.PWA;
@@ -28,6 +30,9 @@ public class MainView extends AppLayout {
     private final Tabs menu;
 
     public MainView() {
+        Element logoutLink = ElementFactory.createAnchor("logout", "Logout");
+        getElement().appendChild(logoutLink);
+
         menu = createMenuTabs();
         addToNavbar(menu);
     }
