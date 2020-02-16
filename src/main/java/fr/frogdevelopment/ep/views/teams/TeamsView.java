@@ -11,14 +11,14 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import fr.frogdevelopment.ep.MainView;
-import fr.frogdevelopment.ep.implementation.BackendService;
+import fr.frogdevelopment.ep.views.MainView;
+import fr.frogdevelopment.ep.views.BackendService;
 import fr.frogdevelopment.ep.implementation.Employee;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Route(value = "teams", layout = MainView.class)
 @PageTitle("Teams")
-@CssImport("styles/views/teams/teams-view.css")
+@CssImport("./styles/views/teams/teams-view.css")
 public class TeamsView extends Div implements AfterNavigationObserver {
 
     @Autowired

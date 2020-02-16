@@ -1,4 +1,4 @@
-package fr.frogdevelopment.ep.views.newmember;
+package fr.frogdevelopment.ep.views.members.newmember;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -14,14 +14,11 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
-import fr.frogdevelopment.ep.MainView;
 import fr.frogdevelopment.ep.implementation.Employee;
 
-@Route(value = "add_member", layout = MainView.class)
-@PageTitle("New Member")
-@CssImport("styles/views/newmember/new-member-view.css")
+//@Route(value = "add_member", layout = MainView.class)
+//@PageTitle("New Member")
+@CssImport("./styles/views/members/newmember/new-member-view.css")
 public class NewMemberView extends Div {
 
     private TextField firstname = new TextField();

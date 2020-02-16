@@ -1,4 +1,4 @@
-package fr.frogdevelopment.ep.implementation;
+package fr.frogdevelopment.ep.views;
 
 import java.util.Optional;
 

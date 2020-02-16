@@ -1,4 +1,4 @@
-package fr.frogdevelopment.ep;
+package fr.frogdevelopment.ep.views;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
@@ -13,11 +13,9 @@ import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 import fr.frogdevelopment.ep.views.members.MembersView;
-import fr.frogdevelopment.ep.views.newmember.NewMemberView;
 import fr.frogdevelopment.ep.views.teams.TeamsView;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * The main view is a top-level placeholder for other views.
@@ -35,7 +33,7 @@ public class MainView extends AppLayout {
     }
 
     private static Tabs createMenuTabs() {
-        final Tabs tabs = new Tabs();
+        final var tabs = new Tabs();
         tabs.setOrientation(Tabs.Orientation.HORIZONTAL);
         tabs.add(getAvailableTabs());
         return tabs;
@@ -45,17 +43,15 @@ public class MainView extends AppLayout {
         final List<Tab> tabs = new ArrayList<>();
         tabs.add(createTab("Members", MembersView.class));
         tabs.add(createTab("Teams", TeamsView.class));
-        tabs.add(createTab("New Member", NewMemberView.class));
-        return tabs.toArray(new Tab[tabs.size()]);
+        return tabs.toArray(new Tab[0]);
     }
 
-    private static Tab createTab(String title,
-            Class<? extends Component> viewClass) {
+    private static Tab createTab(String title, Class<? extends Component> viewClass) {
         return createTab(populateLink(new RouterLink(null, viewClass), title));
     }
 
     private static Tab createTab(Component content) {
-        final Tab tab = new Tab();
+        final var tab = new Tab();
         tab.addThemeVariants(TabVariant.LUMO_ICON_ON_TOP);
         tab.add(content);
         return tab;
@@ -73,13 +69,16 @@ public class MainView extends AppLayout {
     }
 
     private void selectTab() {
-        String target = RouteConfiguration.forSessionScope()
-                .getUrl(getContent().getClass());
-        Optional<Component> tabToSelect = menu.getChildren().filter(tab -> {
-            Component child = tab.getChildren().findFirst().get();
-            return child instanceof RouterLink
-                    && ((RouterLink) child).getHref().equals(target);
-        }).findFirst();
-        tabToSelect.ifPresent(tab -> menu.setSelectedTab((Tab) tab));
+        var target = RouteConfiguration.forSessionScope().getUrl(getContent().getClass());
+        menu.getChildren()
+                .filter(tab -> {
+                    var child = tab.getChildren()
+                            .findFirst()
+                            .get();
+                    return child instanceof RouterLink
+                            && ((RouterLink) child).getHref().equals(target);
+                })
+                .findFirst()
+                .ifPresent(tab -> menu.setSelectedTab((Tab) tab));
     }
 }
