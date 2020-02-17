@@ -14,20 +14,20 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-import fr.frogdevelopment.ep.implementation.Employee;
+import fr.frogdevelopment.ep.views.Employee;
 
 //@Route(value = "add_member", layout = MainView.class)
 //@PageTitle("New Member")
 @CssImport("./styles/views/members/newmember/new-member-view.css")
 public class NewMemberView extends Div {
 
-    private TextField firstname = new TextField();
-    private TextField lastname = new TextField();
-    private TextField email = new TextField();
-    private TextArea notes = new TextArea();
+    private final TextField firstname = new TextField();
+    private final TextField lastname = new TextField();
+    private final TextField email = new TextField();
+    private final TextArea notes = new TextArea();
 
-    private Button cancel = new Button("Cancel");
-    private Button save = new Button("Save");
+    private final Button cancel = new Button("Cancel");
+    private final Button save = new Button("Save");
 
     public NewMemberView() {
         setId("new-member-view");
