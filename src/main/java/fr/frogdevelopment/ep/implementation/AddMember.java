@@ -1,23 +1,23 @@
 package fr.frogdevelopment.ep.implementation;
 
 import fr.frogdevelopment.ep.domain.Member;
+import javax.sql.DataSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AddMember {
 
-    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final SimpleJdbcInsert simpleJdbcInsert;
 
-    public AddMember(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
-        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+    public AddMember(DataSource dataSource) {
+        this.simpleJdbcInsert = new SimpleJdbcInsert(dataSource)
+                .usingGeneratedKeyColumns("member_id")
+                .withTableName("members");
     }
 
     public void call(Member member) {
-        var sql = "INSERT INTO members(first_name, last_name, phone_number, email, team_id) VALUES (:firstName, :lastName, :phoneNumber, :email, :teamId)";
-
         var paramSource = new MapSqlParameterSource()
                 .addValue("firstName", member.getFirstName())
                 .addValue("lastName", member.getLastName())
@@ -25,10 +25,9 @@ public class AddMember {
                 .addValue("email", member.getEmail())
                 .addValue("teamId", member.getTeamId());
 
-        var generatedKeyHolder = new GeneratedKeyHolder();
-        namedParameterJdbcTemplate.update(sql, paramSource, generatedKeyHolder);
+        var returnedKey = simpleJdbcInsert.executeAndReturnKey(paramSource);
 
-//        member.setId(generatedKeyHolder.getKey().intValue());
+        member.setId(returnedKey.intValue());
     }
 
 }

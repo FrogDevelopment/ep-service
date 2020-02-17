@@ -1,7 +1,8 @@
 package fr.frogdevelopment.ep.implementation;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import fr.frogdevelopment.ep.domain.Member;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +31,7 @@ class AddMemberTest {
     void shouldInsertNewMemberToTheTable() {
         // given
         var countRowsInTable = JdbcTestUtils.countRowsInTable(jdbcTemplate, "members");
-        Assertions.assertThat(countRowsInTable).isEqualTo(0);
+        assertThat(countRowsInTable).isEqualTo(0);
 
         var member = Member.builder()
                 .firstName("John")
@@ -43,8 +44,9 @@ class AddMemberTest {
         addMember.call(member);
 
         // then
+        assertThat(member.getId()).isNotNull();
         countRowsInTable = JdbcTestUtils.countRowsInTable(jdbcTemplate, "members");
-        Assertions.assertThat(countRowsInTable).isEqualTo(1);
+        assertThat(countRowsInTable).isEqualTo(1);
 
     }
 }
