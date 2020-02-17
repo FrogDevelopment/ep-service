@@ -1,11 +1,12 @@
 package fr.frogdevelopment.ep.domain;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NonNull;
-import lombok.Singular;
 
 @Data
 @Builder
@@ -16,6 +17,8 @@ public class Team implements Serializable {
     private String name;
     @NonNull
     private String abbreviation;
-    @Singular("referent")
-    private Set<Member> referents;
+    @Default
+    private Set<Member> referents = new HashSet<>();
+    @Default
+    private Set<Member> members = new HashSet<>();
 }

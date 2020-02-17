@@ -5,12 +5,12 @@ frog:
   database:
     name: ep-data
 
-#spring:
-#  datasource:
-#    driver-class-name: org.postgresql.Driver
-#    url: jdbc:postgresql://localhost:9173/${frog.database.name}?ApplicationName=${spring.application.name}
-#    username: frog_admin
-#    password: ODa9CNfFagOu3YHDRd2YjgkXIyKzUX
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/${frog.database.name}?ApplicationName=${spring.application.name}
+    username: postgres
+    password: postgres
 
 logging:
   level:

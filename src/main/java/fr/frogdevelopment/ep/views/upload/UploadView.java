@@ -8,7 +8,7 @@ import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import fr.frogdevelopment.ep.implementation.xls.ReadXls;
+import fr.frogdevelopment.ep.implementation.UploadData;
 import fr.frogdevelopment.ep.views.MainView;
 
 @Route(value = "upload", layout = MainView.class)
@@ -16,13 +16,13 @@ import fr.frogdevelopment.ep.views.MainView;
 //@Secured("ROLE_Admin")
 public class UploadView extends VerticalLayout {
 
-    private final transient ReadXls readXls;
+    private final transient UploadData uploadData;
     private final MemoryBuffer buffer;
 
-    public UploadView(ReadXls readXls) {
-        this.readXls = readXls;
+    public UploadView(UploadData uploadData) {
+        this.uploadData = uploadData;
 
-        var label = new Label("Charge les données à partir de l'Xls");
+        var label = new Label("Charge les données à partir de l'Excel");
         add(label);
 
         buffer = new MemoryBuffer();
@@ -34,7 +34,7 @@ public class UploadView extends VerticalLayout {
     }
 
     private ComponentEventListener<FinishedEvent> readXls() {
-        return e -> this.readXls.call(buffer.getInputStream());
+        return e -> this.uploadData.call(buffer.getInputStream());
     }
 
 }

@@ -1,13 +1,15 @@
 package fr.frogdevelopment.ep.implementation.xls;
 
 import static java.util.regex.Pattern.compile;
+import static org.apache.commons.lang3.StringUtils.capitalize;
 
-import fr.frogdevelopment.ep.implementation.xls.ExcelParameters.Planning.Day;
+import fr.frogdevelopment.ep.domain.Member;
+import fr.frogdevelopment.ep.domain.Team;
+import fr.frogdevelopment.ep.implementation.AddMember;
+import fr.frogdevelopment.ep.implementation.AddTeam;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -15,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.stereotype.Component;
@@ -26,35 +27,40 @@ public class ReadXls {
 
     private static final Pattern DATE_PATTERN = compile("(?<from>\\d{1,2}:\\d{1,2}) . (?<to>\\d{1,2}:\\d{1,2})");
 
-    private final List<Team> teams = new ArrayList<>();
-    private final List<Member> members = new ArrayList<>();
-    private final List<Schedule> schedules = new ArrayList<>();
-
     private final ExcelParameters parameters;
+    private final AddTeam addTeam;
+    private final AddMember addMember;
 
-    public ReadXls(ExcelParameters parameters) {
+    public ReadXls(ExcelParameters parameters,
+                   AddTeam addTeam,
+                   AddMember addMember) {
         this.parameters = parameters;
+        this.addTeam = addTeam;
+        this.addMember = addMember;
     }
 
     public void call(InputStream inputStream) {
+        var teams = new HashMap<String, Team>();
+
         try (Workbook workbook = new HSSFWorkbook(inputStream)) {
-            readTeams(workbook, parameters);
-            readMembers(workbook, parameters);
+            readTeams(workbook, parameters, teams);
+            readMembers(workbook, parameters, teams);
 
-            Planning planning = Planning.builder()
-                    .teams(teams)
-                    .members(members)
-                    .schedules(schedules)
-                    .build();
-
-            log.info("{}", planning);
+//            Planning planning = Planning.builder()
+//                    .teams(teams)
+//                    .members(members)
+//                    .schedules(schedules)
+//                    .build();
+//
+//            log.info("{}", planning);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
     }
 
     private void readTeams(Workbook workbook,
-                           ExcelParameters parameters) {
+                           ExcelParameters parameters,
+                           Map<String, Team> teams) {
         log.info("Reading '{}'", parameters.getTeam().getSheetName());
         var datatypeSheet = workbook.getSheet(parameters.getTeam().getSheetName());
 
@@ -66,19 +72,20 @@ public class ReadXls {
                 break;
             }
 
-            var cellRef = getCellStringValue(row, 0);
-            var cellName = getCellStringValue(row, 1);
-            var cellAbb = getCellStringValue(row, 2);
-            teams.add(Team.builder()
-                    .name(cellName)
-                    .abbreviation(cellAbb)
-                    .referents(cellRef)
-                    .build());
+            var team = Team.builder()
+                    .name(getCellStringValue(row, 1))
+                    .abbreviation(getCellStringValue(row, 2))
+//                    .referents()
+                    .build();
+
+            addTeam.call(team);
+            teams.put(team.getAbbreviation(), team);
         }
     }
 
     private void readMembers(Workbook workbook,
-                             ExcelParameters parameters) {
+                             ExcelParameters parameters,
+                             Map<String, Team> teams) {
         log.info("Reading '{}'", parameters.getPlanning().getSheetName());
         var datatypeSheet = workbook.getSheet(parameters.getPlanning().getSheetName());
 
@@ -86,13 +93,13 @@ public class ReadXls {
         var rowHeader = datatypeSheet.getRow(rowNum++);
         var dateTimes = new HashMap<Integer, Pair<String, String>>();
 
-        Day friday = parameters.getPlanning().getFriday();
+        var friday = parameters.getPlanning().getFriday();
         dateTimes.putAll(toDates(rowHeader, friday.getDate(), friday.getStart(), friday.getEnd()));
 
-        Day saturday = parameters.getPlanning().getSaturday();
+        var saturday = parameters.getPlanning().getSaturday();
         dateTimes.putAll(toDates(rowHeader, saturday.getDate(), saturday.getStart(), saturday.getEnd()));
 
-        Day sunday = parameters.getPlanning().getSunday();
+        var sunday = parameters.getPlanning().getSunday();
         dateTimes.putAll(toDates(rowHeader, sunday.getDate(), sunday.getStart(), sunday.getEnd()));
 
         while (true) {
@@ -103,37 +110,51 @@ public class ReadXls {
             }
 
             var cellLastName = getCellStringValue(row, 0);
-            var cellFirstName = getCellStringValue(row, 1);
+            var cellFirstName = capitalize(getCellStringValue(row, 1));
             var cellTeam = getCellStringValue(row, 2);
 
-            if (StringUtils.isAnyBlank(cellLastName)) {
+            if (StringUtils.isAllBlank(cellLastName, cellFirstName, cellTeam)) {
+                break;
+            }
+
+            if (StringUtils.isAnyBlank(cellLastName, cellFirstName, cellTeam)) {
+                log.warn("Skipping row {}", rowNum);
                 continue;
             }
 
-            var uuid = UUID.randomUUID().toString();
-            members.add(Member.builder()
-                    .id(uuid)
-                    .firstName(cellFirstName)
+            var memberBuilder = Member.builder()
                     .lastName(cellLastName)
-                    .team(cellTeam)
-                    .build());
-
-            for (var i = friday.getStart(); i <= sunday.getEnd(); i++) {
-                var value = getCellStringValue(row, i);
-                switch (value) {
-                    case "F":
-                    case "B":
-                        Pair<String, String> schedule = dateTimes.get(i);
-                        schedules.add(Schedule.builder()
-                                .from(schedule.getLeft())
-                                .to(schedule.getRight())
-                                .who(uuid)
-                                .where(getWhere(value))
-                                .build());
-                        break;
-                    default:
-                }
+                    .firstName(cellFirstName)
+                    .phoneNumber(UUID.randomUUID().toString()) // fixme
+                    .email(UUID.randomUUID().toString()); // fixme
+            if (teams.containsKey(cellTeam)) {
+                var team = teams.get(cellTeam);
+                var member = memberBuilder
+                        .teamId(team.getId())
+                        .build();
+                addMember.call(member);
+                team.getMembers().add(member);
+            } else {
+                log.warn("Member {} - {} without team", cellLastName, cellFirstName);
+                addMember.call(memberBuilder.build());
             }
+
+//            for (var i = friday.getStart(); i <= sunday.getEnd(); i++) {
+//                var value = getCellStringValue(row, i);
+//                switch (value) {
+//                    case "F":
+//                    case "B":
+//                        Pair<String, String> schedule = dateTimes.get(i);
+//                        schedules.add(Schedule.builder()
+//                                .from(schedule.getLeft())
+//                                .to(schedule.getRight())
+//                                .who(uuid)
+//                                .where(getWhere(value))
+//                                .build());
+//                        break;
+//                    default:
+//                }
+//            }
         }
     }
 
@@ -170,7 +191,7 @@ public class ReadXls {
     }
 
     private String getCellStringValue(Row row, int i) {
-        Cell cell = row.getCell(i);
+        var cell = row.getCell(i);
         return cell != null ? cell.getStringCellValue() : "";
     }
 
