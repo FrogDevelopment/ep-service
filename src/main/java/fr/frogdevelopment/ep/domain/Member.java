@@ -1,4 +1,4 @@
-package fr.frogdevelopment.ep.implementation;
+package fr.frogdevelopment.ep.domain;
 
 import java.io.Serializable;
 import lombok.Builder;
@@ -8,8 +8,9 @@ import lombok.Data;
 @Builder
 public class Member implements Serializable {
 
-    private String id;
+    private int id;
     private String lastName;
     private String firstName;
-    private int teamId;
+    private String phoneNumber;
+    private Integer teamId;
 }

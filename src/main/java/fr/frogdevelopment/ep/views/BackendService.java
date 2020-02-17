@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class BackendService {
 
-    private List<Employee> employees;
+    private final List<Employee> employees;
 
     {
     // Init dummy data

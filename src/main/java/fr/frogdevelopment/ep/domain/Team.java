@@ -1,4 +1,4 @@
-package fr.frogdevelopment.ep.implementation;
+package fr.frogdevelopment.ep.domain;
 
 import java.io.Serializable;
 import java.util.Set;

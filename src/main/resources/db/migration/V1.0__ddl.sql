@@ -7,11 +7,12 @@ CREATE TABLE teams
 
 CREATE TABLE members
 (
-    member_id  SERIAL PRIMARY KEY,
-    last_name  TEXT NOT NULL,
-    first_name TEXT NOT NULL,
-    team_id    INTEGER REFERENCES teams (team_id),
-    referent   BOOLEAN DEFAULT FALSE
+    member_id    SERIAL PRIMARY KEY,
+    last_name    TEXT NOT NULL,
+    first_name   TEXT NOT NULL,
+    phone_number TEXT NOT NULL,
+    team_id      INTEGER REFERENCES teams (team_id),
+    referent     BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE schedules

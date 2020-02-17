@@ -1,4 +1,4 @@
-package fr.frogdevelopment.ep.implementation;
+package fr.frogdevelopment.ep.views;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -112,9 +112,6 @@ public class Employee {
             return false;
         }
 
-        if (id.equals(((Employee) obj).id)) {
-            return true;
-        }
-        return false;
+        return id.equals(((Employee) obj).id);
     }
 }

@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConf
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 
+
 @EnableEurekaClient
 @SpringBootApplication(exclude = ErrorMvcAutoConfiguration.class)
 public class Application {
