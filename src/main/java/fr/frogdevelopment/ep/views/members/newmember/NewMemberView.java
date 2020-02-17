@@ -14,7 +14,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-import fr.frogdevelopment.ep.views.Employee;
+import fr.frogdevelopment.ep.domain.Member;
 
 //@Route(value = "add_member", layout = MainView.class)
 //@PageTitle("New Member")
@@ -38,7 +38,7 @@ public class NewMemberView extends Div {
         createButtonLayout(wrapper);
 
         // Configure Form
-        Binder<Employee> binder = new Binder<>(Employee.class);
+        Binder<Member> binder = new Binder<>(Member.class);
 
         // Bind fields. This where you'd define e.g. validation rules
         binder.bindInstanceFields(this);

@@ -19,7 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Random;
 import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
@@ -144,8 +144,8 @@ public class ReadXls {
         var memberBuilder = Member.builder()
                 .lastName(cellLastName)
                 .firstName(cellFirstName)
-                .phoneNumber(UUID.randomUUID().toString()) // fixme
-                .email(UUID.randomUUID().toString()); // fixme
+                .phoneNumber(randomPhoneNumber()) // fixme
+                .email(randomEmail(cellLastName, cellFirstName)); // fixme
 
         if (teams.containsKey(cellTeam)) {
             var team = teams.get(cellTeam);
@@ -228,4 +228,18 @@ public class ReadXls {
         return cell != null ? cell.getStringCellValue() : "";
     }
 
+    private static String randomPhoneNumber() {
+        Random generator = new Random();
+        var sixOrSeven = generator.nextBoolean() ? "6" : "7";
+        var num1 = generator.nextInt(99);
+        var num2 = generator.nextInt(99);
+        var num3 = generator.nextInt(99);
+        var num4 = generator.nextInt(99);
+
+        return String.format("0%s %02d %02d %02d %02d", sixOrSeven, num1, num2, num3, num4);
+    }
+
+    private static String randomEmail(String lastName, String firstName) {
+        return String.format("%s.%s@test.com", lastName.replace(" ", "_"), firstName.replace(" ", "_")).toLowerCase();
+    }
 }

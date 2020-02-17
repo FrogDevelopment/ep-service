@@ -17,7 +17,10 @@ class CleanUpDatabase {
     @Transactional(propagation = Propagation.REQUIRED)
     void call() {
         jdbcTemplate.update("DELETE FROM schedules");
-        jdbcTemplate.update("DELETE FROM teams");
+        jdbcTemplate.update("ALTER SEQUENCE schedules_schedule_id_seq RESTART WITH 1");
         jdbcTemplate.update("DELETE FROM members");
+        jdbcTemplate.update("ALTER SEQUENCE members_member_id_seq RESTART WITH 1");
+        jdbcTemplate.update("DELETE FROM teams");
+        jdbcTemplate.update("ALTER SEQUENCE teams_team_id_seq RESTART WITH 1");
     }
 }

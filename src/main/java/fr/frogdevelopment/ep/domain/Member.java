@@ -19,4 +19,5 @@ public class Member implements Serializable {
     @NonNull
     private String email;
     private Integer teamId;
+    private boolean referent;
 }

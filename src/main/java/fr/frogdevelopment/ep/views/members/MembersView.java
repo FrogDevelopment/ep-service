@@ -1,5 +1,9 @@
 package fr.frogdevelopment.ep.views.members;
 
+import static com.vaadin.flow.component.grid.GridVariant.LUMO_NO_BORDER;
+import static com.vaadin.flow.component.grid.GridVariant.LUMO_NO_ROW_BORDERS;
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
 
 import com.vaadin.flow.component.ClickEvent;
@@ -9,26 +13,23 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.data.renderer.NativeButtonRenderer;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
-import fr.frogdevelopment.ep.views.BackendService;
-import fr.frogdevelopment.ep.views.Employee;
+import fr.frogdevelopment.ep.domain.Member;
+import fr.frogdevelopment.ep.implementation.GetMembers;
 import fr.frogdevelopment.ep.views.MainView;
 import fr.frogdevelopment.ep.views.members.newmember.NewMemberView;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Route(value = "members", layout = MainView.class)
 @RouteAlias(value = "", layout = MainView.class)
@@ -36,58 +37,81 @@ import org.springframework.beans.factory.annotation.Autowired;
 @CssImport("./styles/views/members/members-view.css")
 public class MembersView extends Div implements AfterNavigationObserver {
 
-    @Autowired
-    private BackendService service;
+    private final GetMembers getMembers;
 
-    private final TextField searchField;
-    private final Button buttonAdd = new Button("Add");
-    private final Grid<Employee> grid;
-    private List<Employee> unfilteredData;
+    private final Grid<Member> grid;
+    private List<Member> unfilteredData;
 
-    public MembersView() {
+    public MembersView(GetMembers getMembers) {
+        this.getMembers = getMembers;
+
         setId("members-view");
-        HorizontalLayout wrapper = new HorizontalLayout();
-//        wrapper.addClassName("button-layout");
-//        wrapper.setWidthFull();
-//        wrapper.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 
-        searchField = new TextField();
-        searchField.setPlaceholder("Search member");
-        searchField.setAutoselect(true);
-        searchField.setAutofocus(true);
-        searchField.setClearButtonVisible(true);
-        searchField.setValueChangeMode(ValueChangeMode.LAZY);
-        searchField.addValueChangeListener(e -> updateList());
-        wrapper.add(searchField);
-
+        var buttonAdd = new Button("Nouveau membre");
         buttonAdd.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        buttonAdd.addClickListener((ComponentEventListener<ClickEvent<Button>>) event -> {
-            Dialog dialog = new Dialog(new NewMemberView());
-            dialog.setCloseOnEsc(false);
-            dialog.setCloseOnOutsideClick(false);
-            dialog.open();
-        });
-        wrapper.add(buttonAdd);
+        buttonAdd.addClickListener((ComponentEventListener<ClickEvent<Button>>) event -> newMember());
 
         grid = new Grid<>();
         grid.setId("list");
-        grid.addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_NO_ROW_BORDERS);
-        grid.setHeight("50%");
-        grid.addColumn(Employee::getLastname)
+        grid.addThemeVariants(LUMO_NO_BORDER, LUMO_NO_ROW_BORDERS);
+        grid.setHeight("95%");
+
+        var lastNameFilter = new TextField();
+        lastNameFilter.setPlaceholder("Filtrer par nom");
+        lastNameFilter.setAutoselect(true);
+        lastNameFilter.setAutofocus(true);
+        lastNameFilter.setClearButtonVisible(true);
+        lastNameFilter.setValueChangeMode(EAGER);
+        lastNameFilter.addValueChangeListener(e -> filterBy(lastNameFilter, Member::getLastName));
+        grid.addColumn(Member::getLastName)
                 .setHeader("Nom")
-                .setSortable(true);
-        grid.addColumn(Employee::getFirstname)
+                .setSortable(true)
+                .setFooter(lastNameFilter);
+
+        var firstNameFilter = new TextField();
+        firstNameFilter.setPlaceholder("Filtrer par prénom");
+        firstNameFilter.setAutoselect(true);
+        firstNameFilter.setAutofocus(true);
+        firstNameFilter.setClearButtonVisible(true);
+        firstNameFilter.setValueChangeMode(EAGER);
+        firstNameFilter.addValueChangeListener(e -> filterBy(firstNameFilter, Member::getFirstName));
+        grid.addColumn(Member::getFirstName)
                 .setHeader("Prénom")
-                .setSortable(true);
+                .setSortable(true)
+                .setFooter(firstNameFilter);
+        grid.addColumn(Member::getPhoneNumber)
+                .setHeader("Téléphone")
+                .setSortable(false);
+
         grid.addColumn(createEmailToAnchor())
                 .setHeader("Email");
 
-        add(wrapper, grid);
+        grid.addColumn(new NativeButtonRenderer<>(
+                item -> "Modifier",
+                clickedItem -> {
+                    // remove the item
+                })
+        );
+        grid.addColumn(new NativeButtonRenderer<>(
+                item -> "Supprimer",
+                clickedItem -> {
+                    // remove the item
+                })
+        );
+
+        add(buttonAdd, grid);
     }
 
-    private static ComponentRenderer<Div, Employee> createEmailToAnchor() {
-        return new ComponentRenderer<>(employee -> {
-            var anchor = new Anchor("mailto:" + employee.getEmail(), employee.getEmail());
+    private void newMember() {
+        var dialog = new Dialog(new NewMemberView());
+        dialog.setCloseOnEsc(false);
+        dialog.setCloseOnOutsideClick(false);
+        dialog.open();
+    }
+
+    private static ComponentRenderer<Div, Member> createEmailToAnchor() {
+        return new ComponentRenderer<>(member -> {
+            var anchor = new Anchor("mailto:" + member.getEmail(), member.getEmail());
             anchor.getElement().getThemeList().add("font-size-xs");
             var div = new Div(anchor);
             div.addClassName("employee-column");
@@ -97,17 +121,16 @@ public class MembersView extends Div implements AfterNavigationObserver {
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
-        unfilteredData = service.getEmployees();
+        unfilteredData = getMembers.call();
         grid.setItems(unfilteredData);
     }
 
-    private void updateList() {
-        String searchFieldValue = searchField.getValue();
-        if (StringUtils.isNotBlank(searchFieldValue)) {
+    private void filterBy(TextField filter, Function<Member, String> provider) {
+        var filterValue = filter.getValue();
+        if (isNotBlank(filterValue)) {
             grid.setItems(unfilteredData
                     .stream()
-                    .filter(employee -> startsWithIgnoreCase(employee.getFirstname(), searchFieldValue)
-                            || startsWithIgnoreCase(employee.getLastname(), searchFieldValue))
+                    .filter(member -> startsWithIgnoreCase(provider.apply(member), filterValue))
                     .collect(Collectors.toList()));
         } else {
             grid.setItems(unfilteredData);
