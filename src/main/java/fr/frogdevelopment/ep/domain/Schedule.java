@@ -1,7 +1,7 @@
 package fr.frogdevelopment.ep.domain;
 
 import java.io.Serializable;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Data;
 
@@ -10,8 +10,8 @@ import lombok.Data;
 public class Schedule implements Serializable {
 
     private int id;
-    private OffsetDateTime from;
-    private OffsetDateTime to;
+    private LocalDateTime from;
+    private LocalDateTime to;
     private String where;
     private int who;
 }

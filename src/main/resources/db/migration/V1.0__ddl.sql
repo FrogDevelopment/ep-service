@@ -20,8 +20,8 @@ CREATE TABLE members
 CREATE TABLE schedules
 (
     schedule_id   SERIAL PRIMARY KEY,
-    from_datetime TIMESTAMP WITH TIME ZONE NOT NULL,
-    to_datetime   TIMESTAMP WITH TIME ZONE NOT NULL,
-    location      TEXT                     NOT NULL,
-    team_id       INTEGER                  NOT NULL REFERENCES teams (team_id)
+    from_datetime TIMESTAMP NOT NULL,
+    to_datetime   TIMESTAMP NOT NULL,
+    location      TEXT      NOT NULL,
+    team_id       INTEGER   NOT NULL REFERENCES teams (team_id)
 );

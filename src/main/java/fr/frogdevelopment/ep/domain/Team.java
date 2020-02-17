@@ -21,4 +21,6 @@ public class Team implements Serializable {
     private Set<Member> referents = new HashSet<>();
     @Default
     private Set<Member> members = new HashSet<>();
+    @Default
+    private Set<Schedule> schedules = new HashSet<>();
 }

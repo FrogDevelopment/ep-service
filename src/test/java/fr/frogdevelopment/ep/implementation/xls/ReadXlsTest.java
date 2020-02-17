@@ -50,6 +50,8 @@ class ReadXlsTest {
         assertThat(countTeams).isGreaterThan(0);
         var countMembers = JdbcTestUtils.countRowsInTable(jdbcTemplate, "members");
         assertThat(countMembers).isGreaterThan(0);
+        var countSchedules = JdbcTestUtils.countRowsInTable(jdbcTemplate, "schedules");
+        assertThat(countSchedules).isGreaterThan(0);
     }
 
 }

@@ -2,19 +2,26 @@ package fr.frogdevelopment.ep.implementation.xls;
 
 import static java.util.regex.Pattern.compile;
 import static org.apache.commons.lang3.StringUtils.capitalize;
+import static org.apache.commons.lang3.StringUtils.isAllBlank;
+import static org.apache.commons.lang3.StringUtils.isAnyBlank;
 
 import fr.frogdevelopment.ep.domain.Member;
+import fr.frogdevelopment.ep.domain.Schedule;
 import fr.frogdevelopment.ep.domain.Team;
 import fr.frogdevelopment.ep.implementation.AddMember;
+import fr.frogdevelopment.ep.implementation.AddSchedule;
 import fr.frogdevelopment.ep.implementation.AddTeam;
+import fr.frogdevelopment.ep.implementation.xls.ExcelParameters.Planning.Day;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
@@ -30,13 +37,16 @@ public class ReadXls {
     private final ExcelParameters parameters;
     private final AddTeam addTeam;
     private final AddMember addMember;
+    private final AddSchedule addSchedule;
 
     public ReadXls(ExcelParameters parameters,
                    AddTeam addTeam,
-                   AddMember addMember) {
+                   AddMember addMember,
+                   AddSchedule addSchedule) {
         this.parameters = parameters;
         this.addTeam = addTeam;
         this.addMember = addMember;
+        this.addSchedule = addSchedule;
     }
 
     public void call(InputStream inputStream) {
@@ -45,6 +55,7 @@ public class ReadXls {
         try (Workbook workbook = new HSSFWorkbook(inputStream)) {
             readTeams(workbook, parameters, teams);
             readMembers(workbook, parameters, teams);
+            log.info("Done: {}", teams);
 
 //            Planning planning = Planning.builder()
 //                    .teams(teams)
@@ -106,6 +117,7 @@ public class ReadXls {
             var row = datatypeSheet.getRow(rowNum++);
 
             if (row == null) {
+                log.warn("Row null, breaking parser at row {}", rowNum);
                 break;
             }
 
@@ -113,50 +125,71 @@ public class ReadXls {
             var cellFirstName = capitalize(getCellStringValue(row, 1));
             var cellTeam = getCellStringValue(row, 2);
 
-            if (StringUtils.isAllBlank(cellLastName, cellFirstName, cellTeam)) {
+            if (isAllBlank(cellLastName, cellFirstName, cellTeam)) {
+                log.warn("No data, breaking parser at row {}", rowNum);
                 break;
             }
 
-            if (StringUtils.isAnyBlank(cellLastName, cellFirstName, cellTeam)) {
-                log.warn("Skipping row {}", rowNum);
+            if (isAnyBlank(cellLastName, cellFirstName, cellTeam)) {
+                log.warn("Missing data, skipping row {}", rowNum);
                 continue;
             }
 
-            var memberBuilder = Member.builder()
-                    .lastName(cellLastName)
-                    .firstName(cellFirstName)
-                    .phoneNumber(UUID.randomUUID().toString()) // fixme
-                    .email(UUID.randomUUID().toString()); // fixme
-            if (teams.containsKey(cellTeam)) {
-                var team = teams.get(cellTeam);
-                var member = memberBuilder
-                        .teamId(team.getId())
-                        .build();
-                addMember.call(member);
-                team.getMembers().add(member);
-            } else {
-                log.warn("Member {} - {} without team", cellLastName, cellFirstName);
-                addMember.call(memberBuilder.build());
-            }
-
-//            for (var i = friday.getStart(); i <= sunday.getEnd(); i++) {
-//                var value = getCellStringValue(row, i);
-//                switch (value) {
-//                    case "F":
-//                    case "B":
-//                        Pair<String, String> schedule = dateTimes.get(i);
-//                        schedules.add(Schedule.builder()
-//                                .from(schedule.getLeft())
-//                                .to(schedule.getRight())
-//                                .who(uuid)
-//                                .where(getWhere(value))
-//                                .build());
-//                        break;
-//                    default:
-//                }
-//            }
+            handleRow(teams, dateTimes, friday, sunday, row, cellLastName, cellFirstName, cellTeam);
         }
     }
+
+    private void handleRow(Map<String, Team> teams, HashMap<Integer, Pair<String, String>> dateTimes, Day friday,
+                           Day sunday, Row row, String cellLastName, String cellFirstName, String cellTeam) {
+        var memberBuilder = Member.builder()
+                .lastName(cellLastName)
+                .firstName(cellFirstName)
+                .phoneNumber(UUID.randomUUID().toString()) // fixme
+                .email(UUID.randomUUID().toString()); // fixme
+
+        if (teams.containsKey(cellTeam)) {
+            var team = teams.get(cellTeam);
+            var member = memberBuilder
+                    .teamId(team.getId())
+                    .build();
+            addMember.call(member);
+            team.getMembers().add(member);
+
+            handleTeamSchedule(dateTimes, friday, sunday, row, team);
+        } else {
+            log.warn("Member {} - {} without team", cellLastName, cellFirstName);
+            addMember.call(memberBuilder.build());
+        }
+    }
+
+    private void handleTeamSchedule(HashMap<Integer, Pair<String, String>> dateTimes, Day friday, Day sunday, Row row,
+                                    Team team) {
+        if (team.getSchedules().isEmpty()) {
+            for (var i = friday.getStart(); i <= sunday.getEnd(); i++) {
+                var value = getCellStringValue(row, i);
+                switch (value) {
+                    case "F":
+                    case "B":
+                        Pair<String, String> schedules = dateTimes.get(i);
+                        var schedule = Schedule.builder()
+                                .from(LocalDateTime.parse(schedules.getLeft(), DATE_TIME_FORMATTER))
+                                .to(LocalDateTime.parse(schedules.getRight(), DATE_TIME_FORMATTER))
+                                .who(team.getId())
+                                .where(getWhere(value))
+                                .build();
+                        addSchedule.call(schedule);
+                        team.getSchedules().add(schedule);
+                        break;
+                    default:
+                }
+            }
+        }
+    }
+
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder()
+            .appendOptional(DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm"))
+            .appendOptional(DateTimeFormatter.ofPattern(("MM/dd/yyyy H:mm")))
+            .toFormatter();
 
     private String getWhere(String abb) {
         switch (abb) {
