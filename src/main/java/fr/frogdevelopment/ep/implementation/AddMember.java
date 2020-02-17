@@ -16,12 +16,13 @@ public class AddMember {
     }
 
     public void call(Member member) {
-        var sql = "INSERT INTO members(first_name, last_name, phone_number, team_id) VALUES (:firstName, :lastName, :phoneNumber, :teamId)";
+        var sql = "INSERT INTO members(first_name, last_name, phone_number, email, team_id) VALUES (:firstName, :lastName, :phoneNumber, :email, :teamId)";
 
         var paramSource = new MapSqlParameterSource()
                 .addValue("firstName", member.getFirstName())
                 .addValue("lastName", member.getLastName())
                 .addValue("phoneNumber", member.getPhoneNumber())
+                .addValue("email", member.getEmail())
                 .addValue("teamId", member.getTeamId());
 
         var generatedKeyHolder = new GeneratedKeyHolder();

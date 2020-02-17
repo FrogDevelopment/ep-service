@@ -10,6 +10,8 @@ CREATE TABLE members
     member_id    SERIAL PRIMARY KEY,
     last_name    TEXT NOT NULL,
     first_name   TEXT NOT NULL,
+    email        TEXT NOT NULL
+        CONSTRAINT unique_email UNIQUE,
     phone_number TEXT NOT NULL,
     team_id      INTEGER REFERENCES teams (team_id),
     referent     BOOLEAN DEFAULT FALSE

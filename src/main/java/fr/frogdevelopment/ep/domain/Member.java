@@ -12,5 +12,6 @@ public class Member implements Serializable {
     private String lastName;
     private String firstName;
     private String phoneNumber;
+    private String email;
     private Integer teamId;
 }
