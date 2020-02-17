@@ -36,6 +36,7 @@ class AddMemberTest {
                 .firstName("John")
                 .lastName("Doe")
                 .phoneNumber("123456789")
+                .email("john.doe@test.com")
                 .build();
 
         // when
