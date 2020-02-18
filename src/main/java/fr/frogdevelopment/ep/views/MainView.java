@@ -42,9 +42,9 @@ public class MainView extends AppLayout {
 
     private static Tab[] getAvailableTabs() {
         final var tabs = new ArrayList<Tab>();
-        tabs.add(createTab("Members", MembersView.class));
-        tabs.add(createTab("Teams", TeamsView.class));
         tabs.add(createTab("Upload", UploadView.class));
+        tabs.add(createTab("Bénévoles", MembersView.class));
+        tabs.add(createTab("Équipes", TeamsView.class));
         tabs.add(createTab(new Anchor("logout", "Logout")));
         return tabs.toArray(new Tab[0]);
     }

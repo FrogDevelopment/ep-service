@@ -23,4 +23,8 @@ public class Team implements Serializable {
     private Set<Member> members = new HashSet<>();
     @Default
     private Set<Schedule> schedules = new HashSet<>();
+
+    public String getFullName() {
+        return String.join(" - ", code, name);
+    }
 }

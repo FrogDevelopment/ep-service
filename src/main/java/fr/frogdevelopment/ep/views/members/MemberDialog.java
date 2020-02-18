@@ -1,26 +1,32 @@
-package fr.frogdevelopment.ep.views.members.newmember;
+package fr.frogdevelopment.ep.views.members;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.data.validator.StringLengthValidator;
+import com.vaadin.flow.function.ValueProvider;
 import fr.frogdevelopment.ep.model.Member;
+import fr.frogdevelopment.ep.model.Team;
+import java.util.List;
 
-@CssImport("./styles/views/members/newmember/new-member-view.css")
+@CssImport("./styles/views/members/member-dialog.css")
 public class MemberDialog extends Dialog {
+
+    private final List<Team> teamValues;
 
     @FunctionalInterface
     public interface OnMemberValidListener {
@@ -31,7 +37,7 @@ public class MemberDialog extends Dialog {
     private final transient OnMemberValidListener onMemberValidListener;
 
     // The object that will be edited
-    private final Member memberBeingEdited = new Member();
+    private final Member memberBeingEdited;
 
     private final Binder<Member> binder = new Binder<>(Member.class);
 
@@ -39,13 +45,21 @@ public class MemberDialog extends Dialog {
     private final TextField firstName = new TextField();
     private final TextField email = new TextField();
     private final TextField phoneNumber = new TextField();
-    private final Checkbox referent = new Checkbox("Référent d'équipe");
+    private final ComboBox<Team> teams = new ComboBox<>();
+    private final Checkbox referent = new Checkbox();
 
     private final Button cancel = new Button("Cancel");
     private final Button save = new Button("Save");
 
-    public MemberDialog(OnMemberValidListener onMemberValidListener) {
+    public MemberDialog(List<Team> teamValues, OnMemberValidListener onMemberValidListener) {
+        this(null, teamValues, onMemberValidListener);
+    }
+
+    public MemberDialog(Member member, List<Team> teamValues, OnMemberValidListener onMemberValidListener) {
+        super();
+        this.teamValues = teamValues;
         this.onMemberValidListener = onMemberValidListener;
+        memberBeingEdited = member == null ? new Member() : member;
 
         this.setCloseOnEsc(false);
         this.setCloseOnOutsideClick(false);
@@ -53,7 +67,6 @@ public class MemberDialog extends Dialog {
         setId("new-member-view");
         var wrapper = createWrapper();
 
-        createTitle(wrapper);
         createFormLayout(wrapper);
         createButtonLayout(wrapper);
 
@@ -65,11 +78,6 @@ public class MemberDialog extends Dialog {
         wrapper.setId("wrapper");
         wrapper.setSpacing(false);
         return wrapper;
-    }
-
-    private void createTitle(VerticalLayout wrapper) {
-        var h1 = new H1("Ajouter un bénévole");
-        wrapper.add(h1);
     }
 
     private void createFormLayout(VerticalLayout wrapper) {
@@ -91,6 +99,13 @@ public class MemberDialog extends Dialog {
         phoneNumber.setValueChangeMode(EAGER);
         formLayout.add(phoneNumber);
 
+        teams.setLabel("Équipe");
+        teams.setItems(teamValues);
+        teams.setClearButtonVisible(true);
+        teams.setItemLabelGenerator(Team::getFullName);
+        formLayout.add(teams);
+
+        referent.setLabel("Référent d'équipe");
         formLayout.add(referent);
 
         wrapper.add(formLayout);
@@ -101,6 +116,14 @@ public class MemberDialog extends Dialog {
     private void createFormValidation() {
         // Bind fields. This where you'd define e.g. validation rules
         binder.bindInstanceFields(this);
+        binder.bind(teams,
+                (ValueProvider<Member, Team>) member -> teamValues
+                        .stream()
+                        .filter(t -> t.getCode().equals(member.getTeamCode()))
+                        .findFirst()
+                        .orElse(null),
+                (Setter<Member, Team>) (member, team) -> member.setTeamCode(team.getCode()));
+        binder.readBean(memberBeingEdited);
 
         // First name and last name are required fields
         lastName.setRequiredIndicatorVisible(true);

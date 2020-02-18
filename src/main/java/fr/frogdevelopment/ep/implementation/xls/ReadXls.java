@@ -1,7 +1,6 @@
 package fr.frogdevelopment.ep.implementation.xls;
 
 import static java.util.regex.Pattern.compile;
-import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.apache.commons.lang3.StringUtils.isAllBlank;
 import static org.apache.commons.lang3.StringUtils.isAnyBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -56,15 +55,6 @@ public class ReadXls {
         try (Workbook workbook = new HSSFWorkbook(inputStream)) {
             readTeams(workbook, parameters, teams);
             readMembers(workbook, parameters, teams);
-            log.info("Done: {}", teams);
-
-//            Planning planning = Planning.builder()
-//                    .teams(teams)
-//                    .members(members)
-//                    .schedules(schedules)
-//                    .build();
-//
-//            log.info("{}", planning);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
@@ -87,7 +77,7 @@ public class ReadXls {
             var team = Team.builder()
                     .name(getCellStringValue(row, 1))
                     .code(getCellStringValue(row, 2))
-//                    .referents()
+//                    .referents() // fixme
                     .build();
 
             // fixme
@@ -130,7 +120,7 @@ public class ReadXls {
             }
 
             var cellLastName = getCellStringValue(row, 0);
-            var cellFirstName = capitalize(getCellStringValue(row, 1));
+            var cellFirstName = getCellStringValue(row, 1);
             var cellTeam = getCellStringValue(row, 2);
 
             if (isAllBlank(cellLastName, cellFirstName, cellTeam)) {
@@ -163,7 +153,7 @@ public class ReadXls {
             team.getMembers().add(member);
             handleTeamSchedule(dateTimes, friday, sunday, row, team);
         } else {
-            log.warn("Member {} without team", member); // fixme
+            log.warn("Member {} without team", member);
         }
     }
 
@@ -178,7 +168,6 @@ public class ReadXls {
                             .from(LocalDateTime.parse(schedules.getLeft(), DATE_TIME_FORMATTER))
                             .to(LocalDateTime.parse(schedules.getRight(), DATE_TIME_FORMATTER))
                             .teamCode(team.getCode())
-//                      .where(getWhere(value))
                             .where(value)
                             .build();
                     addSchedule.call(schedule);
@@ -192,19 +181,6 @@ public class ReadXls {
             .appendOptional(DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm"))
             .appendOptional(DateTimeFormatter.ofPattern(("MM/dd/yyyy H:mm")))
             .toFormatter();
-
-    private String getWhere(String abb) {
-        switch (abb) {
-            case "F":
-                return "Fouille";
-            case "B":
-                return "Bracelet";
-            case "L":
-                return "Litiges";
-            default:
-                return "Inconnu";
-        }
-    }
 
     private Map<Integer, Pair<String, String>> toDates(Row rowHeader, String dayDate, int from, int to) {
         var dates = new HashMap<Integer, Pair<String, String>>();
@@ -221,11 +197,11 @@ public class ReadXls {
         return dates;
     }
 
-    private String format(String dayDate, String split) {
+    private static String format(String dayDate, String split) {
         return String.format("%s %s", dayDate, split.trim());
     }
 
-    private String getCellStringValue(Row row, int i) {
+    private static String getCellStringValue(Row row, int i) {
         var cell = row.getCell(i);
         return cell != null ? cell.getStringCellValue() : "";
     }

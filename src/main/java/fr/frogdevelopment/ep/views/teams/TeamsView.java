@@ -30,11 +30,11 @@ public class TeamsView extends Div implements AfterNavigationObserver {
         grid.setId("list");
         grid.addThemeVariants(LUMO_NO_BORDER, LUMO_NO_ROW_BORDERS);
         grid.setHeightFull();
-        grid.addColumn(Team::getName)
-                .setHeader("Equipe")
-                .setSortable(true);
         grid.addColumn(Team::getCode)
-                .setHeader("Abbréviation")
+                .setHeader("Code")
+                .setSortable(true);
+        grid.addColumn(Team::getName)
+                .setHeader("Nom")
                 .setSortable(true);
 
         add(grid);
