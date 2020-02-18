@@ -1,6 +1,6 @@
 package fr.frogdevelopment.ep.implementation;
 
-import fr.frogdevelopment.ep.domain.Team;
+import fr.frogdevelopment.ep.model.Team;
 import java.util.List;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -23,7 +23,7 @@ public class GetTeams {
         return jdbcTemplate.query(sql, (rs, rowNum) -> Team.builder()
                 .id(rs.getInt("team_id"))
                 .name(rs.getString("name"))
-                .abbreviation(rs.getString("abbreviation"))
+                .code(rs.getString("code"))
                 .build());
     }
 }

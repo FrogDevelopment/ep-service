@@ -17,10 +17,10 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.data.validator.StringLengthValidator;
-import fr.frogdevelopment.ep.domain.Member;
+import fr.frogdevelopment.ep.model.Member;
 
 @CssImport("./styles/views/members/newmember/new-member-view.css")
-public class NewMemberView extends Dialog {
+public class MemberDialog extends Dialog {
 
     @FunctionalInterface
     public interface OnMemberValidListener {
@@ -28,7 +28,7 @@ public class NewMemberView extends Dialog {
         void onMemberValid(Member member);
     }
 
-    private final OnMemberValidListener onMemberValidListener;
+    private final transient OnMemberValidListener onMemberValidListener;
 
     // The object that will be edited
     private final Member memberBeingEdited = new Member();
@@ -44,7 +44,7 @@ public class NewMemberView extends Dialog {
     private final Button cancel = new Button("Cancel");
     private final Button save = new Button("Save");
 
-    public NewMemberView(OnMemberValidListener onMemberValidListener) {
+    public MemberDialog(OnMemberValidListener onMemberValidListener) {
         this.onMemberValidListener = onMemberValidListener;
 
         this.setCloseOnEsc(false);

@@ -1,8 +1,9 @@
 CREATE TABLE teams
 (
-    team_id      SERIAL PRIMARY KEY,
-    name         TEXT NOT NULL,
-    abbreviation TEXT NOT NULL
+    team_id SERIAL PRIMARY KEY,
+    name    TEXT NOT NULL,
+    code    TEXT NOT NULL
+        CONSTRAINT unique_code UNIQUE
 );
 
 CREATE TABLE members
@@ -13,7 +14,7 @@ CREATE TABLE members
     email        TEXT NOT NULL
         CONSTRAINT unique_email UNIQUE,
     phone_number TEXT NOT NULL,
-    team_id      INTEGER REFERENCES teams (team_id),
+    team_code    TEXT REFERENCES teams (code),
     referent     BOOLEAN DEFAULT FALSE
 );
 
@@ -23,5 +24,5 @@ CREATE TABLE schedules
     from_datetime TIMESTAMP NOT NULL,
     to_datetime   TIMESTAMP NOT NULL,
     location      TEXT      NOT NULL,
-    team_id       INTEGER   NOT NULL REFERENCES teams (team_id)
+    team_code TEXT REFERENCES teams (code)
 );

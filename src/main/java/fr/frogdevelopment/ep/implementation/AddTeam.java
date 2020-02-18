@@ -1,6 +1,6 @@
 package fr.frogdevelopment.ep.implementation;
 
-import fr.frogdevelopment.ep.domain.Team;
+import fr.frogdevelopment.ep.model.Team;
 import javax.sql.DataSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -20,7 +20,7 @@ public class AddTeam {
     public void call(Team team) {
         var paramSource = new MapSqlParameterSource()
                 .addValue("name", team.getName())
-                .addValue("abbreviation", team.getAbbreviation());
+                .addValue("code", team.getCode());
 
         var returnedKey = simpleJdbcInsert.executeAndReturnKey(paramSource);
 

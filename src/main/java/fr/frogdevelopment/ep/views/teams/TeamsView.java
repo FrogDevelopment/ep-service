@@ -10,8 +10,8 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import fr.frogdevelopment.ep.domain.Team;
 import fr.frogdevelopment.ep.implementation.GetTeams;
+import fr.frogdevelopment.ep.model.Team;
 import fr.frogdevelopment.ep.views.MainView;
 
 @Route(value = "teams", layout = MainView.class)
@@ -33,7 +33,7 @@ public class TeamsView extends Div implements AfterNavigationObserver {
         grid.addColumn(Team::getName)
                 .setHeader("Equipe")
                 .setSortable(true);
-        grid.addColumn(Team::getAbbreviation)
+        grid.addColumn(Team::getCode)
                 .setHeader("Abbréviation")
                 .setSortable(true);
 

@@ -2,7 +2,7 @@ package fr.frogdevelopment.ep.implementation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import fr.frogdevelopment.ep.domain.Team;
+import fr.frogdevelopment.ep.model.Team;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,7 +35,7 @@ class AddTeamTest {
 
         var team = Team.builder()
                 .name("Ma Super Team")
-                .abbreviation("MST")
+                .code("MST")
                 .build();
 
         // when

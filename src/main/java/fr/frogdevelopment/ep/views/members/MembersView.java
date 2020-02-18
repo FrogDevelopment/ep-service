@@ -26,13 +26,13 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
-import fr.frogdevelopment.ep.domain.Member;
-import fr.frogdevelopment.ep.domain.Team;
 import fr.frogdevelopment.ep.implementation.AddMember;
 import fr.frogdevelopment.ep.implementation.GetMembers;
 import fr.frogdevelopment.ep.implementation.GetTeams;
+import fr.frogdevelopment.ep.model.Member;
+import fr.frogdevelopment.ep.model.Team;
 import fr.frogdevelopment.ep.views.MainView;
-import fr.frogdevelopment.ep.views.members.newmember.NewMemberView;
+import fr.frogdevelopment.ep.views.members.newmember.MemberDialog;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -59,7 +59,7 @@ public class MembersView extends Div implements AfterNavigationObserver {
 
         setId("members-view");
 
-        var buttonAdd = new Button("Nouveau membre");
+        var buttonAdd = new Button("Nouveau bénévole");
         buttonAdd.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         buttonAdd.addClickListener((ComponentEventListener<ClickEvent<Button>>) event -> newMember());
 
@@ -94,10 +94,10 @@ public class MembersView extends Div implements AfterNavigationObserver {
         teamFilter.setItemLabelGenerator(Team::getName);
         teamFilter.addValueChangeListener(e -> {
             var team = teamFilter.getValue();
-            filterBy(team != null ? team.getAbbreviation() : null, Member::getTeam);
+            filterBy(team != null ? team.getCode() : null, Member::getTeamCode);
         });
-        grid.addColumn(Member::getTeam)
-                .setHeader("Equipe")
+        grid.addColumn(Member::getTeamCode)
+                .setHeader("Équipe")
                 .setSortable(true)
                 .setFooter(teamFilter);
 
@@ -129,7 +129,7 @@ public class MembersView extends Div implements AfterNavigationObserver {
     }
 
     private void newMember() {
-        var dialog = new NewMemberView(member -> {
+        var dialog = new MemberDialog(member -> {
             addMember.call(member);
             Notification.show("Données mise à jour");
             fetchMembers();

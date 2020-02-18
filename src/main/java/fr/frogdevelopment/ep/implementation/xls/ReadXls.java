@@ -4,14 +4,15 @@ import static java.util.regex.Pattern.compile;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.apache.commons.lang3.StringUtils.isAllBlank;
 import static org.apache.commons.lang3.StringUtils.isAnyBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import fr.frogdevelopment.ep.domain.Member;
-import fr.frogdevelopment.ep.domain.Schedule;
-import fr.frogdevelopment.ep.domain.Team;
 import fr.frogdevelopment.ep.implementation.AddMember;
 import fr.frogdevelopment.ep.implementation.AddSchedule;
 import fr.frogdevelopment.ep.implementation.AddTeam;
 import fr.frogdevelopment.ep.implementation.xls.ExcelParameters.Planning.Day;
+import fr.frogdevelopment.ep.model.Member;
+import fr.frogdevelopment.ep.model.Schedule;
+import fr.frogdevelopment.ep.model.Team;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
@@ -85,12 +86,19 @@ public class ReadXls {
 
             var team = Team.builder()
                     .name(getCellStringValue(row, 1))
-                    .abbreviation(getCellStringValue(row, 2))
+                    .code(getCellStringValue(row, 2))
 //                    .referents()
                     .build();
 
+            // fixme
+            if ("Litiges".equals(team.getCode())) {
+                team.setCode("LC");
+            } else if ("Chefs".equals(team.getCode())) {
+                team.setCode("Chef");
+            }
+
             addTeam.call(team);
-            teams.put(team.getAbbreviation(), team);
+            teams.put(team.getCode(), team);
         }
     }
 
@@ -141,24 +149,21 @@ public class ReadXls {
 
     private void handleRow(Map<String, Team> teams, HashMap<Integer, Pair<String, String>> dateTimes, Day friday,
                            Day sunday, Row row, String cellLastName, String cellFirstName, String cellTeam) {
-        var memberBuilder = Member.builder()
+        var member = Member.builder()
                 .lastName(cellLastName)
                 .firstName(cellFirstName)
                 .phoneNumber(randomPhoneNumber()) // fixme
-                .email(randomEmail(cellLastName, cellFirstName)); // fixme
+                .email(randomEmail(cellLastName, cellFirstName)) // fixme
+                .teamCode(cellTeam)
+                .build();
 
         if (teams.containsKey(cellTeam)) {
-            var team = teams.get(cellTeam);
-            var member = memberBuilder
-                    .teamId(team.getId())
-                    .build();
             addMember.call(member);
+            Team team = teams.get(cellTeam);
             team.getMembers().add(member);
-
             handleTeamSchedule(dateTimes, friday, sunday, row, team);
         } else {
-            log.warn("Member {} - {} without team", cellLastName, cellFirstName);
-            addMember.call(memberBuilder.build());
+            log.warn("Member {} without team", member); // fixme
         }
     }
 
@@ -167,20 +172,17 @@ public class ReadXls {
         if (team.getSchedules().isEmpty()) {
             for (var i = friday.getStart(); i <= sunday.getEnd(); i++) {
                 var value = getCellStringValue(row, i);
-                switch (value) {
-                    case "F":
-                    case "B":
-                        Pair<String, String> schedules = dateTimes.get(i);
-                        var schedule = Schedule.builder()
-                                .from(LocalDateTime.parse(schedules.getLeft(), DATE_TIME_FORMATTER))
-                                .to(LocalDateTime.parse(schedules.getRight(), DATE_TIME_FORMATTER))
-                                .who(team.getId())
-                                .where(getWhere(value))
-                                .build();
-                        addSchedule.call(schedule);
-                        team.getSchedules().add(schedule);
-                        break;
-                    default:
+                if (isNotBlank(value)) {
+                    Pair<String, String> schedules = dateTimes.get(i);
+                    var schedule = Schedule.builder()
+                            .from(LocalDateTime.parse(schedules.getLeft(), DATE_TIME_FORMATTER))
+                            .to(LocalDateTime.parse(schedules.getRight(), DATE_TIME_FORMATTER))
+                            .teamCode(team.getCode())
+//                      .where(getWhere(value))
+                            .where(value)
+                            .build();
+                    addSchedule.call(schedule);
+                    team.getSchedules().add(schedule);
                 }
             }
         }

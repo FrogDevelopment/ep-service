@@ -2,7 +2,7 @@ package fr.frogdevelopment.ep.implementation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import fr.frogdevelopment.ep.domain.Member;
+import fr.frogdevelopment.ep.model.Member;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

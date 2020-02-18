@@ -1,4 +1,4 @@
-package fr.frogdevelopment.ep.domain;
+package fr.frogdevelopment.ep.model;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -13,5 +13,5 @@ public class Schedule implements Serializable {
     private LocalDateTime from;
     private LocalDateTime to;
     private String where;
-    private int who;
+    private String teamCode;
 }

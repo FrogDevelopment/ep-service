@@ -1,4 +1,4 @@
-package fr.frogdevelopment.ep.domain;
+package fr.frogdevelopment.ep.model;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -16,7 +16,7 @@ public class Team implements Serializable {
     @NonNull
     private String name;
     @NonNull
-    private String abbreviation;
+    private String code;
     @Default
     private Set<Member> referents = new HashSet<>();
     @Default

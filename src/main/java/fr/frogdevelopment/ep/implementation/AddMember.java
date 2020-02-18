@@ -1,6 +1,6 @@
 package fr.frogdevelopment.ep.implementation;
 
-import fr.frogdevelopment.ep.domain.Member;
+import fr.frogdevelopment.ep.model.Member;
 import javax.sql.DataSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -26,7 +26,7 @@ public class AddMember {
                 .addValue("lastName", member.getLastName())
                 .addValue("phoneNumber", member.getPhoneNumber())
                 .addValue("email", member.getEmail())
-                .addValue("teamId", member.getTeamId());
+                .addValue("team_code", member.getTeamCode());
 
         var returnedKey = simpleJdbcInsert.executeAndReturnKey(paramSource);
 

@@ -1,6 +1,6 @@
 package fr.frogdevelopment.ep.implementation;
 
-import fr.frogdevelopment.ep.domain.Schedule;
+import fr.frogdevelopment.ep.model.Schedule;
 import javax.sql.DataSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -22,7 +22,7 @@ public class AddSchedule {
                 .addValue("from_datetime", schedule.getFrom())
                 .addValue("to_datetime", schedule.getTo())
                 .addValue("location", schedule.getWhere())
-                .addValue("teamId", schedule.getWho());
+                .addValue("team_code", schedule.getTeamCode());
 
         var returnedKey = simpleJdbcInsert.executeAndReturnKey(paramSource);
 
