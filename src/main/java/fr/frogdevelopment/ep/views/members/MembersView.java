@@ -11,10 +11,10 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.NativeButtonRenderer;
@@ -24,6 +24,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
 import fr.frogdevelopment.ep.domain.Member;
+import fr.frogdevelopment.ep.implementation.AddMember;
 import fr.frogdevelopment.ep.implementation.GetMembers;
 import fr.frogdevelopment.ep.views.MainView;
 import fr.frogdevelopment.ep.views.members.newmember.NewMemberView;
@@ -37,12 +38,14 @@ import java.util.stream.Collectors;
 @CssImport("./styles/views/members/members-view.css")
 public class MembersView extends Div implements AfterNavigationObserver {
 
+    private final AddMember addMember;
     private final GetMembers getMembers;
 
     private final Grid<Member> grid;
     private List<Member> unfilteredData;
 
-    public MembersView(GetMembers getMembers) {
+    public MembersView(AddMember addMember, GetMembers getMembers) {
+        this.addMember = addMember;
         this.getMembers = getMembers;
 
         setId("members-view");
@@ -103,9 +106,11 @@ public class MembersView extends Div implements AfterNavigationObserver {
     }
 
     private void newMember() {
-        var dialog = new Dialog(new NewMemberView());
-        dialog.setCloseOnEsc(false);
-        dialog.setCloseOnOutsideClick(false);
+        var dialog = new NewMemberView(member -> {
+            addMember.call(member);
+            Notification.show("Données mise à jour");
+            afterNavigation(null);
+        });
         dialog.open();
     }
 
