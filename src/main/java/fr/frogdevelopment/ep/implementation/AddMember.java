@@ -5,6 +5,8 @@ import javax.sql.DataSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class AddMember {
@@ -17,6 +19,7 @@ public class AddMember {
                 .withTableName("members");
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public void call(Member member) {
         var paramSource = new MapSqlParameterSource()
                 .addValue("firstName", member.getFirstName())

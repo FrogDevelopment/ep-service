@@ -23,5 +23,6 @@ public class Member implements Serializable {
     @NonNull
     private String email;
     private Integer teamId;
+    private String team;
     private boolean referent;
 }
