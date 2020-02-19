@@ -18,7 +18,7 @@ public class GetTeams {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public List<Team> call() {
-        var sql = "SELECT * FROM teams";
+        var sql = "SELECT * FROM teams ORDER BY code";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> Team.builder()
                 .id(rs.getInt("team_id"))
