@@ -29,8 +29,8 @@ $_documentContainer.innerHTML = `
   <template>
     <style>
       [part="navbar"] {
-        align-items: center;
-        justify-content: center;
+        /*align-items: center;*/
+        /*justify-content: center;*/
       }
     </style>
   </template>

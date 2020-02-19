@@ -2,11 +2,17 @@ package fr.frogdevelopment.ep.views;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
+import com.vaadin.flow.component.applayout.DrawerToggle;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.tabs.Tab;
-import com.vaadin.flow.component.tabs.TabVariant;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.router.RouterLink;
@@ -18,24 +24,38 @@ import fr.frogdevelopment.ep.views.upload.UploadView;
 import fr.frogdevelopment.ep.views.volunteers.VolunteersView;
 import java.util.ArrayList;
 
-/**
- * The main view is a top-level placeholder for other views.
- */
 @JsModule("./styles/shared-styles.js")
-@PWA(name = "Example Project", shortName = "Example Project")
+@PWA(name = "Solidays - EP", shortName = "Solidays - EP")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 public class MainView extends AppLayout {
 
     private final Tabs menu;
 
     public MainView() {
+        setPrimarySection(AppLayout.Section.DRAWER);
+
+        var navBarWrapper = new HorizontalLayout();
+        navBarWrapper.setWidthFull();
+        var img = new Image("icons/icon.png", "Solidays Logo");
+        img.setHeight("44px");
+        var title = new Label(" Solidays - EP");
+        title.setWidthFull();
+        navBarWrapper.add(new DrawerToggle(), img, title);
+
+        var exitButton = new Button(VaadinIcon.EXIT_O.create());
+        exitButton.getStyle().set("cursor", "pointer");
+        exitButton.addClickListener(event -> UI.getCurrent().navigate("logout"));
+        var div = new Anchor("logout", exitButton);
+        navBarWrapper.add(div);
+        addToNavbar(navBarWrapper);
+
         menu = createMenuTabs();
-        addToNavbar(menu);
+        addToDrawer(menu);
     }
 
     private static Tabs createMenuTabs() {
         final var tabs = new Tabs();
-        tabs.setOrientation(Tabs.Orientation.HORIZONTAL);
+        tabs.setOrientation(Tabs.Orientation.VERTICAL);
         tabs.add(getAvailableTabs());
         return tabs;
     }
@@ -45,7 +65,7 @@ public class MainView extends AppLayout {
         tabs.add(createTab("Upload", UploadView.class));
         tabs.add(createTab("Bénévoles", VolunteersView.class));
         tabs.add(createTab("Équipes", TeamsView.class));
-        tabs.add(createTab(new Anchor("logout", "Logout")));
+        tabs.add(new Tab("About"));
         return tabs.toArray(new Tab[0]);
     }
 
@@ -55,7 +75,6 @@ public class MainView extends AppLayout {
 
     private static Tab createTab(Component content) {
         final var tab = new Tab();
-        tab.addThemeVariants(TabVariant.LUMO_ICON_ON_TOP);
         tab.add(content);
         return tab;
     }

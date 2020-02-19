@@ -120,12 +120,12 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
 
         grid.addComponentColumn(volunteer -> {
             var wrapper = new HorizontalLayout();
-            var edit = VaadinIcon.EDIT.create();
+            var edit = new Button(VaadinIcon.EDIT.create());
             edit.getStyle().set("cursor", "pointer");
             edit.addClickListener(event -> onEditVolunteer(volunteer));
             wrapper.add(edit);
 
-            var trash = VaadinIcon.TRASH.create();
+            var trash = new Button(VaadinIcon.TRASH.create());
             trash.getStyle().set("cursor", "pointer");
             trash.addClickListener(event -> onDeleteVolunteer(volunteer));
             wrapper.add(trash);
@@ -165,14 +165,8 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
         dialog.open();
     }
 
-    private static ComponentRenderer<Div, Volunteer> createEmailToAnchor() {
-        return new ComponentRenderer<>(volunteer -> {
-            var anchor = new Anchor("mailto:" + volunteer.getEmail(), volunteer.getEmail());
-            anchor.getElement().getThemeList().add("font-size-xs");
-            var div = new Div(anchor);
-            div.addClassName("employee-column");
-            return div;
-        });
+    private static ComponentRenderer<Anchor, Volunteer> createEmailToAnchor() {
+        return new ComponentRenderer<>(volunteer -> new Anchor("mailto:" + volunteer.getEmail(), volunteer.getEmail()));
     }
 
     @Override

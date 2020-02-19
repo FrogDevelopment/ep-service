@@ -8,25 +8,8 @@
     height: 100%;
 }
 
-div.employee-column {
-    border-radius: var(--lumo-border-radius);
-    box-shadow: var(--lumo-box-shadow-s);
-    padding: var(--lumo-space-s);
-}
-
-div.employee-column>h3 {
-    margin: 0;
-}
-
-
 #list {
     height: 100%;
-}
-
-.employee-column {
-    border-radius: var(--lumo-border-radius);
-    box-shadow: var(--lumo-box-shadow-s);
-    padding: var(--lumo-space-s);
 }
 
 #order {
