@@ -1,6 +1,8 @@
 package fr.frogdevelopment.ep.implementation;
 
-import org.springframework.jdbc.core.JdbcTemplate;
+import fr.frogdevelopment.ep.implementation.schedules.CleanUpSchedules;
+import fr.frogdevelopment.ep.implementation.teams.CleanUpTeams;
+import fr.frogdevelopment.ep.implementation.volunteers.CleanUpVolunteers;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,19 +10,22 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 class CleanUpDatabase {
 
-    private final JdbcTemplate jdbcTemplate;
+    private final CleanUpSchedules cleanUpSchedules;
+    private final CleanUpTeams cleanUpTeams;
+    private final CleanUpVolunteers cleanUpVolunteers;
 
-    CleanUpDatabase(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    CleanUpDatabase(CleanUpSchedules cleanUpSchedules,
+                    CleanUpTeams cleanUpTeams,
+                    CleanUpVolunteers cleanUpVolunteers) {
+        this.cleanUpSchedules = cleanUpSchedules;
+        this.cleanUpTeams = cleanUpTeams;
+        this.cleanUpVolunteers = cleanUpVolunteers;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    void call() {
-        jdbcTemplate.update("DELETE FROM schedules");
-        jdbcTemplate.update("ALTER SEQUENCE schedules_schedule_id_seq RESTART WITH 1");
-        jdbcTemplate.update("DELETE FROM volunteers");
-        jdbcTemplate.update("ALTER SEQUENCE volunteers_volunteer_id_seq RESTART WITH 1");
-        jdbcTemplate.update("DELETE FROM teams");
-        jdbcTemplate.update("ALTER SEQUENCE teams_team_id_seq RESTART WITH 1");
+    public void call() {
+        cleanUpSchedules.call();
+        cleanUpTeams.call();
+        cleanUpVolunteers.call();
     }
 }
