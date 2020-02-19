@@ -1,4 +1,4 @@
-package fr.frogdevelopment.ep.views;
+package fr.frogdevelopment.ep.views.components;
 
 import static com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.END;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
