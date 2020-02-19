@@ -1,4 +1,4 @@
-package fr.frogdevelopment.ep.views.members;
+package fr.frogdevelopment.ep.views.volunteers;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 
@@ -19,27 +19,27 @@ import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.function.ValueProvider;
-import fr.frogdevelopment.ep.model.Member;
 import fr.frogdevelopment.ep.model.Team;
+import fr.frogdevelopment.ep.model.Volunteer;
 import java.util.List;
 
-@CssImport("./styles/views/members/member-dialog.css")
-public class MemberDialog extends Dialog {
+@CssImport("./styles/views/volunteers/volunteer-dialog.css")
+public class VolunteerDialog extends Dialog {
 
     private final List<Team> teamValues;
 
     @FunctionalInterface
-    public interface OnMemberValidListener {
+    public interface OnVolunteerValidListener {
 
-        void onMemberValid(Member member);
+        void onVolunteerValid(Volunteer volunteer);
     }
 
-    private final transient OnMemberValidListener onMemberValidListener;
+    private final transient OnVolunteerValidListener onVolunteerValidListener;
 
     // The object that will be edited
-    private final Member memberBeingEdited;
+    private final Volunteer volunteerBeingEdited;
 
-    private final Binder<Member> binder = new Binder<>(Member.class);
+    private final Binder<Volunteer> binder = new Binder<>(Volunteer.class);
 
     private final TextField lastName = new TextField();
     private final TextField firstName = new TextField();
@@ -51,20 +51,21 @@ public class MemberDialog extends Dialog {
     private final Button cancel = new Button("Cancel");
     private final Button save = new Button("Save");
 
-    public MemberDialog(List<Team> teamValues, OnMemberValidListener onMemberValidListener) {
-        this(null, teamValues, onMemberValidListener);
+    public VolunteerDialog(List<Team> teamValues, OnVolunteerValidListener onVolunteerValidListener) {
+        this(null, teamValues, onVolunteerValidListener);
     }
 
-    public MemberDialog(Member member, List<Team> teamValues, OnMemberValidListener onMemberValidListener) {
+    public VolunteerDialog(Volunteer volunteer, List<Team> teamValues,
+                           OnVolunteerValidListener onVolunteerValidListener) {
         super();
         this.teamValues = teamValues;
-        this.onMemberValidListener = onMemberValidListener;
-        memberBeingEdited = member == null ? new Member() : member;
+        this.onVolunteerValidListener = onVolunteerValidListener;
+        volunteerBeingEdited = volunteer == null ? new Volunteer() : volunteer;
 
         this.setCloseOnEsc(false);
         this.setCloseOnOutsideClick(false);
 
-        setId("new-member-view");
+        setId("new-volunteer-view");
         var wrapper = createWrapper();
 
         createFormLayout(wrapper);
@@ -117,13 +118,13 @@ public class MemberDialog extends Dialog {
         // Bind fields. This where you'd define e.g. validation rules
         binder.bindInstanceFields(this);
         binder.bind(teams,
-                (ValueProvider<Member, Team>) member -> teamValues
+                (ValueProvider<Volunteer, Team>) volunteer -> teamValues
                         .stream()
-                        .filter(t -> t.getCode().equals(member.getTeamCode()))
+                        .filter(t -> t.getCode().equals(volunteer.getTeamCode()))
                         .findFirst()
                         .orElse(null),
-                (Setter<Member, Team>) (member, team) -> member.setTeamCode(team.getCode()));
-        binder.readBean(memberBeingEdited);
+                (Setter<Volunteer, Team>) (volunteer, team) -> volunteer.setTeamCode(team.getCode()));
+        binder.readBean(volunteerBeingEdited);
 
         // First name and last name are required fields
         lastName.setRequiredIndicatorVisible(true);
@@ -131,18 +132,18 @@ public class MemberDialog extends Dialog {
 
         binder.forField(lastName)
                 .withValidator(new StringLengthValidator("Champ obligatoire", 1, null))
-                .bind(Member::getLastName, Member::setLastName);
+                .bind(Volunteer::getLastName, Volunteer::setLastName);
         binder.forField(firstName)
                 .withValidator(new StringLengthValidator("Champ obligatoire", 1, null))
-                .bind(Member::getFirstName, Member::setFirstName);
+                .bind(Volunteer::getFirstName, Volunteer::setFirstName);
 
         // E-mail and phone have specific validators
         var emailBinding = binder.forField(email)
                 .withValidator(new EmailValidator("Adresse email incorrecte."))
-                .bind(Member::getEmail, Member::setEmail);
+                .bind(Volunteer::getEmail, Volunteer::setEmail);
         var phoneBinding = binder.forField(phoneNumber)
                 .withValidator(new RegexpValidator("Chiffres et espaces uniquement", "^(\\d+|(\\d{2}\\s){4}\\d{2})$"))
-                .bind(Member::getPhoneNumber, Member::setPhoneNumber);
+                .bind(Volunteer::getPhoneNumber, Volunteer::setPhoneNumber);
 
         // Trigger cross-field validation when the other field is changed
         email.addValueChangeListener(event -> phoneBinding.validate());
@@ -166,8 +167,8 @@ public class MemberDialog extends Dialog {
     }
 
     private void onValidate() {
-        if (binder.writeBeanIfValid(memberBeingEdited)) {
-            onMemberValidListener.onMemberValid(memberBeingEdited);
+        if (binder.writeBeanIfValid(volunteerBeingEdited)) {
+            onVolunteerValidListener.onVolunteerValid(volunteerBeingEdited);
             this.close();
         }
     }

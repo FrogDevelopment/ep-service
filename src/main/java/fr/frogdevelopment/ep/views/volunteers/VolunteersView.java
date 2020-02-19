@@ -1,4 +1,4 @@
-package fr.frogdevelopment.ep.views.members;
+package fr.frogdevelopment.ep.views.volunteers;
 
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
 import static com.vaadin.flow.component.grid.GridVariant.LUMO_NO_BORDER;
@@ -26,52 +26,52 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
-import fr.frogdevelopment.ep.implementation.AddMember;
-import fr.frogdevelopment.ep.implementation.DeleteMember;
-import fr.frogdevelopment.ep.implementation.GetMembers;
+import fr.frogdevelopment.ep.implementation.AddVolunteer;
+import fr.frogdevelopment.ep.implementation.DeleteVolunteer;
 import fr.frogdevelopment.ep.implementation.GetTeams;
-import fr.frogdevelopment.ep.implementation.UpdateMember;
-import fr.frogdevelopment.ep.model.Member;
+import fr.frogdevelopment.ep.implementation.GetVolunteers;
+import fr.frogdevelopment.ep.implementation.UpdateVolunteer;
 import fr.frogdevelopment.ep.model.Team;
+import fr.frogdevelopment.ep.model.Volunteer;
 import fr.frogdevelopment.ep.views.ConfirmDialog;
 import fr.frogdevelopment.ep.views.MainView;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Route(value = "members", layout = MainView.class)
+@Route(value = "volunteers", layout = MainView.class)
 @RouteAlias(value = "", layout = MainView.class)
-@PageTitle("Members")
-@CssImport("./styles/views/members/members-view.css")
-public class MembersView extends Div implements AfterNavigationObserver {
+@PageTitle("Bénévoles")
+@CssImport("./styles/views/volunteers/volunteers-view.css")
+public class VolunteersView extends Div implements AfterNavigationObserver {
 
-    private final transient AddMember addMember;
-    private final transient GetMembers getMembers;
+    private final transient AddVolunteer addVolunteer;
+    private final transient GetVolunteers getVolunteers;
     private final transient GetTeams getTeams;
-    private final transient UpdateMember updateMember;
-    private final transient DeleteMember deleteMember;
+    private final transient UpdateVolunteer updateVolunteer;
+    private final transient DeleteVolunteer deleteVolunteer;
 
-    private final Grid<Member> grid;
-    private List<Member> unfilteredData;
+    private final Grid<Volunteer> grid;
+    private List<Volunteer> unfilteredData;
     private final ComboBox<Team> teamFilter;
     private List<Team> teams;
 
-    public MembersView(AddMember addMember,
-                       GetMembers getMembers,
-                       GetTeams getTeams,
-                       UpdateMember updateMember,
-                       DeleteMember deleteMember) {
-        this.addMember = addMember;
-        this.getMembers = getMembers;
+    public VolunteersView(AddVolunteer addVolunteer,
+                          GetVolunteers getVolunteers,
+                          GetTeams getTeams,
+                          UpdateVolunteer updateVolunteer,
+                          DeleteVolunteer deleteVolunteer) {
+        this.addVolunteer = addVolunteer;
+        this.getVolunteers = getVolunteers;
         this.getTeams = getTeams;
-        this.updateMember = updateMember;
-        this.deleteMember = deleteMember;
+        this.updateVolunteer = updateVolunteer;
+        this.deleteVolunteer = deleteVolunteer;
 
-        setId("members-view");
+        setId("volunteers-view");
 
         var buttonAdd = new Button("Nouveau bénévole");
         buttonAdd.addThemeVariants(LUMO_PRIMARY);
-        buttonAdd.addClickListener((ComponentEventListener<ClickEvent<Button>>) event -> newMember());
+        buttonAdd.addClickListener((ComponentEventListener<ClickEvent<Button>>) event -> newVolunteer());
 
         grid = new Grid<>();
         grid.setId("list");
@@ -82,8 +82,8 @@ public class MembersView extends Div implements AfterNavigationObserver {
         lastNameFilter.setPlaceholder("Filtrer par nom");
         lastNameFilter.setClearButtonVisible(true);
         lastNameFilter.setValueChangeMode(EAGER);
-        lastNameFilter.addValueChangeListener(e -> filterBy(lastNameFilter.getValue(), Member::getLastName));
-        grid.addColumn(Member::getLastName)
+        lastNameFilter.addValueChangeListener(e -> filterBy(lastNameFilter.getValue(), Volunteer::getLastName));
+        grid.addColumn(Volunteer::getLastName)
                 .setHeader("Nom")
                 .setSortable(true)
                 .setFooter(lastNameFilter);
@@ -92,8 +92,8 @@ public class MembersView extends Div implements AfterNavigationObserver {
         firstNameFilter.setPlaceholder("Filtrer par prénom");
         firstNameFilter.setClearButtonVisible(true);
         firstNameFilter.setValueChangeMode(EAGER);
-        firstNameFilter.addValueChangeListener(e -> filterBy(firstNameFilter.getValue(), Member::getFirstName));
-        grid.addColumn(Member::getFirstName)
+        firstNameFilter.addValueChangeListener(e -> filterBy(firstNameFilter.getValue(), Volunteer::getFirstName));
+        grid.addColumn(Volunteer::getFirstName)
                 .setHeader("Prénom")
                 .setSortable(true)
                 .setFooter(firstNameFilter);
@@ -104,30 +104,30 @@ public class MembersView extends Div implements AfterNavigationObserver {
         teamFilter.setItemLabelGenerator(Team::getFullName);
         teamFilter.addValueChangeListener(e -> {
             var team = teamFilter.getValue();
-            filterBy(team != null ? team.getCode() : null, Member::getTeamCode);
+            filterBy(team != null ? team.getCode() : null, Volunteer::getTeamCode);
         });
-        grid.addColumn(Member::getTeamCode)
+        grid.addColumn(Volunteer::getTeamCode)
                 .setHeader("Équipe")
                 .setSortable(true)
                 .setFooter(teamFilter);
 
-        grid.addColumn(Member::getPhoneNumber)
+        grid.addColumn(Volunteer::getPhoneNumber)
                 .setHeader("Téléphone")
                 .setSortable(false);
 
         grid.addColumn(createEmailToAnchor())
                 .setHeader("Email");
 
-        grid.addComponentColumn(member -> {
+        grid.addComponentColumn(volunteer -> {
             var wrapper = new HorizontalLayout();
             var edit = VaadinIcon.EDIT.create();
             edit.getStyle().set("cursor", "pointer");
-            edit.addClickListener(event -> onEditMember(member));
+            edit.addClickListener(event -> onEditVolunteer(volunteer));
             wrapper.add(edit);
 
             var trash = VaadinIcon.TRASH.create();
             trash.getStyle().set("cursor", "pointer");
-            trash.addClickListener(event -> onDeleteMember(member));
+            trash.addClickListener(event -> onDeleteVolunteer(volunteer));
             wrapper.add(trash);
 
             return wrapper;
@@ -136,38 +136,38 @@ public class MembersView extends Div implements AfterNavigationObserver {
         add(buttonAdd, grid);
     }
 
-    private void onEditMember(Member member) {
-        var dialog = new MemberDialog(member, teams, updatedMember -> {
-            updateMember.call(updatedMember);
+    private void onEditVolunteer(Volunteer volunteer) {
+        var dialog = new VolunteerDialog(volunteer, teams, updatedVolunteer -> {
+            updateVolunteer.call(updatedVolunteer);
             Notification.show("Bénévole mis à jour", 5000, Position.TOP_CENTER);
-            fetchMembers();
+            fetchVolunteers();
         });
         dialog.open();
     }
 
-    private void onDeleteMember(Member member) {
+    private void onDeleteVolunteer(Volunteer volunteer) {
         ConfirmDialog.builder()
                 .message("Supprimer le bénévole ?")
                 .confirmButton("Supprimer", () -> {
-                    deleteMember.call(member);
+                    deleteVolunteer.call(volunteer);
                     Notification.show("Bénévole supprimé", 5000, Position.TOP_CENTER);
-                    fetchMembers();
+                    fetchVolunteers();
                 })
                 .open();
     }
 
-    private void newMember() {
-        var dialog = new MemberDialog(teams, member -> {
-            addMember.call(member);
+    private void newVolunteer() {
+        var dialog = new VolunteerDialog(teams, volunteer -> {
+            addVolunteer.call(volunteer);
             Notification.show("Bénévole ajouté", 5000, Position.TOP_CENTER);
-            fetchMembers();
+            fetchVolunteers();
         });
         dialog.open();
     }
 
-    private static ComponentRenderer<Div, Member> createEmailToAnchor() {
-        return new ComponentRenderer<>(member -> {
-            var anchor = new Anchor("mailto:" + member.getEmail(), member.getEmail());
+    private static ComponentRenderer<Div, Volunteer> createEmailToAnchor() {
+        return new ComponentRenderer<>(volunteer -> {
+            var anchor = new Anchor("mailto:" + volunteer.getEmail(), volunteer.getEmail());
             anchor.getElement().getThemeList().add("font-size-xs");
             var div = new Div(anchor);
             div.addClassName("employee-column");
@@ -178,7 +178,7 @@ public class MembersView extends Div implements AfterNavigationObserver {
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
         fetchTeams();
-        fetchMembers();
+        fetchVolunteers();
     }
 
     private void fetchTeams() {
@@ -186,16 +186,16 @@ public class MembersView extends Div implements AfterNavigationObserver {
         teamFilter.setItems(teams);
     }
 
-    private void fetchMembers() {
-        unfilteredData = getMembers.call();
+    private void fetchVolunteers() {
+        unfilteredData = getVolunteers.call();
         grid.setItems(unfilteredData);
     }
 
-    private void filterBy(String filterValue, Function<Member, String> provider) {
+    private void filterBy(String filterValue, Function<Volunteer, String> provider) {
         if (isNotBlank(filterValue)) {
             grid.setItems(unfilteredData
                     .stream()
-                    .filter(member -> startsWithIgnoreCase(provider.apply(member), filterValue))
+                    .filter(volunteer -> startsWithIgnoreCase(provider.apply(volunteer), filterValue))
                     .collect(Collectors.toList()));
         } else {
             grid.setItems(unfilteredData);

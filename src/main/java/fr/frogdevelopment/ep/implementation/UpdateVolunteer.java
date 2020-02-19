@@ -4,7 +4,7 @@ import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.apache.commons.lang3.StringUtils.lowerCase;
 import static org.apache.commons.lang3.StringUtils.upperCase;
 
-import fr.frogdevelopment.ep.model.Member;
+import fr.frogdevelopment.ep.model.Volunteer;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -12,32 +12,32 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class UpdateMember {
+public class UpdateVolunteer {
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    public UpdateMember(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+    public UpdateVolunteer(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void call(Member member) {
-        var sql = "UPDATE members SET"
+    public void call(Volunteer volunteer) {
+        var sql = "UPDATE volunteerrs SET"
                 + " first_name = :firstName,"
                 + " last_name = :lastName,"
                 + " phone_number = :phoneNumber,"
                 + " email = :email,"
                 + " team_code = :teamCode,"
                 + " referent = :referent"
-                + " WHERE member_id = :id";
+                + " WHERE volunteer_id = :id";
         var paramSource = new MapSqlParameterSource()
-                .addValue("id", member.getId())
-                .addValue("firstName", capitalize(lowerCase(member.getFirstName())))
-                .addValue("lastName", upperCase(member.getLastName()))
-                .addValue("phoneNumber", member.getPhoneNumber())
-                .addValue("email", lowerCase(member.getEmail()))
-                .addValue("team_code", member.getTeamCode())
-                .addValue("referent", member.isReferent());
+                .addValue("id", volunteer.getId())
+                .addValue("firstName", capitalize(lowerCase(volunteer.getFirstName())))
+                .addValue("lastName", upperCase(volunteer.getLastName()))
+                .addValue("phoneNumber", volunteer.getPhoneNumber())
+                .addValue("email", lowerCase(volunteer.getEmail()))
+                .addValue("team_code", volunteer.getTeamCode())
+                .addValue("referent", volunteer.isReferent());
 
         namedParameterJdbcTemplate.update(sql, paramSource);
     }

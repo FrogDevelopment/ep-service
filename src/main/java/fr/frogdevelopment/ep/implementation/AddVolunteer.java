@@ -4,7 +4,7 @@ import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.apache.commons.lang3.StringUtils.lowerCase;
 import static org.apache.commons.lang3.StringUtils.upperCase;
 
-import fr.frogdevelopment.ep.model.Member;
+import fr.frogdevelopment.ep.model.Volunteer;
 import javax.sql.DataSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -13,29 +13,29 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class AddMember {
+public class AddVolunteer {
 
     private final SimpleJdbcInsert simpleJdbcInsert;
 
-    public AddMember(DataSource dataSource) {
+    public AddVolunteer(DataSource dataSource) {
         this.simpleJdbcInsert = new SimpleJdbcInsert(dataSource)
-                .usingGeneratedKeyColumns("member_id")
-                .withTableName("members");
+                .usingGeneratedKeyColumns("volunteer_id")
+                .withTableName("volunteers");
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void call(Member member) {
+    public void call(Volunteer volunteer) {
         var paramSource = new MapSqlParameterSource()
-                .addValue("firstName", capitalize(lowerCase(member.getFirstName())))
-                .addValue("lastName", upperCase(member.getLastName()))
-                .addValue("phoneNumber", member.getPhoneNumber())
-                .addValue("email", lowerCase(member.getEmail()))
-                .addValue("team_code", member.getTeamCode())
-                .addValue("referent", member.isReferent());
+                .addValue("firstName", capitalize(lowerCase(volunteer.getFirstName())))
+                .addValue("lastName", upperCase(volunteer.getLastName()))
+                .addValue("phoneNumber", volunteer.getPhoneNumber())
+                .addValue("email", lowerCase(volunteer.getEmail()))
+                .addValue("team_code", volunteer.getTeamCode())
+                .addValue("referent", volunteer.isReferent());
 
         var returnedKey = simpleJdbcInsert.executeAndReturnKey(paramSource);
 
-        member.setId(returnedKey.intValue());
+        volunteer.setId(returnedKey.intValue());
     }
 
 }

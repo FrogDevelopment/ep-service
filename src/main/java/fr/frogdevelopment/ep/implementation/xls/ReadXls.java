@@ -5,13 +5,13 @@ import static org.apache.commons.lang3.StringUtils.isAllBlank;
 import static org.apache.commons.lang3.StringUtils.isAnyBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import fr.frogdevelopment.ep.implementation.AddMember;
 import fr.frogdevelopment.ep.implementation.AddSchedule;
 import fr.frogdevelopment.ep.implementation.AddTeam;
+import fr.frogdevelopment.ep.implementation.AddVolunteer;
 import fr.frogdevelopment.ep.implementation.xls.ExcelParameters.Planning.Day;
-import fr.frogdevelopment.ep.model.Member;
 import fr.frogdevelopment.ep.model.Schedule;
 import fr.frogdevelopment.ep.model.Team;
+import fr.frogdevelopment.ep.model.Volunteer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
@@ -36,16 +36,16 @@ public class ReadXls {
 
     private final ExcelParameters parameters;
     private final AddTeam addTeam;
-    private final AddMember addMember;
+    private final AddVolunteer addVolunteer;
     private final AddSchedule addSchedule;
 
     public ReadXls(ExcelParameters parameters,
                    AddTeam addTeam,
-                   AddMember addMember,
+                   AddVolunteer addVolunteer,
                    AddSchedule addSchedule) {
         this.parameters = parameters;
         this.addTeam = addTeam;
-        this.addMember = addMember;
+        this.addVolunteer = addVolunteer;
         this.addSchedule = addSchedule;
     }
 
@@ -54,7 +54,7 @@ public class ReadXls {
 
         try (Workbook workbook = new HSSFWorkbook(inputStream)) {
             readTeams(workbook, parameters, teams);
-            readMembers(workbook, parameters, teams);
+            readVolunteers(workbook, parameters, teams);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
@@ -92,9 +92,9 @@ public class ReadXls {
         }
     }
 
-    private void readMembers(Workbook workbook,
-                             ExcelParameters parameters,
-                             Map<String, Team> teams) {
+    private void readVolunteers(Workbook workbook,
+                                ExcelParameters parameters,
+                                Map<String, Team> teams) {
         log.info("Reading '{}'", parameters.getPlanning().getSheetName());
         var datatypeSheet = workbook.getSheet(parameters.getPlanning().getSheetName());
 
@@ -139,7 +139,7 @@ public class ReadXls {
 
     private void handleRow(Map<String, Team> teams, HashMap<Integer, Pair<String, String>> dateTimes, Day friday,
                            Day sunday, Row row, String cellLastName, String cellFirstName, String cellTeam) {
-        var member = Member.builder()
+        var volunteer = Volunteer.builder()
                 .lastName(cellLastName)
                 .firstName(cellFirstName)
                 .phoneNumber(randomPhoneNumber()) // fixme
@@ -148,12 +148,12 @@ public class ReadXls {
                 .build();
 
         if (teams.containsKey(cellTeam)) {
-            addMember.call(member);
+            addVolunteer.call(volunteer);
             Team team = teams.get(cellTeam);
-            team.getMembers().add(member);
+            team.getVolunteers().add(volunteer);
             handleTeamSchedule(dateTimes, friday, sunday, row, team);
         } else {
-            log.warn("Member {} without team", member);
+            log.warn("Volunteer {} without team", volunteer);
         }
     }
 

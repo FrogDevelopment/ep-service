@@ -11,7 +11,7 @@ import lombok.NonNull;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Member implements Serializable {
+public class Volunteer implements Serializable {
 
     private int id;
     @NonNull

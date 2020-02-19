@@ -28,7 +28,7 @@ class AddTeamTest {
     private AddTeam addTeam;
 
     @Test
-    void shouldInsertNewMemberToTheTable() {
+    void shouldInsertNewTeamToTheTable() {
         // given
         var countRowsInTable = JdbcTestUtils.countRowsInTable(jdbcTemplate, "teams");
         assertThat(countRowsInTable).isEqualTo(0);

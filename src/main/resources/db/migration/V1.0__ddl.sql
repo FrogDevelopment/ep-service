@@ -6,9 +6,9 @@ CREATE TABLE teams
         CONSTRAINT unique_code UNIQUE
 );
 
-CREATE TABLE members
+CREATE TABLE volunteers
 (
-    member_id    SERIAL PRIMARY KEY,
+    volunteer_id SERIAL PRIMARY KEY,
     last_name    TEXT NOT NULL,
     first_name   TEXT NOT NULL,
     email        TEXT NOT NULL

@@ -18,9 +18,9 @@ public class Team implements Serializable {
     @NonNull
     private String code;
     @Default
-    private Set<Member> referents = new HashSet<>();
+    private Set<Volunteer> referents = new HashSet<>();
     @Default
-    private Set<Member> members = new HashSet<>();
+    private Set<Volunteer> volunteers = new HashSet<>();
     @Default
     private Set<Schedule> schedules = new HashSet<>();
 
