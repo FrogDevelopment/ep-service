@@ -19,6 +19,7 @@ import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
+import fr.frogdevelopment.ep.views.schedules.SchedulesView;
 import fr.frogdevelopment.ep.views.teams.TeamsView;
 import fr.frogdevelopment.ep.views.upload.UploadView;
 import fr.frogdevelopment.ep.views.volunteers.VolunteersView;
@@ -62,9 +63,10 @@ public class MainView extends AppLayout {
 
     private static Tab[] getAvailableTabs() {
         final var tabs = new ArrayList<Tab>();
-        tabs.add(createTab("Upload", UploadView.class));
+        tabs.add(createTab("Import Excel", UploadView.class));
         tabs.add(createTab("Bénévoles", VolunteersView.class));
         tabs.add(createTab("Équipes", TeamsView.class));
+        tabs.add(createTab("Planning", SchedulesView.class));
         tabs.add(new Tab("About"));
         return tabs.toArray(new Tab[0]);
     }

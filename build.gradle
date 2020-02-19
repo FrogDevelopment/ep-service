@@ -67,6 +67,8 @@ dependencies {
                 .forEach { group -> exclude(group: group) }
     }
 
+    implementation 'org.vaadin.stefan:fullcalendar2:2.0.0'
+
     implementation 'org.apache.poi:poi-ooxml:4.1.2'
     implementation 'org.apache.commons:commons-lang3:3.9'
 

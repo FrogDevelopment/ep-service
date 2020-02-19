@@ -19,7 +19,7 @@ import fr.frogdevelopment.ep.views.MainView;
 @CssImport("./styles/views/teams/teams-view.css")
 public class TeamsView extends Div implements AfterNavigationObserver {
 
-    private final GetTeams getTeams;
+    private final transient GetTeams getTeams;
     private final Grid<Team> grid;
 
     public TeamsView(GetTeams getTeams) {
