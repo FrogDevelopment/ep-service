@@ -19,13 +19,13 @@ public class LoginView extends VerticalLayout {
 
     public static final String ROUTE = "login";
 
-    private final LoginOverlay login = new LoginOverlay(); //
+    private final LoginOverlay login = new LoginOverlay();
 
     public LoginView(AuthenticationManager authenticationManager,
                      CustomRequestCache requestCache) {
-        login.setOpened(true); //
-        login.setTitle("Spring Secured Vaadin");
-        login.setDescription("Login Overlay Example");
+        login.setOpened(true);
+        login.setTitle("Solidays - EP");
+        login.setDescription("Gestion des bénévoles et du planning des Entrées Publiques");
 
         add(login);
 
