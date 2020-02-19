@@ -5,9 +5,9 @@ import static org.apache.commons.lang3.StringUtils.isAllBlank;
 import static org.apache.commons.lang3.StringUtils.isAnyBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import fr.frogdevelopment.ep.implementation.AddSchedule;
-import fr.frogdevelopment.ep.implementation.AddTeam;
-import fr.frogdevelopment.ep.implementation.AddVolunteer;
+import fr.frogdevelopment.ep.implementation.schedules.AddSchedule;
+import fr.frogdevelopment.ep.implementation.teams.AddTeam;
+import fr.frogdevelopment.ep.implementation.volunteers.AddVolunteer;
 import fr.frogdevelopment.ep.implementation.xls.ExcelParameters.Planning.Day;
 import fr.frogdevelopment.ep.model.Schedule;
 import fr.frogdevelopment.ep.model.Team;

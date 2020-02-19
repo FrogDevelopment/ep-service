@@ -10,7 +10,7 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import fr.frogdevelopment.ep.implementation.GetTeams;
+import fr.frogdevelopment.ep.implementation.teams.GetTeams;
 import fr.frogdevelopment.ep.model.Team;
 import fr.frogdevelopment.ep.views.MainView;
 

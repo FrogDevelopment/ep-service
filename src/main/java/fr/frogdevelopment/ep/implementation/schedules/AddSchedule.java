@@ -1,4 +1,4 @@
-package fr.frogdevelopment.ep.implementation;
+package fr.frogdevelopment.ep.implementation.schedules;
 
 import fr.frogdevelopment.ep.model.Schedule;
 import javax.sql.DataSource;

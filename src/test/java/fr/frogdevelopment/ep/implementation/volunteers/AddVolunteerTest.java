@@ -1,8 +1,8 @@
-package fr.frogdevelopment.ep.implementation;
+package fr.frogdevelopment.ep.implementation.volunteers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import fr.frogdevelopment.ep.model.Team;
+import fr.frogdevelopment.ep.model.Volunteer;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,31 +19,34 @@ import org.springframework.transaction.annotation.Transactional;
 @Tag("integrationTest")
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
-class AddTeamTest {
+class AddVolunteerTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
-    private AddTeam addTeam;
+    private AddVolunteer addVolunteer;
 
     @Test
-    void shouldInsertNewTeamToTheTable() {
+    void shouldInsertNewVolunteerToTheTable() {
         // given
-        var countRowsInTable = JdbcTestUtils.countRowsInTable(jdbcTemplate, "teams");
+        var countRowsInTable = JdbcTestUtils.countRowsInTable(jdbcTemplate, "volunteers");
         assertThat(countRowsInTable).isEqualTo(0);
 
-        var team = Team.builder()
-                .name("Ma Super Team")
-                .code("MST")
+        var volunteer = Volunteer.builder()
+                .firstName("John")
+                .lastName("Doe")
+                .phoneNumber("123456789")
+                .email("john.doe@test.com")
                 .build();
 
         // when
-        addTeam.call(team);
+        addVolunteer.call(volunteer);
 
         // then
-        assertThat(team.getId()).isNotNull();
-        countRowsInTable = JdbcTestUtils.countRowsInTable(jdbcTemplate, "teams");
+        assertThat(volunteer.getId()).isNotNull();
+        countRowsInTable = JdbcTestUtils.countRowsInTable(jdbcTemplate, "volunteers");
         assertThat(countRowsInTable).isEqualTo(1);
+
     }
 }

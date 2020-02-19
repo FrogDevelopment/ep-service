@@ -1,4 +1,4 @@
-package fr.frogdevelopment.ep.implementation;
+package fr.frogdevelopment.ep.implementation.volunteers;
 
 import fr.frogdevelopment.ep.model.Volunteer;
 import java.util.List;

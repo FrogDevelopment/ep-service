@@ -1,4 +1,4 @@
-package fr.frogdevelopment.ep.implementation;
+package fr.frogdevelopment.ep.implementation.volunteers;
 
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.apache.commons.lang3.StringUtils.lowerCase;

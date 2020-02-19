@@ -1,4 +1,4 @@
-package fr.frogdevelopment.ep.implementation;
+package fr.frogdevelopment.ep.implementation.teams;
 
 import fr.frogdevelopment.ep.model.Team;
 import java.util.List;
