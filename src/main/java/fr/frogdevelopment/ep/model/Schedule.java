@@ -12,6 +12,10 @@ public class Schedule implements Serializable {
     private int id;
     private LocalDateTime from;
     private LocalDateTime to;
-    private String where;
+    private Location where;
     private String teamCode;
+
+    public enum Location {
+        FOUILLES, BRACELET, LITIGES
+    }
 }

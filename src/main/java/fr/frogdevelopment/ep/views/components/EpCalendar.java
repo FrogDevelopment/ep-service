@@ -3,6 +3,7 @@ package fr.frogdevelopment.ep.views.components;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 import fr.frogdevelopment.ep.model.Schedule;
+import fr.frogdevelopment.ep.model.Schedule.Location;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.vaadin.stefan.fullcalendar.Entry;
@@ -36,20 +37,19 @@ public class EpCalendar extends FullCalendar {
     private Entry toEntry(Schedule s) {
         var entry = new Entry();
         entry.setTitle(s.getTeamCode());
-        entry.setDescription(s.getWhere());
         entry.setStart(s.getFrom());
         entry.setEnd(s.getTo());
         entry.setColor(colorByLocation(s.getWhere()));
         return entry;
     }
 
-    private static String colorByLocation(String location) {
+    private static String colorByLocation(Location location) {
         switch (location) {
-            case "F":
+            case FOUILLES:
                 return "#57e114";
-            case "B":
+            case BRACELET:
                 return "#10e2eb";
-            case "L":
+            case LITIGES:
                 return "#eb9e10";
             default:
                 return "#eb1010";

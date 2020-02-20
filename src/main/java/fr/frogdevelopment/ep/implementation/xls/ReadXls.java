@@ -1,5 +1,8 @@
 package fr.frogdevelopment.ep.implementation.xls;
 
+import static fr.frogdevelopment.ep.model.Schedule.Location.BRACELET;
+import static fr.frogdevelopment.ep.model.Schedule.Location.FOUILLES;
+import static fr.frogdevelopment.ep.model.Schedule.Location.LITIGES;
 import static java.util.regex.Pattern.compile;
 import static org.apache.commons.lang3.StringUtils.isAllBlank;
 import static org.apache.commons.lang3.StringUtils.isAnyBlank;
@@ -10,6 +13,7 @@ import fr.frogdevelopment.ep.implementation.teams.AddTeam;
 import fr.frogdevelopment.ep.implementation.volunteers.AddVolunteer;
 import fr.frogdevelopment.ep.implementation.xls.ExcelParameters.Planning.Day;
 import fr.frogdevelopment.ep.model.Schedule;
+import fr.frogdevelopment.ep.model.Schedule.Location;
 import fr.frogdevelopment.ep.model.Team;
 import fr.frogdevelopment.ep.model.Volunteer;
 import java.io.IOException;
@@ -168,12 +172,25 @@ public class ReadXls {
                             .from(LocalDateTime.parse(schedules.getLeft(), DATE_TIME_FORMATTER))
                             .to(LocalDateTime.parse(schedules.getRight(), DATE_TIME_FORMATTER))
                             .teamCode(team.getCode())
-                            .where(value)
+                            .where(getLocation(value))
                             .build();
                     addSchedule.call(schedule);
                     team.getSchedules().add(schedule);
                 }
             }
+        }
+    }
+
+    private static Location getLocation(String location) {
+        switch (location) {
+            case "F":
+                return FOUILLES;
+            case "B":
+                return BRACELET;
+            case "L":
+                return LITIGES;
+            default:
+                throw new IllegalArgumentException("Unknown location " + location);
         }
     }
 
