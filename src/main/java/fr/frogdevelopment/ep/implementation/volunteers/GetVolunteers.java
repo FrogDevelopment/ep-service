@@ -3,11 +3,11 @@ package fr.frogdevelopment.ep.implementation.volunteers;
 import fr.frogdevelopment.ep.model.Volunteer;
 import java.util.List;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
+@Repository
 public class GetVolunteers {
 
     private final JdbcTemplate jdbcTemplate;

@@ -7,11 +7,11 @@ import static org.apache.commons.lang3.StringUtils.upperCase;
 import fr.frogdevelopment.ep.model.Volunteer;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
+@Repository
 public class UpdateVolunteer {
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;

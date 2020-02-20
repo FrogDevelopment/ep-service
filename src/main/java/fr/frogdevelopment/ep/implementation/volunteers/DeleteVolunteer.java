@@ -3,11 +3,11 @@ package fr.frogdevelopment.ep.implementation.volunteers;
 import fr.frogdevelopment.ep.model.Volunteer;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
+@Repository
 public class DeleteVolunteer {
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;

@@ -4,9 +4,9 @@ import fr.frogdevelopment.ep.model.Team;
 import javax.sql.DataSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
-@Component
+@Repository
 public class AddTeam {
 
     private final SimpleJdbcInsert simpleJdbcInsert;

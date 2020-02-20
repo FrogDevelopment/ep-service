@@ -3,11 +3,11 @@ package fr.frogdevelopment.ep.implementation.teams;
 import fr.frogdevelopment.ep.model.Team;
 import java.util.List;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
+@Repository
 public class GetTeams {
 
     private final JdbcTemplate jdbcTemplate;

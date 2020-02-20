@@ -1,11 +1,11 @@
 package fr.frogdevelopment.ep.implementation.teams;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
+@Repository
 public class CleanUpTeams {
 
     private final JdbcTemplate jdbcTemplate;

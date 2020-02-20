@@ -8,11 +8,11 @@ import fr.frogdevelopment.ep.model.Volunteer;
 import javax.sql.DataSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
+@Repository
 public class AddVolunteer {
 
     private final SimpleJdbcInsert simpleJdbcInsert;
