@@ -16,7 +16,7 @@ public class CleanUpVolunteers {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void call() {
-        jdbcTemplate.update("DELETE FROM teams");
-        jdbcTemplate.update("ALTER SEQUENCE teams_team_id_seq RESTART WITH 1");
+        jdbcTemplate.update("DELETE FROM volunteers");
+        jdbcTemplate.update("ALTER SEQUENCE volunteers_volunteer_id_seq RESTART WITH 1");
     }
 }

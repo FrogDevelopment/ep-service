@@ -39,9 +39,9 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@PageTitle("Bénévoles")
 @Route(value = "volunteers", layout = MainView.class)
 @RouteAlias(value = "", layout = MainView.class)
-@PageTitle("Bénévoles")
 @CssImport("./styles/views/volunteers/volunteers-view.css")
 public class VolunteersView extends Div implements AfterNavigationObserver {
 
@@ -78,6 +78,10 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
         grid.addThemeVariants(LUMO_NO_BORDER, LUMO_NO_ROW_BORDERS);
         grid.setHeight("95%");
 
+        grid.addComponentColumn(v -> v.isReferent() ? VaadinIcon.USER_STAR.create() : VaadinIcon.USER.create())
+                .setFlexGrow(0)
+                .setAutoWidth(true);
+
         var lastNameFilter = new TextField();
         lastNameFilter.setPlaceholder("Filtrer par nom");
         lastNameFilter.setClearButtonVisible(true);
@@ -101,19 +105,25 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
         teamFilter = new ComboBox<>();
         teamFilter.setPlaceholder("Filtrer par équipe");
         teamFilter.setClearButtonVisible(true);
-        teamFilter.setItemLabelGenerator(Team::getFullName);
+        teamFilter.setItemLabelGenerator(Team::getName);
         teamFilter.addValueChangeListener(e -> {
             var team = teamFilter.getValue();
             filterBy(team != null ? team.getCode() : null, Volunteer::getTeamCode);
         });
-        grid.addColumn(Volunteer::getTeamCode)
+        grid.addColumn(v -> teams.stream()
+                .filter(t -> t.getCode().endsWith(v.getTeamCode()))
+                .findFirst()
+                .map(Team::getName)
+                .orElse("-"))
                 .setHeader("Équipe")
                 .setSortable(true)
                 .setFooter(teamFilter);
 
         grid.addColumn(Volunteer::getPhoneNumber)
                 .setHeader("Téléphone")
-                .setSortable(false);
+                .setSortable(false)
+                .setFlexGrow(0)
+                .setAutoWidth(true);
 
         grid.addColumn(createEmailToAnchor())
                 .setHeader("Email");
@@ -131,7 +141,9 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
             wrapper.add(trash);
 
             return wrapper;
-        });
+        })
+                .setFlexGrow(0)
+                .setAutoWidth(true);
 
         add(buttonAdd, grid);
     }
@@ -173,15 +185,16 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
     public void afterNavigation(AfterNavigationEvent event) {
         fetchTeams();
         fetchVolunteers();
+        grid.recalculateColumnWidths();
     }
 
     private void fetchTeams() {
-        teams = getTeams.call();
+        teams = getTeams.getAll();
         teamFilter.setItems(teams);
     }
 
     private void fetchVolunteers() {
-        unfilteredData = getVolunteers.call();
+        unfilteredData = getVolunteers.getAll();
         grid.setItems(unfilteredData);
     }
 

@@ -1,4 +1,4 @@
-package fr.frogdevelopment.ep.views.components;
+package fr.frogdevelopment.ep.views.teams;
 
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;

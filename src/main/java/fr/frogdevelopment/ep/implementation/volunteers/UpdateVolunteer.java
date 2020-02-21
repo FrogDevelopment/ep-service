@@ -22,7 +22,7 @@ public class UpdateVolunteer {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void call(Volunteer volunteer) {
-        var sql = "UPDATE volunteerrs SET"
+        var sql = "UPDATE volunteers SET"
                 + " first_name = :firstName,"
                 + " last_name = :lastName,"
                 + " phone_number = :phoneNumber,"
@@ -36,7 +36,7 @@ public class UpdateVolunteer {
                 .addValue("lastName", upperCase(volunteer.getLastName()))
                 .addValue("phoneNumber", volunteer.getPhoneNumber())
                 .addValue("email", lowerCase(volunteer.getEmail()))
-                .addValue("team_code", volunteer.getTeamCode())
+                .addValue("teamCode", volunteer.getTeamCode())
                 .addValue("referent", volunteer.isReferent());
 
         namedParameterJdbcTemplate.update(sql, paramSource);

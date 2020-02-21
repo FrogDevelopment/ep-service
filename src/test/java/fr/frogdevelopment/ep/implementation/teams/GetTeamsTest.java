@@ -38,7 +38,7 @@ class GetTeamsTest {
         DatabasePopulatorUtils.execute(new ResourceDatabasePopulator(resource), dataSource);
 
         // when
-        var teams = getTeams.call();
+        var teams = getTeams.getAll();
 
         // then
         assertThat(teams).hasSize(2);

@@ -18,10 +18,12 @@ public class Volunteer implements Serializable {
     private String lastName;
     @NonNull
     private String firstName;
-    @NonNull
     private String phoneNumber;
-    @NonNull
     private String email;
     private String teamCode;
     private boolean referent;
+
+    public String getFullName() {
+        return String.join(" ", lastName, firstName);
+    }
 }

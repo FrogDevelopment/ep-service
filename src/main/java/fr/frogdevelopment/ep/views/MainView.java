@@ -19,6 +19,7 @@ import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
+import fr.frogdevelopment.ep.views.about.AboutView;
 import fr.frogdevelopment.ep.views.schedules.SchedulesView;
 import fr.frogdevelopment.ep.views.teams.TeamsView;
 import fr.frogdevelopment.ep.views.upload.UploadView;
@@ -43,7 +44,7 @@ public class MainView extends AppLayout {
         title.setWidthFull();
         navBarWrapper.add(new DrawerToggle(), img, title);
 
-        var exitButton = new Button(VaadinIcon.EXIT_O.create());
+        var exitButton = new Button(VaadinIcon.CLOSE_CIRCLE.create());
         exitButton.getStyle().set("cursor", "pointer");
         exitButton.addClickListener(event -> UI.getCurrent().navigate("logout"));
         var div = new Anchor("logout", exitButton);
@@ -63,20 +64,21 @@ public class MainView extends AppLayout {
 
     private static Tab[] getAvailableTabs() {
         final var tabs = new ArrayList<Tab>();
-        tabs.add(createTab("Import Excel", UploadView.class));
-        tabs.add(createTab("Bénévoles", VolunteersView.class));
-        tabs.add(createTab("Équipes", TeamsView.class));
-        tabs.add(createTab("Planning", SchedulesView.class));
-        tabs.add(new Tab("About"));
+        tabs.add(createTab("Import Excel", VaadinIcon.UPLOAD, UploadView.class));
+        tabs.add(createTab("Bénévoles", VaadinIcon.HEART, VolunteersView.class));
+        tabs.add(createTab("Équipes", VaadinIcon.GROUP, TeamsView.class));
+        tabs.add(createTab("Planning", VaadinIcon.CALENDAR, SchedulesView.class));
+        tabs.add(createTab("About", VaadinIcon.QUESTION_CIRCLE, AboutView.class));
         return tabs.toArray(new Tab[0]);
     }
 
-    private static Tab createTab(String title, Class<? extends Component> viewClass) {
-        return createTab(populateLink(new RouterLink(null, viewClass), title));
+    private static Tab createTab(String title, VaadinIcon vaadinIcon, Class<? extends Component> viewClass) {
+        return createTab(vaadinIcon, populateLink(new RouterLink(null, viewClass), title));
     }
 
-    private static Tab createTab(Component content) {
+    private static Tab createTab(VaadinIcon vaadinIcon, Component content) {
         final var tab = new Tab();
+        tab.add(vaadinIcon.create());
         tab.add(content);
         return tab;
     }
@@ -95,13 +97,9 @@ public class MainView extends AppLayout {
     private void selectTab() {
         var target = RouteConfiguration.forSessionScope().getUrl(getContent().getClass());
         menu.getChildren()
-                .filter(tab -> {
-                    var child = tab.getChildren()
-                            .findFirst()
-                            .get();
-                    return child instanceof RouterLink
-                            && ((RouterLink) child).getHref().equals(target);
-                })
+                .filter(tab -> tab.getChildren()
+                        .filter(child -> child instanceof RouterLink)
+                        .anyMatch(child -> ((RouterLink) child).getHref().equals(target)))
                 .findFirst()
                 .ifPresent(tab -> menu.setSelectedTab((Tab) tab));
     }

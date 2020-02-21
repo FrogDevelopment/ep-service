@@ -8,12 +8,12 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import fr.frogdevelopment.ep.implementation.schedules.GetSchedules;
 import fr.frogdevelopment.ep.views.MainView;
-import fr.frogdevelopment.ep.views.components.EpCalendar;
+import fr.frogdevelopment.ep.views.teams.EpCalendar;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Route(value = "schedules", layout = MainView.class)
 @PageTitle("Schedules")
+@Route(value = "schedules", layout = MainView.class)
 @CssImport("./styles/views/teams/teams-view.css")
 public class SchedulesView extends Div implements AfterNavigationObserver {
 

@@ -11,21 +11,21 @@ import org.springframework.transaction.annotation.Transactional;
 class CleanUpDatabase {
 
     private final CleanUpSchedules cleanUpSchedules;
-    private final CleanUpTeams cleanUpTeams;
     private final CleanUpVolunteers cleanUpVolunteers;
+    private final CleanUpTeams cleanUpTeams;
 
     CleanUpDatabase(CleanUpSchedules cleanUpSchedules,
-                    CleanUpTeams cleanUpTeams,
-                    CleanUpVolunteers cleanUpVolunteers) {
+                    CleanUpVolunteers cleanUpVolunteers,
+                    CleanUpTeams cleanUpTeams) {
         this.cleanUpSchedules = cleanUpSchedules;
-        this.cleanUpTeams = cleanUpTeams;
         this.cleanUpVolunteers = cleanUpVolunteers;
+        this.cleanUpTeams = cleanUpTeams;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void call() {
         cleanUpSchedules.call();
-        cleanUpTeams.call();
         cleanUpVolunteers.call();
+        cleanUpTeams.call();
     }
 }
