@@ -171,9 +171,14 @@ public class ReadXls {
             var value = getCellStringValue(row, i);
             if (isNotBlank(value)) {
                 Pair<String, String> schedules = dateTimes.get(i);
+                var from = LocalDateTime.parse(schedules.getLeft(), DATE_TIME_FORMATTER);
+                var to = LocalDateTime.parse(schedules.getRight(), DATE_TIME_FORMATTER);
+                if (to.isBefore(from)) {
+                    to = to.plusDays(1);
+                }
                 var schedule = Schedule.builder()
-                        .from(LocalDateTime.parse(schedules.getLeft(), DATE_TIME_FORMATTER))
-                        .to(LocalDateTime.parse(schedules.getRight(), DATE_TIME_FORMATTER))
+                        .from(from)
+                        .to(to)
                         .teamCode(team.getCode())
                         .where(getLocation(value))
                         .build();

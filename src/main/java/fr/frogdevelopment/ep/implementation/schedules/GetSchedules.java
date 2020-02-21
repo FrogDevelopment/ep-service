@@ -31,7 +31,7 @@ public class GetSchedules {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public List<Schedule> call() {
-        var sql = "SELECT * FROM schedules";
+        var sql = "SELECT * FROM schedules ORDER BY from_datetime";
 
         return jdbcTemplate.query(sql, scheduleRowMapper);
     }

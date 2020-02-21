@@ -1,4 +1,4 @@
-package fr.frogdevelopment.ep.views.teams;
+package fr.frogdevelopment.ep.views.schedules;
 
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -13,13 +13,13 @@ import org.vaadin.stefan.fullcalendar.FullCalendar;
 @JsModule("./src/ep-calendar.js")
 public class EpCalendar extends FullCalendar {
 
-    public EpCalendar() {
+    EpCalendar() {
         super();
 
         setHeightAuto();
     }
 
-    public void setSchedules(List<Schedule> schedules) {
+    void setSchedules(List<Schedule> schedules) {
         if (!schedules.isEmpty()) {
             gotoDate(schedules.get(0).getFrom().toLocalDate());
             var entries = toEntries(schedules);
@@ -43,7 +43,7 @@ public class EpCalendar extends FullCalendar {
         return entry;
     }
 
-    private static String colorByLocation(Location location) {
+    static String colorByLocation(Location location) {
         switch (location) {
             case FOUILLES:
                 return "#57e114";
