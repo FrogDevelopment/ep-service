@@ -2,10 +2,8 @@ package fr.frogdevelopment.ep.views;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Image;
@@ -44,11 +42,6 @@ public class MainView extends AppLayout {
         title.setWidthFull();
         navBarWrapper.add(new DrawerToggle(), img, title);
 
-        var exitButton = new Button(VaadinIcon.CLOSE_CIRCLE.create());
-        exitButton.getStyle().set("cursor", "pointer");
-        exitButton.addClickListener(event -> UI.getCurrent().navigate("logout"));
-        var div = new Anchor("logout", exitButton);
-        navBarWrapper.add(div);
         addToNavbar(navBarWrapper);
 
         menu = createMenuTabs();
@@ -69,6 +62,7 @@ public class MainView extends AppLayout {
         tabs.add(createTab("Équipes", VaadinIcon.GROUP, TeamsView.class));
         tabs.add(createTab("Planning", VaadinIcon.CALENDAR, SchedulesView.class));
         tabs.add(createTab("About", VaadinIcon.QUESTION_CIRCLE, AboutView.class));
+        tabs.add(createTab(VaadinIcon.EXIT, new Anchor("logout", "Logout")));
         return tabs.toArray(new Tab[0]);
     }
 

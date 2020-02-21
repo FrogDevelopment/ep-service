@@ -26,8 +26,6 @@ import java.util.List;
 @CssImport("./styles/views/volunteers/volunteer-dialog.css")
 public class VolunteerDialog extends Dialog {
 
-    private final List<Team> teamValues;
-
     @FunctionalInterface
     public interface OnVolunteerValidListener {
 
@@ -50,6 +48,8 @@ public class VolunteerDialog extends Dialog {
 
     private final Button cancel = new Button("Cancel");
     private final Button save = new Button("Save");
+
+    private final List<Team> teamValues;
 
     public VolunteerDialog(List<Team> teamValues, OnVolunteerValidListener onVolunteerValidListener) {
         this(null, teamValues, onVolunteerValidListener);
