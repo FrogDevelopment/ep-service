@@ -59,6 +59,12 @@ public class ReadXls {
         try (Workbook workbook = new HSSFWorkbook(inputStream)) {
             readTeams(workbook, parameters, teams);
             readVolunteers(workbook, parameters, teams);
+
+            teams.values().forEach(team -> {
+                addTeam.call(team);
+                team.getVolunteers().forEach(addVolunteer::call);
+                team.getSchedules().forEach(addSchedule::call);
+            });
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
@@ -91,7 +97,6 @@ public class ReadXls {
                 team.setCode("Chef");
             }
 
-            addTeam.call(team);
             teams.put(team.getCode(), team);
         }
     }
@@ -152,7 +157,6 @@ public class ReadXls {
                 .build();
 
         if (teams.containsKey(cellTeam)) {
-            addVolunteer.call(volunteer);
             Team team = teams.get(cellTeam);
             team.getVolunteers().add(volunteer);
             handleTeamSchedule(dateTimes, friday, sunday, row, team);
@@ -163,20 +167,17 @@ public class ReadXls {
 
     private void handleTeamSchedule(HashMap<Integer, Pair<String, String>> dateTimes, Day friday, Day sunday, Row row,
                                     Team team) {
-        if (team.getSchedules().isEmpty()) {
-            for (var i = friday.getStart(); i <= sunday.getEnd(); i++) {
-                var value = getCellStringValue(row, i);
-                if (isNotBlank(value)) {
-                    Pair<String, String> schedules = dateTimes.get(i);
-                    var schedule = Schedule.builder()
-                            .from(LocalDateTime.parse(schedules.getLeft(), DATE_TIME_FORMATTER))
-                            .to(LocalDateTime.parse(schedules.getRight(), DATE_TIME_FORMATTER))
-                            .teamCode(team.getCode())
-                            .where(getLocation(value))
-                            .build();
-                    addSchedule.call(schedule);
-                    team.getSchedules().add(schedule);
-                }
+        for (var i = friday.getStart(); i <= sunday.getEnd(); i++) {
+            var value = getCellStringValue(row, i);
+            if (isNotBlank(value)) {
+                Pair<String, String> schedules = dateTimes.get(i);
+                var schedule = Schedule.builder()
+                        .from(LocalDateTime.parse(schedules.getLeft(), DATE_TIME_FORMATTER))
+                        .to(LocalDateTime.parse(schedules.getRight(), DATE_TIME_FORMATTER))
+                        .teamCode(team.getCode())
+                        .where(getLocation(value))
+                        .build();
+                team.getSchedules().add(schedule);
             }
         }
     }

@@ -2,7 +2,9 @@ package fr.frogdevelopment.ep.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
@@ -22,7 +24,7 @@ public class Team implements Serializable {
     @Default
     private List<Volunteer> volunteers = new ArrayList<>();
     @Default
-    private List<Schedule> schedules = new ArrayList<>();
+    private Set<Schedule> schedules = new HashSet<>();
 
     public String getFullName() {
         return String.join(" - ", code, name);
