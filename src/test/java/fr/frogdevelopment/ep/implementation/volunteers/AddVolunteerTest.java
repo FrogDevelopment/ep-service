@@ -3,6 +3,7 @@ package fr.frogdevelopment.ep.implementation.volunteers;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import fr.frogdevelopment.ep.model.Volunteer;
+import java.util.UUID;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +35,7 @@ class AddVolunteerTest {
         assertThat(countRowsInTable).isEqualTo(0);
 
         var volunteer = Volunteer.builder()
+                .ref(UUID.randomUUID().toString())
                 .firstName("John")
                 .lastName("Doe")
                 .phoneNumber("123456789")
