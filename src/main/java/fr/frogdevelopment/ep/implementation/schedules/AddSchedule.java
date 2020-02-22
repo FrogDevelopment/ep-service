@@ -22,7 +22,8 @@ public class AddSchedule {
                 .addValue("from_datetime", schedule.getFrom())
                 .addValue("to_datetime", schedule.getTo())
                 .addValue("location", schedule.getWhere())
-                .addValue("team_code", schedule.getTeamCode());
+                .addValue("team_code", schedule.getTeamCode())
+                .addValue("volunteer_ref", schedule.getVolunteerRef());
 
         var returnedKey = simpleJdbcInsert.executeAndReturnKey(paramSource);
 

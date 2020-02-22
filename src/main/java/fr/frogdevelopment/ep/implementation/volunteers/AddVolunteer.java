@@ -26,6 +26,7 @@ public class AddVolunteer {
     @Transactional(propagation = Propagation.REQUIRED)
     public void call(Volunteer volunteer) {
         var paramSource = new MapSqlParameterSource()
+                .addValue("volunteer_ref", volunteer.getRef())
                 .addValue("firstName", capitalize(lowerCase(volunteer.getFirstName())))
                 .addValue("lastName", upperCase(volunteer.getLastName()))
                 .addValue("phoneNumber", volunteer.getPhoneNumber())

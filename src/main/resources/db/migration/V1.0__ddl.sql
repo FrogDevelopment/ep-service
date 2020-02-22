@@ -8,14 +8,17 @@ CREATE TABLE teams
 
 CREATE TABLE volunteers
 (
-    volunteer_id SERIAL PRIMARY KEY,
-    last_name    TEXT NOT NULL,
-    first_name   TEXT NOT NULL,
-    email        TEXT NOT NULL
+    volunteer_id  SERIAL PRIMARY KEY,
+    volunteer_ref TEXT NOT NULL
+        CONSTRAINT unique_ref UNIQUE,
+    last_name     TEXT NOT NULL,
+    first_name    TEXT NOT NULL,
+    email         TEXT NOT NULL
         CONSTRAINT unique_email UNIQUE,
-    phone_number TEXT NOT NULL,
-    team_code    TEXT REFERENCES teams (code),
-    referent     BOOLEAN DEFAULT FALSE
+    phone_number  TEXT NOT NULL
+        CONSTRAINT unique_phone_number UNIQUE,
+    team_code     TEXT REFERENCES teams (code),
+    referent      BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE schedules
@@ -24,5 +27,6 @@ CREATE TABLE schedules
     from_datetime TIMESTAMP NOT NULL,
     to_datetime   TIMESTAMP NOT NULL,
     location      TEXT      NOT NULL,
-    team_code TEXT REFERENCES teams (code)
+    team_code     TEXT      NOT NULL REFERENCES teams (code),
+    volunteer_ref TEXT      NULL REFERENCES volunteers (volunteer_ref)
 );

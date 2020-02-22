@@ -25,6 +25,7 @@ public class GetVolunteers {
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> Volunteer.builder()
                 .id(rs.getInt("volunteer_id"))
+                .ref(rs.getString("volunteer_ref"))
                 .lastName(rs.getString("last_name"))
                 .firstName(rs.getString("first_name"))
                 .email(rs.getString("email"))

@@ -36,7 +36,7 @@ public class GetTeams {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public Stream<Team> getAllWithMembers() {
-        var sql = "SELECT t.*, v.last_name, v.first_name, v.referent"
+        var sql = "SELECT t.*, v.volunteer_ref, v.last_name, v.first_name, v.referent"
                 + " FROM teams t"
                 + " INNER JOIN volunteers v ON t.code = v.team_code";
 
@@ -51,6 +51,7 @@ public class GetTeams {
                         .code(key)
                         .build())
                         .getVolunteers().add(Volunteer.builder()
+                        .ref(rs.getString("volunteer_ref"))
                         .lastName(rs.getString("last_name"))
                         .firstName(rs.getString("first_name"))
                         .referent(rs.getBoolean("referent"))

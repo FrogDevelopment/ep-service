@@ -1,5 +1,6 @@
 package fr.frogdevelopment.ep.implementation.xls;
 
+import static fr.frogdevelopment.ep.model.Schedule.Location.AUTRES;
 import static fr.frogdevelopment.ep.model.Schedule.Location.BRACELET;
 import static fr.frogdevelopment.ep.model.Schedule.Location.FOUILLES;
 import static fr.frogdevelopment.ep.model.Schedule.Location.LITIGES;
@@ -21,9 +22,11 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
@@ -62,8 +65,21 @@ public class ReadXls {
 
             teams.values().forEach(team -> {
                 addTeam.call(team);
-                team.getVolunteers().forEach(addVolunteer::call);
-                team.getSchedules().forEach(addSchedule::call);
+                var mapSchedules = new HashMap<Schedule, Integer>();
+                team.getVolunteers().forEach(volunteer -> {
+                    addVolunteer.call(volunteer);
+                    volunteer.getSchedules().forEach(schedule -> mapSchedules.merge(schedule, 1, Integer::sum));
+                });
+
+                if (!mapSchedules.isEmpty()) { // Boss don't have schedules
+                    Integer max = Collections.max(mapSchedules.values());
+                    mapSchedules.forEach((schedule, total) -> {
+                        if (total.equals(max)) { // is a team schedule
+                            schedule.setVolunteerRef(null);
+                        }
+                        addSchedule.call(schedule);
+                    });
+                }
             });
         } catch (IOException e) {
             log.error(e.getMessage(), e);
@@ -109,7 +125,7 @@ public class ReadXls {
 
         var rowNum = parameters.getPlanning().getFirstRow();
         var rowHeader = datatypeSheet.getRow(rowNum++);
-        var dateTimes = new HashMap<Integer, Pair<String, String>>();
+        var dateTimes = new HashMap<Integer, Pair<LocalDateTime, LocalDateTime>>();
 
         var friday = parameters.getPlanning().getFriday();
         dateTimes.putAll(toDates(rowHeader, friday.getDate(), friday.getStart(), friday.getEnd()));
@@ -146,9 +162,11 @@ public class ReadXls {
         }
     }
 
-    private void handleRow(Map<String, Team> teams, HashMap<Integer, Pair<String, String>> dateTimes, Day friday,
+    private void handleRow(Map<String, Team> teams, HashMap<Integer, Pair<LocalDateTime, LocalDateTime>> dateTimes,
+                           Day friday,
                            Day sunday, Row row, String cellLastName, String cellFirstName, String cellTeam) {
         var volunteer = Volunteer.builder()
+                .ref(UUID.randomUUID().toString())
                 .lastName(cellLastName)
                 .firstName(cellFirstName)
                 .phoneNumber(randomPhoneNumber()) // fixme
@@ -159,30 +177,27 @@ public class ReadXls {
         if (teams.containsKey(cellTeam)) {
             Team team = teams.get(cellTeam);
             team.getVolunteers().add(volunteer);
-            handleTeamSchedule(dateTimes, friday, sunday, row, team);
+            addSchedules(dateTimes, friday, sunday, row, volunteer);
         } else {
             log.warn("Volunteer {} without team", volunteer);
         }
     }
 
-    private void handleTeamSchedule(HashMap<Integer, Pair<String, String>> dateTimes, Day friday, Day sunday, Row row,
-                                    Team team) {
+    private void addSchedules(HashMap<Integer, Pair<LocalDateTime, LocalDateTime>> dateTimes, Day friday,
+                              Day sunday, Row row, Volunteer volunteer) {
         for (var i = friday.getStart(); i <= sunday.getEnd(); i++) {
             var value = getCellStringValue(row, i);
             if (isNotBlank(value)) {
-                Pair<String, String> schedules = dateTimes.get(i);
-                var from = LocalDateTime.parse(schedules.getLeft(), DATE_TIME_FORMATTER);
-                var to = LocalDateTime.parse(schedules.getRight(), DATE_TIME_FORMATTER);
-                if (to.isBefore(from)) {
-                    to = to.plusDays(1);
-                }
+                Pair<LocalDateTime, LocalDateTime> schedules = dateTimes.get(i);
+
                 var schedule = Schedule.builder()
-                        .from(from)
-                        .to(to)
-                        .teamCode(team.getCode())
+                        .from(schedules.getLeft())
+                        .to(schedules.getRight())
                         .where(getLocation(value))
+                        .teamCode(volunteer.getTeamCode())
+                        .volunteerRef(volunteer.getRef())
                         .build();
-                team.getSchedules().add(schedule);
+                volunteer.getSchedules().add(schedule);
             }
         }
     }
@@ -196,7 +211,7 @@ public class ReadXls {
             case "L":
                 return LITIGES;
             default:
-                throw new IllegalArgumentException("Unknown location " + location);
+                return AUTRES;
         }
     }
 
@@ -205,13 +220,20 @@ public class ReadXls {
             .appendOptional(DateTimeFormatter.ofPattern(("MM/dd/yyyy H:mm")))
             .toFormatter();
 
-    private Map<Integer, Pair<String, String>> toDates(Row rowHeader, String dayDate, int from, int to) {
-        var dates = new HashMap<Integer, Pair<String, String>>();
-        for (var i = from; i <= to; i++) {
+    private Map<Integer, Pair<LocalDateTime, LocalDateTime>> toDates(Row rowHeader, String dayDate, int start,
+                                                                     int end) {
+        var dates = new HashMap<Integer, Pair<LocalDateTime, LocalDateTime>>();
+        for (var i = start; i <= end; i++) {
             var cellValue = rowHeader.getCell(i).getRichStringCellValue().toString();
             var matcher = DATE_PATTERN.matcher(cellValue);
             if (matcher.find()) {
-                dates.put(i, Pair.of(format(dayDate, matcher.group("from")), format(dayDate, matcher.group("to"))));
+                LocalDateTime from = LocalDateTime.parse(format(dayDate, matcher.group("from")), DATE_TIME_FORMATTER);
+                LocalDateTime to = LocalDateTime.parse(format(dayDate, matcher.group("to")), DATE_TIME_FORMATTER);
+                if (to.isBefore(from)) {
+                    to = to.plusDays(1);
+                }
+                dates.put(i, Pair.of(from, to)
+                );
             } else {
                 log.warn("No date matching with {}", cellValue);
             }
