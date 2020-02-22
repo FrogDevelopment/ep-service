@@ -2,7 +2,6 @@ package fr.frogdevelopment.ep.implementation.volunteers;
 
 import fr.frogdevelopment.ep.model.Volunteer;
 import java.util.List;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
@@ -36,17 +35,19 @@ public class GetVolunteers {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public List<Volunteer> getAllByTeam(String teamCode) {
-        var sql = "SELECT last_name, first_name, referent"
+    public List<Volunteer> getAllWithSchedules() {
+        var sql = "SELECT *"
                 + " FROM volunteers"
-                + " WHERE team_code = :teamCode"
                 + " ORDER BY last_name, first_name";
 
-        var paramSources = new MapSqlParameterSource("teamCode", teamCode);
-
-        return jdbcTemplate.query(sql, paramSources, (rs, rowNum) -> Volunteer.builder()
+        return jdbcTemplate.query(sql, (rs, rowNum) -> Volunteer.builder()
+                .id(rs.getInt("volunteer_id"))
+                .ref(rs.getString("volunteer_ref"))
                 .lastName(rs.getString("last_name"))
                 .firstName(rs.getString("first_name"))
+                .email(rs.getString("email"))
+                .phoneNumber(rs.getString("phone_number"))
+                .teamCode(rs.getString("team_code"))
                 .referent(rs.getBoolean("referent"))
                 .build());
     }

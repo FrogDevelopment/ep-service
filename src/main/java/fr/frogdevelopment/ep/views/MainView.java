@@ -1,5 +1,13 @@
 package fr.frogdevelopment.ep.views;
 
+import static com.vaadin.flow.component.icon.VaadinIcon.ABACUS;
+import static com.vaadin.flow.component.icon.VaadinIcon.CALENDAR;
+import static com.vaadin.flow.component.icon.VaadinIcon.EXIT;
+import static com.vaadin.flow.component.icon.VaadinIcon.GROUP;
+import static com.vaadin.flow.component.icon.VaadinIcon.HEART;
+import static com.vaadin.flow.component.icon.VaadinIcon.QUESTION_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.UPLOAD;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -12,6 +20,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.PWA;
@@ -19,6 +28,7 @@ import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 import fr.frogdevelopment.ep.views.about.AboutView;
 import fr.frogdevelopment.ep.views.schedules.SchedulesView;
+import fr.frogdevelopment.ep.views.stats.StatsView;
 import fr.frogdevelopment.ep.views.teams.TeamsView;
 import fr.frogdevelopment.ep.views.upload.UploadView;
 import fr.frogdevelopment.ep.views.volunteers.VolunteersView;
@@ -57,17 +67,19 @@ public class MainView extends AppLayout {
 
     private static Tab[] getAvailableTabs() {
         final var tabs = new ArrayList<Tab>();
-        tabs.add(createTab("Import Excel", VaadinIcon.UPLOAD, UploadView.class));
-        tabs.add(createTab("Bénévoles", VaadinIcon.HEART, VolunteersView.class));
-        tabs.add(createTab("Équipes", VaadinIcon.GROUP, TeamsView.class));
-        tabs.add(createTab("Planning", VaadinIcon.CALENDAR, SchedulesView.class));
-        tabs.add(createTab("About", VaadinIcon.QUESTION_CIRCLE, AboutView.class));
-        tabs.add(createTab(VaadinIcon.EXIT, new Anchor("logout", "Logout")));
+        tabs.add(createTab(UPLOAD, UploadView.class));
+        tabs.add(createTab(HEART, VolunteersView.class));
+        tabs.add(createTab(GROUP, TeamsView.class));
+        tabs.add(createTab(CALENDAR, SchedulesView.class));
+        tabs.add(createTab(ABACUS, StatsView.class));
+        tabs.add(createTab(QUESTION_CIRCLE, AboutView.class));
+        tabs.add(createTab(EXIT, new Anchor("logout", "Logout")));
         return tabs.toArray(new Tab[0]);
     }
 
-    private static Tab createTab(String title, VaadinIcon vaadinIcon, Class<? extends Component> viewClass) {
-        return createTab(vaadinIcon, populateLink(new RouterLink(null, viewClass), title));
+    private static Tab createTab(VaadinIcon vaadinIcon, Class<? extends Component> viewClass) {
+        PageTitle pageTitle = viewClass.getAnnotation(PageTitle.class);
+        return createTab(vaadinIcon, populateLink(new RouterLink(null, viewClass), pageTitle.value()));
     }
 
     private static Tab createTab(VaadinIcon vaadinIcon, Component content) {

@@ -12,7 +12,7 @@ import fr.frogdevelopment.ep.implementation.UploadData;
 import fr.frogdevelopment.ep.views.MainView;
 
 @Route(value = "upload", layout = MainView.class)
-@PageTitle("Upload")
+@PageTitle("Import Excel")
 //@Secured("ROLE_Admin")
 public class UploadView extends VerticalLayout {
 
