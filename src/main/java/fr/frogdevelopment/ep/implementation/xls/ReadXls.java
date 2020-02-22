@@ -229,6 +229,12 @@ public class ReadXls {
             if (matcher.find()) {
                 LocalDateTime from = LocalDateTime.parse(format(dayDate, matcher.group("from")), DATE_TIME_FORMATTER);
                 LocalDateTime to = LocalDateTime.parse(format(dayDate, matcher.group("to")), DATE_TIME_FORMATTER);
+                if (from.getHour()
+                        < 12) { // Friday case when working from 00:15 to 03:00 -> in fact it is Saturday morning
+                    from = from.plusDays(1);
+                    to = to.plusDays(1);
+                }
+
                 if (to.isBefore(from)) {
                     to = to.plusDays(1);
                 }
