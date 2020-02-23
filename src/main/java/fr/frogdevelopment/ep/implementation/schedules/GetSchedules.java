@@ -19,9 +19,9 @@ public class GetSchedules {
 
     private final RowMapper<Schedule> scheduleRowMapper = (rs, rowNum) -> Schedule.builder()
             .id(rs.getInt("schedule_id"))
-            .from(rs.getTimestamp("from_datetime").toLocalDateTime())
-            .to(rs.getTimestamp("to_datetime").toLocalDateTime())
-            .where(Location.valueOf(rs.getString("location")))
+            .start(rs.getTimestamp("from_datetime").toLocalDateTime())
+            .end(rs.getTimestamp("to_datetime").toLocalDateTime())
+            .location(Location.valueOf(rs.getString("location")))
             .teamCode(rs.getString("team_code"))
             .build();
 

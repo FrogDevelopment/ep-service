@@ -19,9 +19,9 @@ public class AddSchedule {
 
     public void call(Schedule schedule) {
         var paramSource = new MapSqlParameterSource()
-                .addValue("from_datetime", schedule.getFrom())
-                .addValue("to_datetime", schedule.getTo())
-                .addValue("location", schedule.getWhere())
+                .addValue("from_datetime", schedule.getStart())
+                .addValue("to_datetime", schedule.getEnd())
+                .addValue("location", schedule.getLocation().name())
                 .addValue("team_code", schedule.getTeamCode())
                 .addValue("volunteer_ref", schedule.getVolunteerRef());
 

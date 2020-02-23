@@ -21,7 +21,7 @@ public class EpCalendar extends FullCalendar {
 
     void setSchedules(List<Schedule> schedules) {
         if (!schedules.isEmpty()) {
-            gotoDate(schedules.get(0).getFrom().toLocalDate());
+            gotoDate(schedules.get(0).getStart().toLocalDate());
             var entries = toEntries(schedules);
             addEntries(entries);
         }
@@ -37,9 +37,9 @@ public class EpCalendar extends FullCalendar {
     private Entry toEntry(Schedule s) {
         var entry = new Entry();
         entry.setTitle(s.getTeamCode());
-        entry.setStart(s.getFrom());
-        entry.setEnd(s.getTo());
-        entry.setColor(colorByLocation(s.getWhere()));
+        entry.setStart(s.getStart());
+        entry.setEnd(s.getEnd());
+        entry.setColor(colorByLocation(s.getLocation()));
         return entry;
     }
 

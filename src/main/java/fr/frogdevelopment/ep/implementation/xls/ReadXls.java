@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -65,21 +64,22 @@ public class ReadXls {
 
             teams.values().forEach(team -> {
                 addTeam.call(team);
-                var mapSchedules = new HashMap<Schedule, Integer>();
+//                var mapSchedules = new HashMap<Schedule, Integer>();
                 team.getVolunteers().forEach(volunteer -> {
                     addVolunteer.call(volunteer);
-                    volunteer.getSchedules().forEach(schedule -> mapSchedules.merge(schedule, 1, Integer::sum));
+                    volunteer.getSchedules().forEach(addSchedule::call);
+//                    volunteer.getSchedules().forEach(schedule -> mapSchedules.merge(schedule, 1, Integer::sum));
                 });
 
-                if (!mapSchedules.isEmpty()) { // Boss don't have schedules
-                    Integer max = Collections.max(mapSchedules.values());
-                    mapSchedules.forEach((schedule, total) -> {
-                        if (total.equals(max)) { // is a team schedule
-                            schedule.setVolunteerRef(null);
-                        }
-                        addSchedule.call(schedule);
-                    });
-                }
+//                if (!mapSchedules.isEmpty()) { // Boss don't have schedules
+//                    Integer max = Collections.max(mapSchedules.values());
+//                    mapSchedules.forEach((schedule, total) -> {
+//                        if (total.equals(max)) { // is a team schedule
+//                            schedule.setVolunteerRef(null);
+//                        }
+//                        addSchedule.call(schedule);
+//                    });
+//                }
             });
         } catch (IOException e) {
             log.error(e.getMessage(), e);
@@ -191,9 +191,9 @@ public class ReadXls {
                 Pair<LocalDateTime, LocalDateTime> schedules = dateTimes.get(i);
 
                 var schedule = Schedule.builder()
-                        .from(schedules.getLeft())
-                        .to(schedules.getRight())
-                        .where(getLocation(value))
+                        .start(schedules.getLeft())
+                        .end(schedules.getRight())
+                        .location(getLocation(value))
                         .teamCode(volunteer.getTeamCode())
                         .volunteerRef(volunteer.getRef())
                         .build();

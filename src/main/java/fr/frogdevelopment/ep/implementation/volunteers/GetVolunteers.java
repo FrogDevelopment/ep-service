@@ -33,22 +33,4 @@ public class GetVolunteers {
                 .referent(rs.getBoolean("referent"))
                 .build());
     }
-
-    @Transactional(propagation = Propagation.REQUIRED)
-    public List<Volunteer> getAllWithSchedules() {
-        var sql = "SELECT *"
-                + " FROM volunteers"
-                + " ORDER BY last_name, first_name";
-
-        return jdbcTemplate.query(sql, (rs, rowNum) -> Volunteer.builder()
-                .id(rs.getInt("volunteer_id"))
-                .ref(rs.getString("volunteer_ref"))
-                .lastName(rs.getString("last_name"))
-                .firstName(rs.getString("first_name"))
-                .email(rs.getString("email"))
-                .phoneNumber(rs.getString("phone_number"))
-                .teamCode(rs.getString("team_code"))
-                .referent(rs.getBoolean("referent"))
-                .build());
-    }
 }
