@@ -15,6 +15,7 @@ export class EpCalendar extends FullCalendar {
 
     options.firstDay = 1
     options.allDaySlot = false
+    options.slotEventOverlap = true
     options.snapDuration = '00:15';
 
     return options;
