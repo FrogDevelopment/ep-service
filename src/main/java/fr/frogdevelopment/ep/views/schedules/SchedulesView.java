@@ -110,12 +110,7 @@ public class SchedulesView extends VerticalLayout implements AfterNavigationObse
     }
 
     private void fetchEntries() {
-        calendar.removeAllEntries();
-        List<Schedule> schedules = schedulesRepository.getGroupedSchedulesByTeam();
-        if (!schedules.isEmpty()) {
-            calendar.gotoDate(schedules.get(0).getStart().toLocalDate());
-            calendar.addEntries(toEntries(schedules));
-        }
+        calendar.addEntries(toEntries(schedulesRepository.getGroupedSchedulesByTeam()));
     }
 
     private List<Entry> toEntries(List<Schedule> schedules) {

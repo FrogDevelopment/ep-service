@@ -9,29 +9,40 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import fr.frogdevelopment.ep.model.Volunteer;
+import fr.frogdevelopment.ep.views.schedules.EpCalendar;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
+import org.vaadin.stefan.fullcalendar.Entry;
 
-public class TeamMembers extends VerticalLayout {
+public class TeamMembers extends HorizontalLayout {
 
     private final ListBox<Volunteer> referentsListBox = new ListBox<>();
     private final ListBox<Volunteer> membersListBox = new ListBox<>();
 
-    TeamMembers(List<Volunteer> volunteers) {
+    TeamMembers(List<Volunteer> volunteers, List<Entry> entries) {
+        addTeamLayout(volunteers);
+        addTeamCalendar(entries);
+    }
+
+    private void addTeamLayout(List<Volunteer> volunteers) {
+        var teamLayout = new VerticalLayout();
         var volunteerRenderer = new TextRenderer<>((ItemLabelGenerator<Volunteer>) Volunteer::getFullName);
 
         referentsListBox.setHeightFull();
         referentsListBox.setReadOnly(true);
         referentsListBox.setRenderer(volunteerRenderer);
-        add(titleBox(VaadinIcon.USER_STAR, "Référents"), referentsListBox);
+        teamLayout.add(titleBox(VaadinIcon.USER_STAR, "Référents"), referentsListBox);
 
         membersListBox.setHeightFull();
         membersListBox.setReadOnly(true);
         membersListBox.setRenderer(volunteerRenderer);
-        add(titleBox(VaadinIcon.USER, "Membres"), membersListBox);
+        teamLayout.add(titleBox(VaadinIcon.USER, "Membres"), membersListBox);
 
         setVolunteers(volunteers);
+
+        add(teamLayout);
     }
 
     private void setVolunteers(List<Volunteer> volunteers) {
@@ -54,6 +65,15 @@ public class TeamMembers extends VerticalLayout {
 
         referentsListBox.setItems(referents);
         membersListBox.setItems(members);
+    }
+
+    private void addTeamCalendar(List<Entry> entries) {
+        var calendar = new EpCalendar();
+        calendar.changeView(CalendarViewImpl.LIST_WEEK);
+        calendar.setHeight("500px");
+        calendar.addEntries(entries);
+
+        add(calendar);
     }
 
     private Component titleBox(VaadinIcon vaadinIcon, String title) {
