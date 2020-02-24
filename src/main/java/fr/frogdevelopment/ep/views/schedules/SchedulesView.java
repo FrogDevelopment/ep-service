@@ -12,7 +12,7 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import fr.frogdevelopment.ep.implementation.schedules.GetSchedules;
+import fr.frogdevelopment.ep.implementation.schedules.SchedulesRepository;
 import fr.frogdevelopment.ep.model.Schedule.Location;
 import fr.frogdevelopment.ep.views.MainView;
 import lombok.extern.slf4j.Slf4j;
@@ -23,11 +23,11 @@ import lombok.extern.slf4j.Slf4j;
 @CssImport("./styles/views/teams/teams-view.css")
 public class SchedulesView extends VerticalLayout implements AfterNavigationObserver {
 
-    private final transient GetSchedules getSchedules;
+    private final transient SchedulesRepository schedulesRepository;
     private final EpCalendar calendar = new EpCalendar();
 
-    public SchedulesView(GetSchedules getSchedules) {
-        this.getSchedules = getSchedules;
+    public SchedulesView(SchedulesRepository schedulesRepository) {
+        this.schedulesRepository = schedulesRepository;
 
         setId("schedules-view");
 
@@ -55,7 +55,7 @@ public class SchedulesView extends VerticalLayout implements AfterNavigationObse
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
-        calendar.setSchedules(getSchedules.call());
+        calendar.setSchedules(schedulesRepository.getGroupedSchedulesByTeam());
     }
 
 }

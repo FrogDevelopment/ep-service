@@ -36,7 +36,7 @@ public class EpCalendar extends FullCalendar {
 
     private Entry toEntry(Schedule s) {
         var entry = new Entry();
-        entry.setTitle(s.getTeamCode());
+        entry.setTitle(String.format("%s%n%s", s.getLocation(), s.getTeamCode()));
         entry.setStart(s.getStart());
         entry.setEnd(s.getEnd());
         entry.setColor(colorByLocation(s.getLocation()));
