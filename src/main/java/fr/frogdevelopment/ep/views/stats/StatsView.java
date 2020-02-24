@@ -2,6 +2,7 @@ package fr.frogdevelopment.ep.views.stats;
 
 import static com.vaadin.flow.component.grid.ColumnTextAlign.CENTER;
 import static com.vaadin.flow.component.grid.GridVariant.LUMO_NO_BORDER;
+import static com.vaadin.flow.component.grid.GridVariant.LUMO_ROW_STRIPES;
 import static fr.frogdevelopment.ep.model.Schedule.Location.AUTRES;
 import static fr.frogdevelopment.ep.model.Schedule.Location.values;
 import static java.time.Duration.between;
@@ -44,7 +45,7 @@ import java.util.stream.Collectors;
 
 @PageTitle("Statistiques")
 @Route(value = "stats", layout = MainView.class)
-@CssImport("./styles/views/volunteers/volunteers-view.css")
+@CssImport("./styles/views/stats/stats-view.css")
 public class StatsView extends Div implements AfterNavigationObserver {
 
     private final transient StatsRepository statsRepository;
@@ -60,7 +61,7 @@ public class StatsView extends Div implements AfterNavigationObserver {
         setId("stats-view");
 
         grid.setId("list");
-        grid.addThemeVariants(LUMO_NO_BORDER);
+        grid.addThemeVariants(LUMO_NO_BORDER, LUMO_ROW_STRIPES);
         grid.setHeightFull();
 
         grid.addColumn(Volunteer::getTeamCode)
@@ -219,6 +220,5 @@ public class StatsView extends Div implements AfterNavigationObserver {
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
         grid.setItems(statsRepository.getAllWithSchedules());
-        grid.setHeight("800px"); // Fixme
     }
 }

@@ -3,6 +3,7 @@ package fr.frogdevelopment.ep.views.volunteers;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.component.grid.GridVariant.LUMO_NO_BORDER;
+import static com.vaadin.flow.component.grid.GridVariant.LUMO_ROW_STRIPES;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
 
@@ -98,7 +99,7 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
 
     private void createGrid() {
         grid.setId("list");
-        grid.addThemeVariants(LUMO_NO_BORDER/*, LUMO_NO_ROW_BORDERS*/);
+        grid.addThemeVariants(LUMO_NO_BORDER, LUMO_ROW_STRIPES);
         grid.setHeight("95%");
 
         grid.addComponentColumn(getReferentRenderer())
