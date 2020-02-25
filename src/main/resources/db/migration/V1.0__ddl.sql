@@ -13,6 +13,7 @@ CREATE TABLE volunteers
         CONSTRAINT unique_ref UNIQUE,
     last_name     TEXT NOT NULL,
     first_name    TEXT NOT NULL,
+    friends_group TEXT NULL,
     email         TEXT NOT NULL
         CONSTRAINT unique_email UNIQUE,
     phone_number  TEXT NOT NULL

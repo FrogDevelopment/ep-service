@@ -30,6 +30,7 @@ public class GetVolunteers {
                 .email(rs.getString("email"))
                 .phoneNumber(rs.getString("phone_number"))
                 .teamCode(rs.getString("team_code"))
+                .friendsGroup(rs.getString("friends_group"))
                 .referent(rs.getBoolean("referent"))
                 .build());
     }

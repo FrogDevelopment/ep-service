@@ -147,6 +147,7 @@ public class ReadXls {
             var cellLastName = getCellStringValue(row, 0);
             var cellFirstName = getCellStringValue(row, 1);
             var cellTeam = getCellStringValue(row, 2);
+            var cellCircle = getNumericCellValue(row, 3);
 
             if (isAllBlank(cellLastName, cellFirstName, cellTeam)) {
                 log.warn("No data, breaking parser at row {}", rowNum);
@@ -158,13 +159,13 @@ public class ReadXls {
                 continue;
             }
 
-            handleRow(teams, dateTimes, friday, sunday, row, cellLastName, cellFirstName, cellTeam);
+            handleRow(teams, dateTimes, friday, sunday, row, cellLastName, cellFirstName, cellTeam, cellCircle);
         }
     }
 
     private void handleRow(Map<String, Team> teams, HashMap<Integer, Pair<LocalDateTime, LocalDateTime>> dateTimes,
-                           Day friday,
-                           Day sunday, Row row, String cellLastName, String cellFirstName, String cellTeam) {
+                           Day friday, Day sunday, Row row, String cellLastName, String cellFirstName,
+                           String cellTeam, String cellCircle) {
         var volunteer = Volunteer.builder()
                 .ref(UUID.randomUUID().toString())
                 .lastName(cellLastName)
@@ -172,6 +173,7 @@ public class ReadXls {
                 .phoneNumber(randomPhoneNumber()) // fixme
                 .email(randomEmail(cellLastName, cellFirstName)) // fixme
                 .teamCode(cellTeam)
+                .friendsGroup(cellCircle)
                 .build();
 
         if (teams.containsKey(cellTeam)) {
@@ -255,6 +257,11 @@ public class ReadXls {
     private static String getCellStringValue(Row row, int i) {
         var cell = row.getCell(i);
         return cell != null ? cell.getStringCellValue() : "";
+    }
+
+    private static String getNumericCellValue(Row row, int i) {
+        var cell = row.getCell(i);
+        return cell != null ? String.valueOf(Double.valueOf(cell.getNumericCellValue()).intValue()) : "";
     }
 
     private static String randomPhoneNumber() {

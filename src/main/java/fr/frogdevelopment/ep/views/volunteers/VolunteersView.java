@@ -18,8 +18,6 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -102,7 +100,7 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
         grid.addThemeVariants(LUMO_NO_BORDER, LUMO_ROW_STRIPES);
         grid.setHeight("95%");
 
-        grid.addComponentColumn(getReferentRenderer())
+        grid.addComponentColumn(this::getReferentRenderer)
                 .setFlexGrow(0)
                 .setAutoWidth(true);
 
@@ -114,11 +112,11 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
                 .setHeader("Prénom")
                 .setSortable(true);
 
-        grid.addColumn(v -> teams.stream()
-                .filter(t -> t.getCode().endsWith(v.getTeamCode()))
-                .findFirst()
-                .map(Team::getName)
-                .orElse("-"))
+        grid.addColumn(Volunteer::getFriendsGroup)
+                .setHeader("Groupe\nd'amis")
+                .setSortable(true);
+
+        grid.addColumn(this::getVolunteerTeam)
                 .setHeader("Équipe")
                 .setSortable(true);
 
@@ -128,38 +126,50 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
                 .setFlexGrow(0)
                 .setAutoWidth(true);
 
-        grid.addColumn(createEmailToAnchor())
+        grid.addComponentColumn(this::getEmailToAnchor)
                 .setHeader("Email");
 
-        grid.addComponentColumn(volunteer -> {
-            var wrapper = new HorizontalLayout();
-            var edit = new Button(VaadinIcon.EDIT.create());
-            edit.getStyle().set("cursor", "pointer");
-            edit.addClickListener(event -> onEditVolunteer(volunteer));
-            wrapper.add(edit);
-
-            var trash = new Button(VaadinIcon.TRASH.create());
-            trash.getStyle().set("cursor", "pointer");
-            trash.addClickListener(event -> onDeleteVolunteer(volunteer));
-            wrapper.add(trash);
-
-            return wrapper;
-        })
+        grid.addComponentColumn(this::getActionColumn)
                 .setFlexGrow(0)
                 .setAutoWidth(true);
 
         add(grid);
     }
 
-    private ValueProvider<Volunteer, Icon> getReferentRenderer() {
-        return v -> {
-            if (v.isReferent()) {
-                var icon = VaadinIcon.USER_STAR.create();
-                icon.setColor("gold");
-                return icon;
-            }
-            return VaadinIcon.USER.create();
-        };
+    private Icon getReferentRenderer(Volunteer volunteer) {
+        if (volunteer.isReferent()) {
+            var icon = VaadinIcon.USER_STAR.create();
+            icon.setColor("gold");
+            return icon;
+        }
+        return VaadinIcon.USER.create();
+    }
+
+    private String getVolunteerTeam(Volunteer volunteer) {
+        return teams.stream()
+                .filter(t -> t.getCode().equals(volunteer.getTeamCode()))
+                .findFirst()
+                .map(Team::getName)
+                .orElse("-");
+    }
+
+    private Anchor getEmailToAnchor(Volunteer volunteer) {
+        return new Anchor("mailto:" + volunteer.getEmail(), volunteer.getEmail());
+    }
+
+    private HorizontalLayout getActionColumn(Volunteer volunteer) {
+        var wrapper = new HorizontalLayout();
+        var edit = new Button(VaadinIcon.EDIT.create());
+        edit.getStyle().set("cursor", "pointer");
+        edit.addClickListener(event -> onEditVolunteer(volunteer));
+        wrapper.add(edit);
+
+        var trash = new Button(VaadinIcon.TRASH.create());
+        trash.getStyle().set("cursor", "pointer");
+        trash.addClickListener(event -> onDeleteVolunteer(volunteer));
+        wrapper.add(trash);
+
+        return wrapper;
     }
 
     private void onEditVolunteer(Volunteer volunteer) {
@@ -223,10 +233,6 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
         grid.setItems(unfilteredData);
         clearFilter.setVisible(false);
         buttonFilter.setVisible(true);
-    }
-
-    private static ComponentRenderer<Anchor, Volunteer> createEmailToAnchor() {
-        return new ComponentRenderer<>(volunteer -> new Anchor("mailto:" + volunteer.getEmail(), volunteer.getEmail()));
     }
 
     @Override

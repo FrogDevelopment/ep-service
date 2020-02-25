@@ -32,6 +32,7 @@ public class AddVolunteer {
                 .addValue("phoneNumber", volunteer.getPhoneNumber())
                 .addValue("email", lowerCase(volunteer.getEmail()))
                 .addValue("team_code", volunteer.getTeamCode())
+                .addValue("friends_group", volunteer.getFriendsGroup())
                 .addValue("referent", volunteer.isReferent());
 
         var returnedKey = simpleJdbcInsert.executeAndReturnKey(paramSource);

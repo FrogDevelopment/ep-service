@@ -26,6 +26,7 @@ public class Volunteer implements Serializable {
     private String phoneNumber;
     private String email;
     private String teamCode;
+    private String friendsGroup;
     private boolean referent;
 
     @Default
