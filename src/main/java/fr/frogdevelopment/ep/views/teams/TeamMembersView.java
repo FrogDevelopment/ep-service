@@ -14,27 +14,28 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
-import fr.frogdevelopment.ep.client.SchedulesClient;
 import fr.frogdevelopment.ep.client.VolunteersClient;
 import fr.frogdevelopment.ep.model.Volunteer;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-@Route(value = "team/members", layout = ParentTeamView.class)
+@Route(value = "team/members", layout = TeamParentView.class)
 public class TeamMembersView extends VerticalLayout implements HasUrlParameter<String>, HasDynamicTitle,
         AfterNavigationObserver {
 
     private final transient VolunteersClient volunteersClient;
-    private final transient SchedulesClient schedulesClient;
 
+    private final TeamNavigationBar teamNavigationBar = new TeamNavigationBar();
     private final ListBox<Volunteer> referentsListBox = new ListBox<>();
-    private String teamCode;
     private final ListBox<Volunteer> membersListBox = new ListBox<>();
 
-    public TeamMembersView(VolunteersClient volunteersClient, SchedulesClient schedulesClient) {
+    private String teamCode;
+
+    public TeamMembersView(VolunteersClient volunteersClient) {
         this.volunteersClient = volunteersClient;
-        this.schedulesClient = schedulesClient;
+
+        add(teamNavigationBar);
 
         var teamLayout = new VerticalLayout();
         var volunteerRenderer = new TextRenderer<>((ItemLabelGenerator<Volunteer>) Volunteer::getFullName);
@@ -56,6 +57,7 @@ public class TeamMembersView extends VerticalLayout implements HasUrlParameter<S
     @Override
     public void setParameter(BeforeEvent event, String parameter) {
         teamCode = parameter;
+        teamNavigationBar.setTeam(teamCode);
     }
 
     @Override
