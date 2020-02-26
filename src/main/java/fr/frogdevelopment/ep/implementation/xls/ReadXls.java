@@ -5,7 +5,6 @@ import static fr.frogdevelopment.ep.model.Schedule.Location.BRACELET;
 import static fr.frogdevelopment.ep.model.Schedule.Location.FOUILLES;
 import static fr.frogdevelopment.ep.model.Schedule.Location.LITIGES;
 import static java.util.regex.Pattern.compile;
-import static org.apache.commons.lang3.StringUtils.isAllBlank;
 import static org.apache.commons.lang3.StringUtils.isAnyBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -44,6 +43,7 @@ public class ReadXls {
     private final AddTeam addTeam;
     private final AddVolunteer addVolunteer;
     private final AddSchedule addSchedule;
+    private final Random phoneNumberGenerator = new Random();
 
     public ReadXls(ExcelParameters parameters,
                    AddTeam addTeam,
@@ -144,28 +144,22 @@ public class ReadXls {
                 break;
             }
 
-            var cellLastName = getCellStringValue(row, 0);
-            var cellFirstName = getCellStringValue(row, 1);
-            var cellTeam = getCellStringValue(row, 2);
-            var cellCircle = getNumericCellValue(row, 3);
-
-            if (isAllBlank(cellLastName, cellFirstName, cellTeam)) {
-                log.warn("No data, breaking parser at row {}", rowNum);
-                break;
-            }
-
-            if (isAnyBlank(cellLastName, cellFirstName, cellTeam)) {
-                log.warn("Missing data, skipping row {}", rowNum);
-                continue;
-            }
-
-            handleRow(teams, dateTimes, friday, sunday, row, cellLastName, cellFirstName, cellTeam, cellCircle);
+            handleRow(teams, dateTimes, friday, sunday, row);
         }
     }
 
     private void handleRow(Map<String, Team> teams, HashMap<Integer, Pair<LocalDateTime, LocalDateTime>> dateTimes,
-                           Day friday, Day sunday, Row row, String cellLastName, String cellFirstName,
-                           String cellTeam, String cellCircle) {
+                           Day friday, Day sunday, Row row) {
+        var cellLastName = getCellStringValue(row, 0);
+        var cellFirstName = getCellStringValue(row, 1);
+
+        if (isAnyBlank(cellLastName, cellFirstName)) {
+            log.warn("Missing data, skipping row {}", row.getRowNum());
+            return;
+        }
+
+        var cellTeam = getCellStringValue(row, 2);
+
         var volunteer = Volunteer.builder()
                 .ref(UUID.randomUUID().toString())
                 .lastName(cellLastName)
@@ -173,7 +167,7 @@ public class ReadXls {
                 .phoneNumber(randomPhoneNumber()) // fixme
                 .email(randomEmail(cellLastName, cellFirstName)) // fixme
                 .teamCode(cellTeam)
-                .friendsGroup(cellCircle)
+                .friendsGroup(getCharForNumber(getNumericCellValue(row, 3)))
                 .build();
 
         if (teams.containsKey(cellTeam)) {
@@ -181,7 +175,7 @@ public class ReadXls {
             team.getVolunteers().add(volunteer);
             addSchedules(dateTimes, friday, sunday, row, volunteer);
         } else {
-            log.warn("Volunteer {} without team", volunteer);
+            log.warn("Unknown team {}", volunteer);
         }
     }
 
@@ -259,23 +253,26 @@ public class ReadXls {
         return cell != null ? cell.getStringCellValue() : "";
     }
 
-    private static String getNumericCellValue(Row row, int i) {
+    private static int getNumericCellValue(Row row, int i) {
         var cell = row.getCell(i);
-        return cell != null ? String.valueOf(Double.valueOf(cell.getNumericCellValue()).intValue()) : "";
+        return cell != null ? Double.valueOf(cell.getNumericCellValue()).intValue() : -1;
     }
 
-    private static String randomPhoneNumber() {
-        Random generator = new Random();
-        var sixOrSeven = generator.nextBoolean() ? "6" : "7";
-        var num1 = generator.nextInt(99);
-        var num2 = generator.nextInt(99);
-        var num3 = generator.nextInt(99);
-        var num4 = generator.nextInt(99);
+    private String randomPhoneNumber() {
+        var sixOrSeven = phoneNumberGenerator.nextBoolean() ? "6" : "7";
+        var num1 = phoneNumberGenerator.nextInt(99);
+        var num2 = phoneNumberGenerator.nextInt(99);
+        var num3 = phoneNumberGenerator.nextInt(99);
+        var num4 = phoneNumberGenerator.nextInt(99);
 
         return String.format("0%s %02d %02d %02d %02d", sixOrSeven, num1, num2, num3, num4);
     }
 
     private static String randomEmail(String lastName, String firstName) {
         return String.format("%s.%s@test.com", lastName.replace(" ", "_"), firstName.replace(" ", "_")).toLowerCase();
+    }
+
+    private static String getCharForNumber(int i) {
+        return i > 0 && i < 27 ? String.valueOf((char) (i + 64)) : null;
     }
 }
