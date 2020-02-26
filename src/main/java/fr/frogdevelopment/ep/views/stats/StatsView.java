@@ -25,7 +25,7 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import fr.frogdevelopment.ep.implementation.stats.StatsRepository;
+import fr.frogdevelopment.ep.client.StatsClient;
 import fr.frogdevelopment.ep.implementation.stats.StatsRepository.TimeSlot;
 import fr.frogdevelopment.ep.model.Schedule;
 import fr.frogdevelopment.ep.model.Schedule.Location;
@@ -48,15 +48,15 @@ import java.util.stream.Collectors;
 @CssImport("./styles/views/stats/stats-view.css")
 public class StatsView extends Div implements AfterNavigationObserver {
 
-    private final transient StatsRepository statsRepository;
+    private final transient StatsClient statsClient;
 
     private final Grid<Volunteer> grid = new Grid<>();
     private final Map<String, Map<String, String>> mapLocationBySlot = new HashMap<>();
     private final Map<String, Map<Location, Integer>> mapSumLocationsByVolunteers = new HashMap<>();
     private final Map<String, Map<Location, Double>> mapDurationsByVolunteers = new HashMap<>();
 
-    public StatsView(StatsRepository statsRepository) {
-        this.statsRepository = statsRepository;
+    public StatsView(StatsClient statsClient) {
+        this.statsClient = statsClient;
 
         setId("stats-view");
 
@@ -84,7 +84,7 @@ public class StatsView extends Div implements AfterNavigationObserver {
                 .setFrozen(true);
 
         var headerRow = grid.prependHeaderRow();
-        statsRepository.getTimeSlots()
+        statsClient.getTimeSlots()
                 .stream()
                 .collect(groupingBy(ts -> ts.getStart().getDayOfWeek(), () -> new EnumMap<>(DayOfWeek.class),
                         mapping(ts -> grid.addColumn(getLocationBySlot(ts))
@@ -219,6 +219,6 @@ public class StatsView extends Div implements AfterNavigationObserver {
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
-        grid.setItems(statsRepository.getAllWithSchedules());
+        grid.setItems(statsClient.getAllWithSchedules());
     }
 }

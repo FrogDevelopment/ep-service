@@ -23,11 +23,8 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
-import fr.frogdevelopment.ep.implementation.teams.GetTeams;
-import fr.frogdevelopment.ep.implementation.volunteers.AddVolunteer;
-import fr.frogdevelopment.ep.implementation.volunteers.DeleteVolunteer;
-import fr.frogdevelopment.ep.implementation.volunteers.GetVolunteers;
-import fr.frogdevelopment.ep.implementation.volunteers.UpdateVolunteer;
+import fr.frogdevelopment.ep.client.TeamsClient;
+import fr.frogdevelopment.ep.client.VolunteersClient;
 import fr.frogdevelopment.ep.model.Team;
 import fr.frogdevelopment.ep.model.Volunteer;
 import fr.frogdevelopment.ep.views.MainView;
@@ -42,11 +39,8 @@ import java.util.stream.Collectors;
 @CssImport("./styles/views/volunteers/volunteers-view.css")
 public class VolunteersView extends Div implements AfterNavigationObserver {
 
-    private final transient AddVolunteer addVolunteer;
-    private final transient GetVolunteers getVolunteers;
-    private final transient GetTeams getTeams;
-    private final transient UpdateVolunteer updateVolunteer;
-    private final transient DeleteVolunteer deleteVolunteer;
+    private final transient VolunteersClient volunteersClient;
+    private final transient TeamsClient teamsClient;
 
     private final Grid<Volunteer> grid = new Grid<>();
     private final Button clearFilter = new Button("Enlever filtre", VaadinIcon.CLOSE_SMALL.create());
@@ -55,16 +49,10 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
     private List<Volunteer> unfilteredData;
     private List<Team> teams;
 
-    public VolunteersView(AddVolunteer addVolunteer,
-                          GetVolunteers getVolunteers,
-                          GetTeams getTeams,
-                          UpdateVolunteer updateVolunteer,
-                          DeleteVolunteer deleteVolunteer) {
-        this.addVolunteer = addVolunteer;
-        this.getVolunteers = getVolunteers;
-        this.getTeams = getTeams;
-        this.updateVolunteer = updateVolunteer;
-        this.deleteVolunteer = deleteVolunteer;
+    public VolunteersView(VolunteersClient volunteersClient,
+                          TeamsClient teamsClient) {
+        this.volunteersClient = volunteersClient;
+        this.teamsClient = teamsClient;
 
         setId("volunteers-view");
 
@@ -174,7 +162,7 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
 
     private void onEditVolunteer(Volunteer volunteer) {
         var dialog = new VolunteerDialog(volunteer, teams, updatedVolunteer -> {
-            updateVolunteer.call(updatedVolunteer);
+            volunteersClient.update(updatedVolunteer);
             Notification.show("Bénévole mis à jour", 5000, Position.TOP_CENTER);
             fetchVolunteers();
         });
@@ -185,7 +173,7 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
         ConfirmDialog.builder()
                 .message("Supprimer le bénévole ?")
                 .confirmButton("Supprimer", () -> {
-                    deleteVolunteer.call(volunteer);
+                    volunteersClient.delete(volunteer);
                     Notification.show("Bénévole supprimé", 5000, Position.TOP_CENTER);
                     fetchVolunteers();
                 })
@@ -194,7 +182,7 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
 
     private void newVolunteer() {
         var dialog = new VolunteerDialog(teams, volunteer -> {
-            addVolunteer.call(volunteer);
+            volunteersClient.create(volunteer);
             Notification.show("Bénévole ajouté", 5000, Position.TOP_CENTER);
             fetchVolunteers();
         });
@@ -237,12 +225,12 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
-        teams = getTeams.getAll();
+        teams = teamsClient.getAll();
         fetchVolunteers();
     }
 
     private void fetchVolunteers() {
-        unfilteredData = getVolunteers.getAll();
+        unfilteredData = volunteersClient.getAll();
         grid.setItems(unfilteredData);
     }
 

@@ -17,7 +17,7 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import fr.frogdevelopment.ep.implementation.schedules.SchedulesRepository;
+import fr.frogdevelopment.ep.client.SchedulesClient;
 import fr.frogdevelopment.ep.model.Schedule;
 import fr.frogdevelopment.ep.model.Schedule.Location;
 import fr.frogdevelopment.ep.views.MainView;
@@ -37,15 +37,15 @@ import org.vaadin.stefan.fullcalendar.EntryClickedEvent;
 @CssImport("./styles/views/teams/teams-view.css")
 public class SchedulesView extends VerticalLayout implements AfterNavigationObserver {
 
-    private final transient SchedulesRepository schedulesRepository;
+    private final transient SchedulesClient schedulesClient;
 
     private final transient Map<String, Schedule> schedulesByEntry = new HashMap<>();
 
     private final EpCalendar calendar = new EpCalendar();
     private final ContextMenu contextMenu = new ContextMenu(calendar);
 
-    public SchedulesView(SchedulesRepository schedulesRepository) {
-        this.schedulesRepository = schedulesRepository;
+    public SchedulesView(SchedulesClient schedulesClient) {
+        this.schedulesClient = schedulesClient;
 
         setId("schedules-view");
 
@@ -82,7 +82,7 @@ public class SchedulesView extends VerticalLayout implements AfterNavigationObse
         var newLocation = Location.valueOf(event.getSource().getText());
         var schedule = schedulesByEntry.get(entryId);
         schedule.setLocation(newLocation);
-        schedulesRepository.changeLocation(schedule);
+        schedulesClient.changeLocation(schedule);
         Notification.show("Change location to " + newLocation);
         fetchEntries();
     }
@@ -110,7 +110,7 @@ public class SchedulesView extends VerticalLayout implements AfterNavigationObse
     }
 
     private void fetchEntries() {
-        calendar.addEntries(toEntries(schedulesRepository.getGroupedSchedulesByTeam()));
+        calendar.addEntries(toEntries(schedulesClient.getGroupedSchedulesByTeam()));
     }
 
     private List<Entry> toEntries(List<Schedule> schedules) {
