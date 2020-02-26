@@ -2,6 +2,7 @@ package fr.frogdevelopment.ep.views.volunteers;
 
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
+import static com.vaadin.flow.component.grid.ColumnTextAlign.CENTER;
 import static com.vaadin.flow.component.grid.GridVariant.LUMO_NO_BORDER;
 import static com.vaadin.flow.component.grid.GridVariant.LUMO_ROW_STRIPES;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -102,7 +103,10 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
 
         grid.addColumn(Volunteer::getFriendsGroup)
                 .setHeader("Groupe\nd'amis")
-                .setSortable(true);
+                .setSortable(true)
+                .setFlexGrow(0)
+                .setAutoWidth(true)
+                .setTextAlign(CENTER);
 
         grid.addColumn(this::getVolunteerTeam)
                 .setHeader("Équipe")

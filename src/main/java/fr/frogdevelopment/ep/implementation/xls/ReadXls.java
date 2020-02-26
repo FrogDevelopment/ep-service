@@ -273,6 +273,14 @@ public class ReadXls {
     }
 
     private static String getCharForNumber(int i) {
-        return i > 0 && i < 27 ? String.valueOf((char) (i + 64)) : null;
+        if (i <= 0) {
+            return null;
+        }
+
+        if (i > 27) {
+            return (char) 65 + getCharForNumber(i - 26);
+        }
+
+        return String.valueOf((char) (i + 64));
     }
 }
