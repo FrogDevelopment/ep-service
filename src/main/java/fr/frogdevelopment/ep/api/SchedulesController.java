@@ -5,6 +5,7 @@ import static org.springframework.http.HttpStatus.NO_CONTENT;
 import fr.frogdevelopment.ep.implementation.schedules.SchedulesRepository;
 import fr.frogdevelopment.ep.model.Schedule;
 import java.util.List;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 //@RestController
 //@RequestMapping(path = "schedules", produces = APPLICATION_JSON_VALUE)
+@Component
 public class SchedulesController {
 
     private final SchedulesRepository schedulesRepository;

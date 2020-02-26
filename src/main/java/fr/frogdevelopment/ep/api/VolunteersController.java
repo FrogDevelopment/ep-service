@@ -9,6 +9,7 @@ import fr.frogdevelopment.ep.implementation.volunteers.GetVolunteers;
 import fr.frogdevelopment.ep.implementation.volunteers.UpdateVolunteer;
 import fr.frogdevelopment.ep.model.Volunteer;
 import java.util.List;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 //@RestController
 //@RequestMapping(path = "volunteers", produces = APPLICATION_JSON_VALUE)
+@Component
 public class VolunteersController {
 
     private final GetVolunteers getVolunteers;
