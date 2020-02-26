@@ -19,6 +19,10 @@ public class VolunteersClient {
         return controller.getAll();
     }
 
+    public List<Volunteer> getAll(String teamCode) {
+        return controller.getAll(teamCode);
+    }
+
     public void create(Volunteer volunteer) {
         controller.create(volunteer);
     }

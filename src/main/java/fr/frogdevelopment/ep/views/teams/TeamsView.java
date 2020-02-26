@@ -1,18 +1,19 @@
 package fr.frogdevelopment.ep.views.teams;
 
-import com.vaadin.flow.component.accordion.Accordion;
+import static com.vaadin.flow.component.grid.GridVariant.LUMO_NO_BORDER;
+import static com.vaadin.flow.component.grid.GridVariant.LUMO_NO_ROW_BORDERS;
+
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.ItemClickEvent;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import fr.frogdevelopment.ep.client.SchedulesClient;
 import fr.frogdevelopment.ep.client.TeamsClient;
 import fr.frogdevelopment.ep.model.Team;
 import fr.frogdevelopment.ep.views.MainView;
-import java.util.Comparator;
 
 @PageTitle("Équipes")
 @Route(value = "teams", layout = MainView.class)
@@ -20,41 +21,31 @@ import java.util.Comparator;
 public class TeamsView extends Div implements AfterNavigationObserver {
 
     private final transient TeamsClient teamsClient;
-    private final transient SchedulesClient schedulesClient;
 
-    private final Accordion accordion = new Accordion();
+    private final Grid<Team> grid = new Grid<>();
 
-    public TeamsView(TeamsClient teamsClient,
-                     SchedulesClient schedulesClient) {
+    public TeamsView(TeamsClient teamsClient) {
         this.teamsClient = teamsClient;
-        this.schedulesClient = schedulesClient;
 
         setId("teams-view");
+        grid.setId("list");
+        grid.addThemeVariants(LUMO_NO_BORDER, LUMO_NO_ROW_BORDERS);
+        grid.setHeightFull();
+        grid.addColumn(Team::getFullName)
+                .setHeader("Nom")
+                .setSortable(true);
+        grid.addColumn(t -> String.format("%s membres", t.getVolunteers().size()));
+        grid.addItemClickListener(this::onItemClick);
 
-        add(accordion);
+        add(grid);
+    }
+
+    private void onItemClick(ItemClickEvent<Team> event) {
+        getUI().ifPresent(ui -> ui.navigate("team/members/" + event.getItem().getCode()));
     }
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
-        teamsClient.getAllWithMembers()
-                .sorted(Comparator.comparing(Team::getName))
-                .forEach(this::createAccordionContent);
+        grid.setItems(teamsClient.getAll());
     }
-
-    private void createAccordionContent(Team team) {
-        var wrapper = new HorizontalLayout();
-        wrapper.setHeight("500px");
-
-        var schedules = schedulesClient.getGroupedSchedulesByTeam(team.getCode());
-        var teamSchedules = new TeamSchedules(schedules);
-        teamSchedules.setHeight("500px");
-        wrapper.add(teamSchedules);
-
-        var teamMembers = new TeamMembers(team.getVolunteers());
-        teamMembers.setHeight("500px");
-        wrapper.add(teamMembers);
-
-        accordion.add(team.getFullName(), wrapper);
-    }
-
 }

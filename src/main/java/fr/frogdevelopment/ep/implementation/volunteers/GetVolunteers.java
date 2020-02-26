@@ -2,6 +2,7 @@ package fr.frogdevelopment.ep.implementation.volunteers;
 
 import fr.frogdevelopment.ep.model.Volunteer;
 import java.util.List;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
@@ -29,6 +30,26 @@ public class GetVolunteers {
                 .firstName(rs.getString("first_name"))
                 .email(rs.getString("email"))
                 .phoneNumber(rs.getString("phone_number"))
+                .teamCode(rs.getString("team_code"))
+                .friendsGroup(rs.getString("friends_group"))
+                .referent(rs.getBoolean("referent"))
+                .build());
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public List<Volunteer> getAll(String teamCode) {
+        var sql = "SELECT *"
+                + " FROM volunteers"
+                + " WHERE team_code = :teamCode"
+                + " ORDER BY last_name, first_name";
+
+        var paramsSource = new MapSqlParameterSource("teamCode", teamCode);
+
+        return jdbcTemplate.query(sql, paramsSource, (rs, rowNum) -> Volunteer.builder()
+                .id(rs.getInt("volunteer_id"))
+                .ref(rs.getString("volunteer_ref"))
+                .lastName(rs.getString("last_name"))
+                .firstName(rs.getString("first_name"))
                 .teamCode(rs.getString("team_code"))
                 .friendsGroup(rs.getString("friends_group"))
                 .referent(rs.getBoolean("referent"))

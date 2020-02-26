@@ -8,18 +8,33 @@ import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.TextRenderer;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.HasDynamicTitle;
+import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.Route;
+import fr.frogdevelopment.ep.client.SchedulesClient;
+import fr.frogdevelopment.ep.client.VolunteersClient;
 import fr.frogdevelopment.ep.model.Volunteer;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class TeamMembers extends HorizontalLayout {
+@Route(value = "team/members", layout = ParentTeamView.class)
+public class TeamMembersView extends VerticalLayout implements HasUrlParameter<String>, HasDynamicTitle,
+        AfterNavigationObserver {
+
+    private final transient VolunteersClient volunteersClient;
+    private final transient SchedulesClient schedulesClient;
 
     private final ListBox<Volunteer> referentsListBox = new ListBox<>();
+    private String teamCode;
     private final ListBox<Volunteer> membersListBox = new ListBox<>();
 
-    TeamMembers(List<Volunteer> volunteers) {
-        setVolunteers(volunteers);
+    public TeamMembersView(VolunteersClient volunteersClient, SchedulesClient schedulesClient) {
+        this.volunteersClient = volunteersClient;
+        this.schedulesClient = schedulesClient;
 
         var teamLayout = new VerticalLayout();
         var volunteerRenderer = new TextRenderer<>((ItemLabelGenerator<Volunteer>) Volunteer::getFullName);
@@ -36,6 +51,21 @@ public class TeamMembers extends HorizontalLayout {
                 membersListBox);
 
         add(teamLayout);
+    }
+
+    @Override
+    public void setParameter(BeforeEvent event, String parameter) {
+        teamCode = parameter;
+    }
+
+    @Override
+    public String getPageTitle() {
+        return teamCode;
+    }
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent event) {
+        setVolunteers(volunteersClient.getAll(teamCode));
     }
 
     private void setVolunteers(List<Volunteer> volunteers) {
