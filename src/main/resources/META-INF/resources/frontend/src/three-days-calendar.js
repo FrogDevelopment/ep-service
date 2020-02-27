@@ -1,6 +1,7 @@
 import {FullCalendar} from '../full-calendar';
 
-export class EpCalendar extends FullCalendar {
+export class ThreeDaysCalendar extends FullCalendar {
+
   _createInitOptions() {
     const options = super._createInitOptions();
     options.defaultView = 'timeGridThreeDays';
@@ -22,4 +23,4 @@ export class EpCalendar extends FullCalendar {
   }
 }
 
-customElements.define('ep-calendar', EpCalendar);
+customElements.define('three-days-calendar', ThreeDaysCalendar);

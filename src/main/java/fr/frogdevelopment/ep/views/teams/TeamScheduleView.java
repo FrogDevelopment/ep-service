@@ -8,6 +8,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
 import fr.frogdevelopment.ep.client.SchedulesClient;
+import fr.frogdevelopment.ep.views.components.SchedulesCalendar;
 
 @Route(value = "team/schedule", layout = TeamParentView.class)
 public class TeamScheduleView extends VerticalLayout implements HasUrlParameter<String>, HasDynamicTitle,
@@ -16,6 +17,7 @@ public class TeamScheduleView extends VerticalLayout implements HasUrlParameter<
     private final transient SchedulesClient schedulesClient;
 
     private final TeamNavigationBar teamNavigationBar = new TeamNavigationBar();
+    private final SchedulesCalendar calendar = new SchedulesCalendar();
 
     private String teamCode;
 
@@ -23,6 +25,7 @@ public class TeamScheduleView extends VerticalLayout implements HasUrlParameter<
         this.schedulesClient = schedulesClient;
 
         add(teamNavigationBar);
+        add(calendar);
     }
 
     @Override
@@ -38,6 +41,7 @@ public class TeamScheduleView extends VerticalLayout implements HasUrlParameter<
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
+        calendar.setSchedules(schedulesClient.getGroupedSchedulesByTeam(teamCode));
     }
 
 }
