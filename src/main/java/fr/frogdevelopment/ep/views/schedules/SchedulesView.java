@@ -12,7 +12,7 @@ import fr.frogdevelopment.ep.views.components.SchedulesCalendar;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@PageTitle("Planning")
+@PageTitle("Planning Global")
 @Route(value = "schedules", layout = MainView.class)
 @CssImport("./styles/views/teams/teams-view.css")
 public class SchedulesView extends VerticalLayout implements AfterNavigationObserver {

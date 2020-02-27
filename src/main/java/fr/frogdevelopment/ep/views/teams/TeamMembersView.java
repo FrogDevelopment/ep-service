@@ -16,17 +16,18 @@ import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
 import fr.frogdevelopment.ep.client.VolunteersClient;
 import fr.frogdevelopment.ep.model.Volunteer;
+import fr.frogdevelopment.ep.views.teams.TeamNavigationBar.Navigation;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 @Route(value = "team/members", layout = TeamParentView.class)
-public class TeamMembersView extends VerticalLayout implements HasUrlParameter<String>, HasDynamicTitle,
+public class TeamMembersView extends HorizontalLayout implements HasUrlParameter<String>, HasDynamicTitle,
         AfterNavigationObserver {
 
     private final transient VolunteersClient volunteersClient;
 
-    private final TeamNavigationBar teamNavigationBar = new TeamNavigationBar();
+    private final TeamNavigationBar teamNavigationBar = new TeamNavigationBar(Navigation.MEMBERS);
     private final ListBox<Volunteer> referentsListBox = new ListBox<>();
     private final ListBox<Volunteer> membersListBox = new ListBox<>();
 

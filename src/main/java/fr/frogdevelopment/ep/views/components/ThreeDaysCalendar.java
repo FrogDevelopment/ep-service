@@ -14,8 +14,6 @@ public class ThreeDaysCalendar extends FullCalendar {
 
     ThreeDaysCalendar() {
         super();
-
-        setHeightAuto();
     }
 
     void setEntries(@NotNull List<Entry> entries) {
