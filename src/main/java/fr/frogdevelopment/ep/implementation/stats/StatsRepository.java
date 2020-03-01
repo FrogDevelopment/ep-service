@@ -13,7 +13,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,10 +25,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class StatsRepository {
 
     private final ObjectMapper objectMapper;
-    private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate jdbcTemplate;
 
     public StatsRepository(ObjectMapper objectMapper,
-                           JdbcTemplate jdbcTemplate) {
+                           NamedParameterJdbcTemplate jdbcTemplate) {
         this.objectMapper = objectMapper;
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -52,13 +54,36 @@ public class StatsRepository {
                 + " GROUP BY v.volunteer_ref, v.last_name, v.first_name, v.team_code"
                 + " ORDER BY v.last_name, v.first_name;";
 
-        return jdbcTemplate.query(sql, (rs, rowNum) -> Volunteer.builder()
+        return jdbcTemplate.query(sql, volunteerWithSchedulesRowMapper());
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public List<Volunteer> getWithSchedules(String teamCode) {
+        var sql = "SELECT v.volunteer_ref, v.last_name, v.first_name, v.team_code,"
+                + "       json_agg(json_build_object("
+                + "               'start', s.from_datetime,"
+                + "               'end', s.to_datetime,"
+                + "               'location', s.location"
+                + "           )) AS schedules"
+                + " FROM volunteers v"
+                + "         INNER JOIN schedules s ON v.volunteer_ref = s.volunteer_ref"
+                + " WHERE s.team_code = :teamCode"
+                + " GROUP BY v.volunteer_ref, v.last_name, v.first_name, v.team_code"
+                + " ORDER BY v.last_name, v.first_name;";
+
+        var paramSources = new MapSqlParameterSource("teamCode", teamCode);
+
+        return jdbcTemplate.query(sql, paramSources, volunteerWithSchedulesRowMapper());
+    }
+
+    private RowMapper<Volunteer> volunteerWithSchedulesRowMapper() {
+        return (rs, rowNum) -> Volunteer.builder()
                 .ref(rs.getString("volunteer_ref"))
                 .lastName(rs.getString("last_name"))
                 .firstName(rs.getString("first_name"))
                 .teamCode(rs.getString("team_code"))
                 .schedules(getSchedules(rs.getString("schedules")))
-                .build());
+                .build();
     }
 
     private Set<Schedule> getSchedules(String schedulesJson) {

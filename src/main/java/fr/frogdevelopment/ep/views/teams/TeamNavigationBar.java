@@ -1,5 +1,7 @@
 package fr.frogdevelopment.ep.views.teams;
 
+import static com.vaadin.flow.component.icon.VaadinIcon.*;
+
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -44,8 +46,9 @@ class TeamNavigationBar extends Tabs {
 
     enum Navigation {
         //        DASHBOARD("Dashboard", "team/dashboard/"),
-        MEMBERS(VaadinIcon.USER, "Membres", "team/members/"),
-        PLANNING(VaadinIcon.CALENDAR_USER, "Planning", "team/planning/");
+        MEMBERS(USER, "Membres", "team/members/"),
+        PLANNING(CALENDAR_USER, "Planning", "team/planning/"),
+        STATS(ABACUS, "Stats", "team/stats/");
 
         private final VaadinIcon icon;
         private final String label;

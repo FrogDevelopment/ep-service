@@ -23,4 +23,7 @@ public class StatsClient {
     public List<Volunteer> getAllWithSchedules() {
         return statsController.getAllWithSchedules();
     }
+    public List<Volunteer> getWithSchedules(String teamCode) {
+        return statsController.getWithSchedules(teamCode);
+    }
 }

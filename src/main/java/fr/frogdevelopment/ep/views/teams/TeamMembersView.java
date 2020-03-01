@@ -1,7 +1,6 @@
 package fr.frogdevelopment.ep.views.teams;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.listbox.ListBox;
@@ -39,7 +38,7 @@ public class TeamMembersView extends HorizontalLayout implements HasUrlParameter
         add(teamNavigationBar);
 
         var teamLayout = new VerticalLayout();
-        var volunteerRenderer = new TextRenderer<>((ItemLabelGenerator<Volunteer>) Volunteer::getFullName);
+        var volunteerRenderer = new TextRenderer<>(Volunteer::getFullName);
 
         referentsListBox.setHeightFull();
         referentsListBox.setReadOnly(true);
