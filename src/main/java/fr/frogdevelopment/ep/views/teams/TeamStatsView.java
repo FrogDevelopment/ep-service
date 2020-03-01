@@ -9,11 +9,10 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
 import fr.frogdevelopment.ep.client.StatsClient;
-import fr.frogdevelopment.ep.views.MainView;
 import fr.frogdevelopment.ep.views.components.StatisticsGrid;
 import fr.frogdevelopment.ep.views.teams.TeamNavigationBar.Navigation;
 
-@Route(value = "team/stats", layout = MainView.class)
+@Route(value = "team/stats", layout = TeamParentView.class)
 @CssImport("./styles/views/stats/stats-view.css")
 public class TeamStatsView extends HorizontalLayout implements HasUrlParameter<String>, HasDynamicTitle,AfterNavigationObserver {
 
