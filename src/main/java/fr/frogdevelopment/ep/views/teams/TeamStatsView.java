@@ -21,7 +21,7 @@ public class TeamStatsView extends AbstractTeamView {
 
         setId("stats-view");
 
-        grid = new StatisticsGrid(true, statsClient.getTimeSlots());
+        grid = new StatisticsGrid(false, statsClient.getTimeSlots());
         grid.setId("list");
         grid.setHeightFull();
 

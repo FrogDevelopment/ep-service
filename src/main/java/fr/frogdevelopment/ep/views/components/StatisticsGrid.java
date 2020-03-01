@@ -43,7 +43,7 @@ public class StatisticsGrid extends Grid<Volunteer> {
 
     public StatisticsGrid(boolean showTeamColumn, List<TimeSlot> timeSlots) {
 
-        setId("stats");
+//        setId("stats");
         addThemeVariants(LUMO_NO_BORDER, LUMO_ROW_STRIPES);
 
         if (showTeamColumn) {
