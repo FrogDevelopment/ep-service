@@ -8,10 +8,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.AfterNavigationEvent;
-import com.vaadin.flow.router.AfterNavigationObserver;
-import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.HasDynamicTitle;
-import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
 import fr.frogdevelopment.ep.client.VolunteersClient;
 import fr.frogdevelopment.ep.model.Volunteer;
@@ -21,21 +17,17 @@ import java.util.Comparator;
 import java.util.List;
 
 @Route(value = "team/members", layout = TeamParentView.class)
-public class TeamMembersView extends HorizontalLayout implements HasUrlParameter<String>, HasDynamicTitle,
-        AfterNavigationObserver {
+public class TeamMembersView extends AbstractTeamView {
 
     private final transient VolunteersClient volunteersClient;
 
-    private final TeamNavigationBar teamNavigationBar = new TeamNavigationBar(Navigation.MEMBERS);
     private final ListBox<Volunteer> referentsListBox = new ListBox<>();
     private final ListBox<Volunteer> membersListBox = new ListBox<>();
 
-    private String teamCode;
-
     public TeamMembersView(VolunteersClient volunteersClient) {
-        this.volunteersClient = volunteersClient;
+        super(Navigation.MEMBERS);
 
-        add(teamNavigationBar);
+        this.volunteersClient = volunteersClient;
 
         var teamLayout = new VerticalLayout();
         var volunteerRenderer = new TextRenderer<>(Volunteer::getFullName);
@@ -52,17 +44,6 @@ public class TeamMembersView extends HorizontalLayout implements HasUrlParameter
                 membersListBox);
 
         add(teamLayout);
-    }
-
-    @Override
-    public void setParameter(BeforeEvent event, String parameter) {
-        teamCode = parameter;
-        teamNavigationBar.setTeam(teamCode);
-    }
-
-    @Override
-    public String getPageTitle() {
-        return teamCode;
     }
 
     @Override
