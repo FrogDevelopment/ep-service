@@ -34,12 +34,21 @@ dependencyManagement {
     imports {
         mavenBom 'org.junit:junit-bom:5.6.0'
         mavenBom 'org.testcontainers:testcontainers-bom:1.12.5'
-        mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Hoxton.SR1'
+        mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Hoxton.SR2'
         mavenBom 'com.vaadin:vaadin-bom:14.1.17'
     }
 }
 
+configurations {
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
+}
+
 dependencies {
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
+
     annotationProcessor "org.springframework:spring-context-indexer"
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
@@ -47,6 +56,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 
     implementation('com.vaadin:vaadin-spring-boot-starter') {
@@ -57,9 +67,9 @@ dependencies {
                 .forEach { group -> exclude(group: group) }
     }
 
-    implementation 'com.google.api-client:google-api-client:1.30.8'
-    implementation 'com.google.apis:google-api-services-sheets:v4-rev607-1.25.0'
+    implementation 'org.vaadin.stefan:fullcalendar2:2.0.0'
 
+    implementation 'org.apache.poi:poi-ooxml:4.1.2'
     implementation 'org.apache.commons:commons-lang3:3.9'
 
     implementation 'org.postgresql:postgresql'

@@ -5,12 +5,12 @@ frog:
   database:
     name: ep-data
 
-#spring:
-#  datasource:
-#    driver-class-name: org.postgresql.Driver
-#    url: jdbc:postgresql://localhost:9173/${frog.database.name}?ApplicationName=${spring.application.name}
-#    username: frog_admin
-#    password: ODa9CNfFagOu3YHDRd2YjgkXIyKzUX
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/${frog.database.name}?ApplicationName=${spring.application.name}
+    username: postgres
+    password: postgres
 
 logging:
   level:
@@ -22,3 +22,24 @@ logging:
 # Ensure application is run in Vaadin 14/npm mode
 vaadin:
   compatibilityMode: false
+
+glide:
+  xls:
+    team:
+      sheet-name: Equipes
+      first-row: 3
+    planning:
+      sheet-name: EP_planning_général
+      first-row: 10
+      friday:
+        date: 06/21/2019
+        start: 9
+        end: 12
+      saturday:
+        date: 06/22/2019
+        start: 13
+        end: 17
+      sunday:
+        date: 06/23/2019
+        start: 18
+        end: 20

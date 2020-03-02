@@ -1,0 +1,21 @@
+#volunteers-view {
+  display: block;
+  height: 100%;
+}
+
+:host {
+    display: block;
+    height: 100%;
+}
+
+#list {
+    height: 100%;
+}
+
+#order {
+    margin: 0
+}
+
+.email {
+    color: var(--lumo-primary-text-color);
+}

@@ -1,62 +1,90 @@
 package fr.frogdevelopment.ep.views;
 
+import static com.vaadin.flow.component.icon.VaadinIcon.ABACUS;
+import static com.vaadin.flow.component.icon.VaadinIcon.CALENDAR;
+import static com.vaadin.flow.component.icon.VaadinIcon.EXIT;
+import static com.vaadin.flow.component.icon.VaadinIcon.GROUP;
+import static com.vaadin.flow.component.icon.VaadinIcon.HEART;
+import static com.vaadin.flow.component.icon.VaadinIcon.QUESTION_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.UPLOAD;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.applayout.AppLayout;
+import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.tabs.Tab;
-import com.vaadin.flow.component.tabs.TabVariant;
 import com.vaadin.flow.component.tabs.Tabs;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
-import fr.frogdevelopment.ep.views.members.MembersView;
-import fr.frogdevelopment.ep.views.newmember.NewMemberView;
+import fr.frogdevelopment.ep.views.about.AboutView;
+import fr.frogdevelopment.ep.views.schedules.SchedulesView;
+import fr.frogdevelopment.ep.views.stats.StatsView;
 import fr.frogdevelopment.ep.views.teams.TeamsView;
+import fr.frogdevelopment.ep.views.upload.UploadView;
+import fr.frogdevelopment.ep.views.volunteers.VolunteersView;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
-/**
- * The main view is a top-level placeholder for other views.
- */
 @JsModule("./styles/shared-styles.js")
-@PWA(name = "Example Project", shortName = "Example Project")
+@PWA(name = "Solidays - EP", shortName = "Solidays - EP")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 public class MainView extends AppLayout {
 
     private final Tabs menu;
 
     public MainView() {
+        setPrimarySection(AppLayout.Section.DRAWER);
+
+        var navBarWrapper = new HorizontalLayout();
+        navBarWrapper.setWidthFull();
+        var img = new Image("icons/icon.png", "Solidays Logo");
+        img.setHeight("44px");
+        var title = new Label(" Solidays - EP");
+        title.setWidthFull();
+        navBarWrapper.add(new DrawerToggle(), img, title);
+
+        addToNavbar(navBarWrapper);
+
         menu = createMenuTabs();
-        addToNavbar(menu);
+        addToDrawer(menu);
     }
 
     private static Tabs createMenuTabs() {
-        final Tabs tabs = new Tabs();
-        tabs.setOrientation(Tabs.Orientation.HORIZONTAL);
+        final var tabs = new Tabs();
+        tabs.setOrientation(Tabs.Orientation.VERTICAL);
         tabs.add(getAvailableTabs());
         return tabs;
     }
 
     private static Tab[] getAvailableTabs() {
-        final List<Tab> tabs = new ArrayList<>();
-        tabs.add(createTab("Members", MembersView.class));
-        tabs.add(createTab("Teams", TeamsView.class));
-        tabs.add(createTab("New Member", NewMemberView.class));
-        return tabs.toArray(new Tab[tabs.size()]);
+        final var tabs = new ArrayList<Tab>();
+        tabs.add(createTab(UPLOAD, UploadView.class));
+        tabs.add(createTab(HEART, VolunteersView.class));
+        tabs.add(createTab(GROUP, TeamsView.class));
+        tabs.add(createTab(CALENDAR, SchedulesView.class));
+        tabs.add(createTab(ABACUS, StatsView.class));
+        tabs.add(createTab(QUESTION_CIRCLE, AboutView.class));
+        tabs.add(createTab(EXIT, new Anchor("logout", "Logout")));
+        return tabs.toArray(new Tab[0]);
     }
 
-    private static Tab createTab(String title,
-            Class<? extends Component> viewClass) {
-        return createTab(populateLink(new RouterLink(null, viewClass), title));
+    private static Tab createTab(VaadinIcon vaadinIcon, Class<? extends Component> viewClass) {
+        PageTitle pageTitle = viewClass.getAnnotation(PageTitle.class);
+        return createTab(vaadinIcon, populateLink(new RouterLink(null, viewClass), pageTitle.value()));
     }
 
-    private static Tab createTab(Component content) {
-        final Tab tab = new Tab();
-        tab.addThemeVariants(TabVariant.LUMO_ICON_ON_TOP);
+    private static Tab createTab(VaadinIcon vaadinIcon, Component content) {
+        final var tab = new Tab();
+        tab.add(vaadinIcon.create());
         tab.add(content);
         return tab;
     }
@@ -73,13 +101,12 @@ public class MainView extends AppLayout {
     }
 
     private void selectTab() {
-        String target = RouteConfiguration.forSessionScope()
-                .getUrl(getContent().getClass());
-        Optional<Component> tabToSelect = menu.getChildren().filter(tab -> {
-            Component child = tab.getChildren().findFirst().get();
-            return child instanceof RouterLink
-                    && ((RouterLink) child).getHref().equals(target);
-        }).findFirst();
-        tabToSelect.ifPresent(tab -> menu.setSelectedTab((Tab) tab));
+        var target = RouteConfiguration.forSessionScope().getUrl(getContent().getClass());
+        menu.getChildren()
+                .filter(tab -> tab.getChildren()
+                        .filter(child -> child instanceof RouterLink)
+                        .anyMatch(child -> ((RouterLink) child).getHref().equals(target)))
+                .findFirst()
+                .ifPresent(tab -> menu.setSelectedTab((Tab) tab));
     }
 }
