@@ -2,6 +2,7 @@ package fr.frogdevelopment.ep.views;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.ABACUS;
 import static com.vaadin.flow.component.icon.VaadinIcon.CALENDAR;
+import static com.vaadin.flow.component.icon.VaadinIcon.CALENDAR_BRIEFCASE;
 import static com.vaadin.flow.component.icon.VaadinIcon.EXIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.GROUP;
 import static com.vaadin.flow.component.icon.VaadinIcon.HEART;
@@ -27,6 +28,7 @@ import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 import fr.frogdevelopment.ep.views.about.AboutView;
+import fr.frogdevelopment.ep.views.planning.PlanningView;
 import fr.frogdevelopment.ep.views.schedules.SchedulesView;
 import fr.frogdevelopment.ep.views.stats.StatsView;
 import fr.frogdevelopment.ep.views.teams.TeamsView;
@@ -67,6 +69,7 @@ public class MainView extends AppLayout {
 
     private static Tab[] getAvailableTabs() {
         final var tabs = new ArrayList<Tab>();
+        tabs.add(createTab(CALENDAR_BRIEFCASE, PlanningView.class));
         tabs.add(createTab(UPLOAD, UploadView.class));
         tabs.add(createTab(HEART, VolunteersView.class));
         tabs.add(createTab(GROUP, TeamsView.class));

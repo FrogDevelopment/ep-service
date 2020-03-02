@@ -1,3 +1,14 @@
+CREATE TABLE planning
+(
+    planning_id       SERIAL PRIMARY KEY,
+    start_datetime    TIMESTAMP NOT NULL,
+    end_datetime      TIMESTAMP NOT NULL,
+    expected_bracelet NUMERIC   NULL,
+    expected_fouille  NUMERIC   NULL,
+    expected_litiges  NUMERIC   NULL,
+    description       TEXT
+);
+
 CREATE TABLE teams
 (
     team_id SERIAL PRIMARY KEY,

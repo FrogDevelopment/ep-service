@@ -6,19 +6,24 @@ import static fr.frogdevelopment.ep.model.Schedule.Location.FOUILLES;
 import static fr.frogdevelopment.ep.model.Schedule.Location.LITIGES;
 import static java.util.regex.Pattern.compile;
 import static org.apache.commons.lang3.StringUtils.isAnyBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
+import fr.frogdevelopment.ep.implementation.planning.PlanningRepository;
 import fr.frogdevelopment.ep.implementation.schedules.AddSchedule;
 import fr.frogdevelopment.ep.implementation.teams.AddTeam;
 import fr.frogdevelopment.ep.implementation.volunteers.AddVolunteer;
 import fr.frogdevelopment.ep.implementation.xls.ExcelParameters.Planning.Day;
+import fr.frogdevelopment.ep.model.Planning;
 import fr.frogdevelopment.ep.model.Schedule;
 import fr.frogdevelopment.ep.model.Schedule.Location;
 import fr.frogdevelopment.ep.model.Team;
 import fr.frogdevelopment.ep.model.Volunteer;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.HashMap;
@@ -39,17 +44,29 @@ public class ReadXls {
 
     private static final Pattern DATE_PATTERN = compile("(?<from>\\d{1,2}:\\d{1,2}) . (?<to>\\d{1,2}:\\d{1,2})");
 
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder()
+            .appendOptional(DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm"))
+            .appendOptional(DateTimeFormatter.ofPattern(("MM/dd/yyyy H:mm")))
+            .toFormatter();
+
+    private static final DateTimeFormatter TIME_FORMATTER = new DateTimeFormatterBuilder()
+            .appendOptional(DateTimeFormatter.ofPattern("HH:mm"))
+            .appendOptional(DateTimeFormatter.ofPattern(("H:mm")))
+            .toFormatter();
+
     private final ExcelParameters parameters;
+    private final PlanningRepository planningRepository;
     private final AddTeam addTeam;
     private final AddVolunteer addVolunteer;
     private final AddSchedule addSchedule;
     private final Random phoneNumberGenerator = new Random();
 
     public ReadXls(ExcelParameters parameters,
-                   AddTeam addTeam,
+                   PlanningRepository planningRepository, AddTeam addTeam,
                    AddVolunteer addVolunteer,
                    AddSchedule addSchedule) {
         this.parameters = parameters;
+        this.planningRepository = planningRepository;
         this.addTeam = addTeam;
         this.addVolunteer = addVolunteer;
         this.addSchedule = addSchedule;
@@ -59,30 +76,77 @@ public class ReadXls {
         var teams = new HashMap<String, Team>();
 
         try (Workbook workbook = new HSSFWorkbook(inputStream)) {
-            readTeams(workbook, parameters, teams);
-            readVolunteers(workbook, parameters, teams);
-
-            teams.values().forEach(team -> {
-                addTeam.call(team);
-//                var mapSchedules = new HashMap<Schedule, Integer>();
-                team.getVolunteers().forEach(volunteer -> {
-                    addVolunteer.call(volunteer);
-                    volunteer.getSchedules().forEach(addSchedule::call);
-//                    volunteer.getSchedules().forEach(schedule -> mapSchedules.merge(schedule, 1, Integer::sum));
-                });
-
-//                if (!mapSchedules.isEmpty()) { // Boss don't have schedules
-//                    Integer max = Collections.max(mapSchedules.values());
-//                    mapSchedules.forEach((schedule, total) -> {
-//                        if (total.equals(max)) { // is a team schedule
-//                            schedule.setVolunteerRef(null);
-//                        }
-//                        addSchedule.call(schedule);
-//                    });
-//                }
-            });
+            readPlanning(workbook, parameters);
+//            readTeams(workbook, parameters, teams);
+//            readVolunteers(workbook, parameters, teams);
+//
+//            teams.values().forEach(team -> {
+//                addTeam.call(team);
+//                team.getVolunteers().forEach(volunteer -> {
+//                    addVolunteer.call(volunteer);
+//                    volunteer.getSchedules().forEach(addSchedule::call);
+//                });
+//            });
         } catch (IOException e) {
             log.error(e.getMessage(), e);
+        }
+    }
+
+    private void readPlanning(Workbook workbook,
+                              ExcelParameters parameters) {
+        log.info("Reading 'horaires'");
+        var datatypeSheet = workbook.getSheet("horaires");
+
+        String date;
+        LocalDate localDate;
+        var dateTimeFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+        var rowNum = 4;
+        while (true) {
+            var row = datatypeSheet.getRow(rowNum++);
+
+            if (row == null) {
+                break;
+            }
+
+            if (rowNum < 11) {
+                date = parameters.getPlanning().getFriday().getDate();
+            } else if (rowNum < 17) {
+                date = parameters.getPlanning().getSaturday().getDate();
+            } else {
+                date = parameters.getPlanning().getSunday().getDate();
+            }
+
+            localDate = LocalDate.parse(date, dateTimeFormatter);
+
+            var horaire = getCellStringValue(row, 1);
+
+            if (isBlank(horaire)) {
+                break;
+            }
+
+            var matcher = DATE_PATTERN.matcher(horaire);
+            if (matcher.find()) {
+                var start = LocalTime.parse(matcher.group("from"), TIME_FORMATTER);
+                var end = LocalTime.parse(matcher.group("to"), TIME_FORMATTER);
+
+                var expectedBracelet = getNumericCellValue(row, 3);
+                var expectedFouille = getNumericCellValue(row, 4);
+                var expectedLitiges = getNumericCellValue(row, 5);
+                var description = getCellStringValue(row, 8);
+
+                var planning = Planning.builder()
+                        .start(localDate.atTime(start))
+                        .end(localDate.atTime(end))
+                        .expectedBracelet(expectedBracelet)
+                        .expectedFouille(expectedFouille)
+                        .expectedLitiges(expectedLitiges)
+                        .description(description)
+                        .build();
+
+                planningRepository.insert(planning);
+            } else {
+                log.warn("incorrect row {}", rowNum);
+            }
         }
     }
 
@@ -210,11 +274,6 @@ public class ReadXls {
                 return AUTRES;
         }
     }
-
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder()
-            .appendOptional(DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm"))
-            .appendOptional(DateTimeFormatter.ofPattern(("MM/dd/yyyy H:mm")))
-            .toFormatter();
 
     private Map<Integer, Pair<LocalDateTime, LocalDateTime>> toDates(Row rowHeader, String dayDate, int start,
                                                                      int end) {

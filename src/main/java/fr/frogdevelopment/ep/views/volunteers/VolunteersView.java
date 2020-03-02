@@ -23,7 +23,6 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouteAlias;
 import fr.frogdevelopment.ep.client.TeamsClient;
 import fr.frogdevelopment.ep.client.VolunteersClient;
 import fr.frogdevelopment.ep.model.Team;
@@ -36,7 +35,6 @@ import java.util.stream.Collectors;
 
 @PageTitle("Bénévoles")
 @Route(value = "volunteers", layout = MainView.class)
-@RouteAlias(value = "", layout = MainView.class)
 @CssImport("./styles/views/volunteers/volunteers-view.css")
 public class VolunteersView extends Div implements AfterNavigationObserver {
 
