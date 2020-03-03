@@ -1,5 +1,12 @@
 package fr.frogdevelopment.ep.implementation.xls;
 
+import static fr.frogdevelopment.ep.implementation.xls.ExcelReaderUtils.getCellStringValue;
+import static fr.frogdevelopment.ep.implementation.xls.ExcelReaderUtils.getCharForNumber;
+import static fr.frogdevelopment.ep.implementation.xls.ExcelReaderUtils.getNumericCellValue;
+import static fr.frogdevelopment.ep.implementation.xls.ExcelReaderUtils.randomEmail;
+import static fr.frogdevelopment.ep.implementation.xls.ExcelReaderUtils.randomPhoneNumber;
+import static fr.frogdevelopment.ep.implementation.xls.ExcelReaderUtils.schedulesTitle;
+import static fr.frogdevelopment.ep.implementation.xls.ParseTeams.readTeams;
 import static java.time.DayOfWeek.FRIDAY;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
@@ -11,20 +18,17 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import fr.frogdevelopment.ep.implementation.xls.model.XlsSchedule;
 import fr.frogdevelopment.ep.implementation.xls.model.XlsSchedule.XlsScheduleBuilder;
-import fr.frogdevelopment.ep.implementation.xls.model.XlsTeam;
 import fr.frogdevelopment.ep.implementation.xls.model.XlsTimetable;
 import fr.frogdevelopment.ep.implementation.xls.model.XlsVolunteer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.DayOfWeek;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -66,8 +70,6 @@ public class ExcelReader {
     private static final int TIMETABLE_SATURDAY_COLUMN_END = 17;
     private static final int TIMETABLE_SUNDAY_COLUMN_END = 20;
 
-    private final Random phoneNumberGenerator = new Random();
-
     private final Map<String, XlsSchedule.XlsScheduleBuilder> plannings = new HashMap<>();
     private final Map<Integer, XlsSchedule.XlsScheduleBuilder> planningsByColumn = new HashMap<>();
     private final List<XlsVolunteer> volunteers = new ArrayList<>();
@@ -98,37 +100,6 @@ public class ExcelReader {
             log.error(e.getMessage(), e);
             return null;
         }
-    }
-
-    private List<XlsTeam> readTeams(Workbook workbook) {
-        log.info("Parsing Teams");
-        var teams = new ArrayList<XlsTeam>();
-        var datatypeSheet = workbook.getSheet("Equipes");
-
-        var rowNum = TEAM_START_ROW;
-        while (true) {
-            var row = datatypeSheet.getRow(rowNum++);
-
-            if (row == null) {
-                break;
-            }
-
-            var team = XlsTeam.builder()
-                    .name(getCellStringValue(row, TEAM_NAME_COLUMN))
-                    .code(getCellStringValue(row, TEAM_CODE_COLUMN))
-                    .build();
-
-            // fixme
-            if ("Litiges".equals(team.getCode())) {
-                team.setCode("LC");
-            } else if ("Chefs".equals(team.getCode())) {
-                team.setCode("Chef");
-            }
-
-            teams.add(team);
-        }
-
-        return teams;
     }
 
     private void readSchedules(Workbook workbook) {
@@ -265,46 +236,5 @@ public class ExcelReader {
         }
 
         return true;
-    }
-
-    private static String schedulesTitle(DayOfWeek dayOfWeek, LocalTime start, LocalTime end) {
-        return String.format("%s: %s - %s", dayOfWeek, start.toString(), end.toString());
-    }
-
-    private static String getCellStringValue(Row row, int i) {
-        var cell = row.getCell(i);
-        return cell != null ? cell.getStringCellValue() : "";
-    }
-
-    private static int getNumericCellValue(Row row, int i) {
-        var cell = row.getCell(i);
-        return cell != null ? Double.valueOf(cell.getNumericCellValue()).intValue() : -1;
-    }
-
-    private String randomPhoneNumber() {
-        var sixOrSeven = phoneNumberGenerator.nextBoolean() ? "6" : "7";
-        var num1 = phoneNumberGenerator.nextInt(99);
-        var num2 = phoneNumberGenerator.nextInt(99);
-        var num3 = phoneNumberGenerator.nextInt(99);
-        var num4 = phoneNumberGenerator.nextInt(99);
-
-        return String.format("0%s %02d %02d %02d %02d", sixOrSeven, num1, num2, num3, num4);
-    }
-
-    private static String randomEmail(String lastName, String firstName) {
-        return String.format("%s.%s@test.com", lastName.replace(" ", "_"), firstName.replace(" ", "_"))
-                .toLowerCase();
-    }
-
-    private static String getCharForNumber(int i) {
-        if (i <= 0) {
-            return null;
-        }
-
-        if (i > 27) {
-            return (char) 65 + getCharForNumber(i - 26);
-        }
-
-        return String.valueOf((char) (i + 64));
     }
 }
