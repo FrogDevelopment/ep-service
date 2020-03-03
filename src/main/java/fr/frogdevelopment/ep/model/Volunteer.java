@@ -30,7 +30,7 @@ public class Volunteer implements Serializable {
     private boolean referent;
 
     @Default
-    private Set<Schedule> schedules = new HashSet<>();
+    private Set<Timetable> timetables = new HashSet<>();
 
     public String getFullName() {
         return String.join(" ", lastName, firstName);

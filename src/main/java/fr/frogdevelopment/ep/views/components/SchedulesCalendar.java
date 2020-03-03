@@ -5,8 +5,8 @@ import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import fr.frogdevelopment.ep.model.Schedule;
-import fr.frogdevelopment.ep.model.Schedule.Location;
+import fr.frogdevelopment.ep.model.Location;
+import fr.frogdevelopment.ep.model.Timetable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -44,29 +44,29 @@ public class SchedulesCalendar extends VerticalLayout {
         return locationColor;
     }
 
-    public void setSchedules(@NotNull List<Schedule> schedules) {
+    public void setSchedules(@NotNull List<Timetable> timetables) {
         calendar.removeAllEntries();
-        if (CollectionUtils.isNotEmpty(schedules)) {
-            calendar.gotoDate(schedules.get(0).getStart().toLocalDate());
-            calendar.setEntries(toEntries(schedules));
+        if (CollectionUtils.isNotEmpty(timetables)) {
+            calendar.gotoDate(timetables.get(0).getStart().toLocalDate());
+            calendar.setEntries(toEntries(timetables));
         }
     }
 
-    private List<Entry> toEntries(List<Schedule> schedules) {
-        return schedules
+    private List<Entry> toEntries(List<Timetable> timetables) {
+        return timetables
                 .stream()
                 .map(this::toEntry)
                 .collect(Collectors.toList());
     }
 
-    private Entry toEntry(Schedule schedule) {
+    private Entry toEntry(Timetable timetable) {
         var entryId = UUID.randomUUID().toString();
-        var location = schedule.getLocation();
-        var title = String.format("%s%n%s", location, schedule.getTeamCode());
-        var start = schedule.getStart();
-        var end = schedule.getEnd();
+        var location = timetable.getLocation();
+        var title = String.format("%s%n%s", location, timetable.getTeamCode());
+        var start = timetable.getStart();
+        var end = timetable.getEnd();
         var color = colorByLocation(location);
-        var description = schedule.getTeamCode();
+        var description = timetable.getTeamCode();
 
         return new Entry(entryId, title, start, end, false, false, color, description);
     }

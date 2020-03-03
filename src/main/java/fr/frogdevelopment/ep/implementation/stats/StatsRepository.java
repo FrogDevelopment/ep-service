@@ -3,7 +3,7 @@ package fr.frogdevelopment.ep.implementation.stats;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.frogdevelopment.ep.model.Schedule;
+import fr.frogdevelopment.ep.model.Timetable;
 import fr.frogdevelopment.ep.model.Volunteer;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -82,21 +82,21 @@ public class StatsRepository {
                 .lastName(rs.getString("last_name"))
                 .firstName(rs.getString("first_name"))
                 .teamCode(rs.getString("team_code"))
-                .schedules(getSchedules(rs.getString("schedules")))
+                .timetables(getSchedules(rs.getString("timetables")))
                 .build();
     }
 
-    private Set<Schedule> getSchedules(String schedulesJson) {
-        Set<Schedule> schedules = Collections.emptySet();
+    private Set<Timetable> getSchedules(String schedulesJson) {
+        Set<Timetable> timetables = Collections.emptySet();
         if (StringUtils.isNotBlank(schedulesJson)) {
             try {
-                schedules = objectMapper.readValue(schedulesJson, new TypeReference<>() {
+                timetables = objectMapper.readValue(schedulesJson, new TypeReference<>() {
                 });
             } catch (JsonProcessingException e) {
-                log.error("Error schedules", e);
+                log.error("Error timetables", e);
             }
         }
-        return schedules;
+        return timetables;
     }
 
     @Data

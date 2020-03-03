@@ -3,8 +3,8 @@ package fr.frogdevelopment.ep.views.components;
 import static com.vaadin.flow.component.grid.ColumnTextAlign.CENTER;
 import static com.vaadin.flow.component.grid.GridVariant.LUMO_NO_BORDER;
 import static com.vaadin.flow.component.grid.GridVariant.LUMO_ROW_STRIPES;
-import static fr.frogdevelopment.ep.model.Schedule.Location.AUTRES;
-import static fr.frogdevelopment.ep.model.Schedule.Location.values;
+import static fr.frogdevelopment.ep.model.Location.AUTRES;
+import static fr.frogdevelopment.ep.model.Location.values;
 import static java.time.Duration.between;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.groupingBy;
@@ -19,8 +19,8 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.function.ValueProvider;
 import fr.frogdevelopment.ep.implementation.stats.StatsRepository.TimeSlot;
-import fr.frogdevelopment.ep.model.Schedule;
-import fr.frogdevelopment.ep.model.Schedule.Location;
+import fr.frogdevelopment.ep.model.Location;
+import fr.frogdevelopment.ep.model.Timetable;
 import fr.frogdevelopment.ep.model.Volunteer;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
@@ -147,7 +147,7 @@ public class StatisticsGrid extends Grid<Volunteer> {
     }
 
     private Function<String, Map<String, String>> computeLocationBySlot(Volunteer volunteer) {
-        return key -> volunteer.getSchedules()
+        return key -> volunteer.getTimetables()
                 .stream()
                 .collect(toMap(schedule -> slotsToLabel(schedule.getStart(), schedule.getEnd()),
                         schedule -> schedule.getLocation().getCode(), (a, b) -> b, HashMap::new));
@@ -164,9 +164,9 @@ public class StatisticsGrid extends Grid<Volunteer> {
 
     private ValueProvider<Volunteer, Integer> getCountForLocation(Location location) {
         return volunteer -> mapSumLocationsByVolunteers.computeIfAbsent(volunteer.getRef(),
-                key -> volunteer.getSchedules()
+                key -> volunteer.getTimetables()
                         .stream()
-                        .collect(toMap(Schedule::getLocation, schedule -> 1, Integer::sum, HashMap::new)))
+                        .collect(toMap(Timetable::getLocation, schedule -> 1, Integer::sum, HashMap::new)))
                 .getOrDefault(location, 0);
     }
 
@@ -181,9 +181,9 @@ public class StatisticsGrid extends Grid<Volunteer> {
 
     private ValueProvider<Volunteer, Double> getDurationForLocation(Location location) {
         return volunteer -> mapDurationsByVolunteers.computeIfAbsent(volunteer.getRef(),
-                key -> volunteer.getSchedules()
+                key -> volunteer.getTimetables()
                         .stream()
-                        .collect(toMap(Schedule::getLocation,
+                        .collect(toMap(Timetable::getLocation,
                                 schedule -> (double) between(schedule.getStart(), schedule.getEnd()).toMinutes() / 60,
                                 Double::sum, HashMap::new)))
                 .getOrDefault(location, 0D);

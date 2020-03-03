@@ -1,15 +1,13 @@
 package fr.frogdevelopment.ep.model;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.Set;
+import java.time.DayOfWeek;
+import java.time.LocalTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Singular;
+import lombok.NonNull;
 
 @Data
 @Builder
@@ -18,24 +16,20 @@ import lombok.Singular;
 public class Schedule implements Serializable {
 
     private int id;
-    private LocalDateTime start;
-    private LocalDateTime end;
-    private Location location;
-    private String teamCode;
-    @EqualsAndHashCode.Exclude
-    private String volunteerRef;
+    @NonNull
+    private String ref;
+    @NonNull
+    private DayOfWeek dayOfWeek;
+    @NonNull
+    private LocalTime start;
+    @NonNull
+    private LocalTime end;
+    private int expectedBracelet;
+    private int expectedFouille;
+    private int expectedLitiges;
+    private String description;
 
-    @Singular("volunteer")
-    private Set<String> volunteers;
-
-    public enum Location {
-        FOUILLES("F"), BRACELET("B"), LITIGES("L"), AUTRES("-");
-
-        @Getter
-        private final String code;
-
-        Location(String code) {
-            this.code = code;
-        }
-    }
+    private String title;
+    private double duration;
+    private int expectedTotal;
 }

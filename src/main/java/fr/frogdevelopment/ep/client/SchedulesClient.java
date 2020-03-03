@@ -1,7 +1,7 @@
 package fr.frogdevelopment.ep.client;
 
 import fr.frogdevelopment.ep.api.SchedulesController;
-import fr.frogdevelopment.ep.model.Schedule;
+import fr.frogdevelopment.ep.model.Timetable;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
@@ -15,15 +15,15 @@ public class SchedulesClient {
         this.schedulesController = schedulesController;
     }
 
-    public List<Schedule> getGroupedSchedulesByTeam() {
+    public List<Timetable> getGroupedSchedulesByTeam() {
         return schedulesController.getGroupedSchedulesByTeam();
     }
 
-    public List<Schedule> getGroupedSchedulesByTeam(String teamCode) {
+    public List<Timetable> getGroupedSchedulesByTeam(String teamCode) {
         return schedulesController.getGroupedSchedulesByTeam(teamCode);
     }
 
-    public void changeLocation(Schedule schedule) {
-        schedulesController.changeLocation(schedule);
+    public void changeLocation(Timetable timetable) {
+        schedulesController.changeLocation(timetable);
     }
 }

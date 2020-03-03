@@ -1,29 +1,30 @@
-package fr.frogdevelopment.ep.implementation;
+package fr.frogdevelopment.ep.implementation.clean;
 
-import fr.frogdevelopment.ep.implementation.schedules.CleanUpSchedules;
-import fr.frogdevelopment.ep.implementation.teams.CleanUpTeams;
-import fr.frogdevelopment.ep.implementation.volunteers.CleanUpVolunteers;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-class CleanUpDatabase {
+public class CleanUpData {
 
+    private final CleanUpTeams cleanUpTeams;
     private final CleanUpSchedules cleanUpSchedules;
     private final CleanUpVolunteers cleanUpVolunteers;
-    private final CleanUpTeams cleanUpTeams;
+    private final CleanUpTimetables cleanUpTimetables;
 
-    CleanUpDatabase(CleanUpSchedules cleanUpSchedules,
-                    CleanUpVolunteers cleanUpVolunteers,
-                    CleanUpTeams cleanUpTeams) {
+    public CleanUpData(CleanUpTeams cleanUpTeams,
+                       CleanUpSchedules cleanUpSchedules,
+                       CleanUpVolunteers cleanUpVolunteers,
+                       CleanUpTimetables cleanUpTimetables) {
+        this.cleanUpTeams = cleanUpTeams;
         this.cleanUpSchedules = cleanUpSchedules;
         this.cleanUpVolunteers = cleanUpVolunteers;
-        this.cleanUpTeams = cleanUpTeams;
+        this.cleanUpTimetables = cleanUpTimetables;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void call() {
+        cleanUpTimetables.call();
         cleanUpSchedules.call();
         cleanUpVolunteers.call();
         cleanUpTeams.call();

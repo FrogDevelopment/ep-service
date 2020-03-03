@@ -1,4 +1,4 @@
-package fr.frogdevelopment.ep.implementation.xls;
+package fr.frogdevelopment.ep.implementation.xls.parser;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-class ExcelReaderUtils {
+class ExcelUtils {
 
     private static final Random PHONE_NUMBER_GENERATOR = new Random();
 

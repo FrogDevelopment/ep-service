@@ -8,6 +8,7 @@ import lombok.Data;
 public class XlsTimetable {
 
     private String location;
+    private String scheduleRef;
     private String volunteerRef;
 
 }

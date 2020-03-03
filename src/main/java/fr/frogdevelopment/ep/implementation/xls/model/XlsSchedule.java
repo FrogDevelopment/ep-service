@@ -2,11 +2,9 @@ package fr.frogdevelopment.ep.implementation.xls.model;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
-import java.util.List;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
-import lombok.Singular;
 
 @Data
 @Builder
@@ -24,7 +22,4 @@ public class XlsSchedule {
     private int expectedFouille;
     private int expectedLitiges;
     private String description;
-
-    @Singular("timetable")
-    private List<XlsTimetable> timetables;
 }
