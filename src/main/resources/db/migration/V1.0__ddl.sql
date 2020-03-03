@@ -1,11 +1,14 @@
-CREATE TABLE planning
+CREATE TABLE schedules
 (
-    planning_id       SERIAL PRIMARY KEY,
-    start_datetime    TIMESTAMP NOT NULL,
-    end_datetime      TIMESTAMP NOT NULL,
-    expected_bracelet NUMERIC   NULL,
-    expected_fouille  NUMERIC   NULL,
-    expected_litiges  NUMERIC   NULL,
+    schedules_id      SERIAL PRIMARY KEY,
+    schedules_ref     TEXT    NOT NULL
+        CONSTRAINT unique_schedules_ref UNIQUE,
+    day_of_week       TEXT    NOT NULL,
+    start_time        TIME    NOT NULL,
+    end_time          TIME    NOT NULL,
+    expected_bracelet NUMERIC NULL,
+    expected_fouille  NUMERIC NULL,
+    expected_litiges  NUMERIC NULL,
     description       TEXT
 );
 
@@ -21,7 +24,7 @@ CREATE TABLE volunteers
 (
     volunteer_id  SERIAL PRIMARY KEY,
     volunteer_ref TEXT NOT NULL
-        CONSTRAINT unique_ref UNIQUE,
+        CONSTRAINT unique_volunteer_ref UNIQUE,
     last_name     TEXT NOT NULL,
     first_name    TEXT NOT NULL,
     friends_group TEXT NULL,
@@ -33,12 +36,10 @@ CREATE TABLE volunteers
     referent      BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE schedules
+CREATE TABLE timetable
 (
-    schedule_id   SERIAL PRIMARY KEY,
-    from_datetime TIMESTAMP NOT NULL,
-    to_datetime   TIMESTAMP NOT NULL,
-    location      TEXT      NOT NULL,
-    team_code     TEXT      NOT NULL REFERENCES teams (code),
-    volunteer_ref TEXT      NULL REFERENCES volunteers (volunteer_ref)
+    timetable_id  SERIAL PRIMARY KEY,
+    location      TEXT    NOT NULL,
+    planning_ref  NUMERIC NOT NULL REFERENCES schedules (schedules_ref),
+    volunteer_ref TEXT    NULL REFERENCES volunteers (volunteer_ref)
 );

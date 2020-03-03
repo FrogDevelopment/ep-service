@@ -1,18 +1,22 @@
 package fr.frogdevelopment.ep.implementation.xls;
 
+import static java.time.DayOfWeek.FRIDAY;
+import static java.time.DayOfWeek.SATURDAY;
+import static java.time.DayOfWeek.SUNDAY;
+import static java.time.LocalTime.parse;
 import static java.util.regex.Pattern.compile;
 import static org.apache.commons.lang3.StringUtils.isAnyBlank;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import fr.frogdevelopment.ep.implementation.xls.model.XlsPlanning;
 import fr.frogdevelopment.ep.implementation.xls.model.XlsSchedule;
+import fr.frogdevelopment.ep.implementation.xls.model.XlsSchedule.XlsScheduleBuilder;
 import fr.frogdevelopment.ep.implementation.xls.model.XlsTeam;
+import fr.frogdevelopment.ep.implementation.xls.model.XlsTimetable;
 import fr.frogdevelopment.ep.implementation.xls.model.XlsVolunteer;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -30,130 +34,78 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 
 @Slf4j
-class ExcelReader {
+public class ExcelReader {
 
-    private static final Pattern SCHEDULE_PATTERN = compile("(?<from>\\d{1,2}:\\d{1,2}) . (?<to>\\d{1,2}:\\d{1,2})");
-
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder()
-            .appendOptional(DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm"))
-            .appendOptional(DateTimeFormatter.ofPattern(("MM/dd/yyyy H:mm")))
-            .toFormatter();
-
+    private static final Pattern TIME_PATTERN = compile("(?<start>\\d{1,2}:\\d{1,2}) . (?<end>\\d{1,2}:\\d{1,2})");
     private static final DateTimeFormatter TIME_FORMATTER = new DateTimeFormatterBuilder()
             .appendOptional(DateTimeFormatter.ofPattern("HH:mm"))
             .appendOptional(DateTimeFormatter.ofPattern(("H:mm")))
             .toFormatter();
 
-    private static final int PLANNING_START_ROW = 4;
-    private static final int PLANNING_FRIDAY_ROW = 11;
-    private static final int PLANNING_SATURDAY_ROW = 17;
-    private static final int PLANNING_TIMES_COLUMN = 1;
-    private static final int PLANNING_DESCRIPTION_COLUMN = 8;
+    private static final int SCHEDULES_START_ROW = 4;
+    private static final int SCHEDULES_FRIDAY_ROW = 11;
+    private static final int SCHEDULES_SATURDAY_ROW = 17;
+    private static final int SCHEDULES_TIMES_COLUMN = 1;
+    private static final int SCHEDULES_BRACELET_COLUMN = 3;
+    private static final int SCHEDULES_FOUILLES_COLUMN = 4;
+    private static final int SCHEDULES_LITIGES_COLUMN = 5;
+    private static final int SCHEDULES_DESCRIPTION_COLUMN = 8;
 
+    private static final int TEAM_START_ROW = 3;
     private static final int TEAM_NAME_COLUMN = 1;
     private static final int TEAM_CODE_COLUMN = 2;
 
+    private static final int VOLUNTEER_START_ROW = 10;
     private static final int VOLUNTEER_LAST_NAME_COLUMN = 0;
     private static final int VOLUNTEER_FIRST_NAME_COLUMN = 1;
     private static final int VOLUNTEER_TEAM_COLUMN = 2;
     private static final int VOLUNTEER_CIRCLE_COLUMN = 3;
-    private static final int PLANNING_FOUILLES_COLUMN = 4;
-    private static final int PLANNING_LITIGES_COLUMN = 5;
-    private static final int PLANNING_BRACELET_COLUMN = 3;
 
-    private static final int SCHEDULES_COLUMN_START = 9;
-    private static final int SCHEDULES_COLUMN_END = 20;
+    private static final int TIMETABLE_FRIDAY_COLUMN_START = 9;
+    private static final int TIMETABLE_FRIDAY_COLUMN_END = 12;
+    private static final int TIMETABLE_SATURDAY_COLUMN_END = 17;
+    private static final int TIMETABLE_SUNDAY_COLUMN_END = 20;
 
-    private final ExcelParameters parameters;
     private final Random phoneNumberGenerator = new Random();
 
-    private final Map<String, XlsPlanning.XlsPlanningBuilder> plannings = new HashMap<>();
-    private final Map<Integer, XlsPlanning.XlsPlanningBuilder> planningsByColumn = new HashMap<>();
-    private final List<XlsTeam> teams = new ArrayList<>();
+    private final Map<String, XlsSchedule.XlsScheduleBuilder> plannings = new HashMap<>();
+    private final Map<Integer, XlsSchedule.XlsScheduleBuilder> planningsByColumn = new HashMap<>();
     private final List<XlsVolunteer> volunteers = new ArrayList<>();
 
-    ExcelReader(ExcelParameters parameters) {
-        this.parameters = parameters;
+    public static Result read(InputStream inputStream) {
+        return new ExcelReader().execute(inputStream);
     }
 
-    Result execute(InputStream inputStream) {
+    private Result execute(InputStream inputStream) {
         try (Workbook workbook = new HSSFWorkbook(inputStream)) {
-            readPlannings(workbook);
-            readTeams(workbook);
+            var teams = readTeams(workbook);
+            readSchedules(workbook);
             readVolunteers(workbook);
+
+            var resultBuilder = Result.builder();
+
+            plannings.values()
+                    .stream()
+                    .map(XlsScheduleBuilder::build)
+                    .forEach(resultBuilder::schedule);
+
+            return resultBuilder
+                    .teams(teams)
+                    .volunteers(volunteers)
+                    .build();
+
         } catch (IOException e) {
             log.error(e.getMessage(), e);
-        }
-
-        return null;
-    }
-
-    private void readPlannings(Workbook workbook) {
-        log.info("Reading 'horaires'");
-        var datatypeSheet = workbook.getSheet("horaires");
-
-        String date;
-        LocalDate localDate;
-        var dateTimeFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-        var rowNum = PLANNING_START_ROW;
-
-        while (true) {
-            var row = datatypeSheet.getRow(rowNum++);
-
-            if (row == null) {
-                break;
-            }
-
-            if (rowNum < PLANNING_FRIDAY_ROW) {
-                date = parameters.getPlanning().getFriday().getDate();
-            } else if (rowNum < PLANNING_SATURDAY_ROW) {
-                date = parameters.getPlanning().getSaturday().getDate();
-            } else {
-                date = parameters.getPlanning().getSunday().getDate();
-            }
-
-            localDate = LocalDate.parse(date, dateTimeFormatter);
-
-            var planning = getCellStringValue(row, PLANNING_TIMES_COLUMN);
-
-            if (isBlank(planning)) {
-                break;
-            }
-
-            var matcher = SCHEDULE_PATTERN.matcher(planning);
-            if (matcher.find()) {
-                addPlanning(localDate, row, matcher);
-            } else {
-                log.warn("incorrect row {}", rowNum);
-            }
+            return null;
         }
     }
 
-    private void addPlanning(LocalDate localDate, Row row, Matcher matcher) {
-        var start = localDate.atTime(LocalTime.parse(matcher.group("from"), TIME_FORMATTER));
-        var end = localDate.atTime(LocalTime.parse(matcher.group("to"), TIME_FORMATTER));
+    private List<XlsTeam> readTeams(Workbook workbook) {
+        log.info("Parsing Teams");
+        var teams = new ArrayList<XlsTeam>();
+        var datatypeSheet = workbook.getSheet("Equipes");
 
-        var expectedBracelet = getNumericCellValue(row, PLANNING_BRACELET_COLUMN);
-        var expectedFouille = getNumericCellValue(row, PLANNING_FOUILLES_COLUMN);
-        var expectedLitiges = getNumericCellValue(row, PLANNING_LITIGES_COLUMN);
-        var description = getCellStringValue(row, PLANNING_DESCRIPTION_COLUMN);
-
-        var builder = XlsPlanning.builder()
-                .start(start)
-                .end(end)
-                .expectedBracelet(expectedBracelet)
-                .expectedFouille(expectedFouille)
-                .expectedLitiges(expectedLitiges)
-                .description(description);
-
-        plannings.put(schedulesTitle(start, end), builder);
-    }
-
-    private void readTeams(Workbook workbook) {
-        log.info("Reading '{}'", parameters.getTeam().getSheetName());
-        var datatypeSheet = workbook.getSheet(parameters.getTeam().getSheetName());
-
-        var rowNum = parameters.getTeam().getFirstRow();
+        var rowNum = TEAM_START_ROW;
         while (true) {
             var row = datatypeSheet.getRow(rowNum++);
 
@@ -164,7 +116,6 @@ class ExcelReader {
             var team = XlsTeam.builder()
                     .name(getCellStringValue(row, TEAM_NAME_COLUMN))
                     .code(getCellStringValue(row, TEAM_CODE_COLUMN))
-//                    .referents() // fixme
                     .build();
 
             // fixme
@@ -176,39 +127,98 @@ class ExcelReader {
 
             teams.add(team);
         }
+
+        return teams;
+    }
+
+    private void readSchedules(Workbook workbook) {
+        log.info("Parsing schedules");
+        var datatypeSheet = workbook.getSheet("horaires");
+
+        var rowNum = SCHEDULES_START_ROW;
+        while (true) {
+            var row = datatypeSheet.getRow(rowNum++);
+
+            if (row == null) {
+                break;
+            }
+
+            DayOfWeek dayOfWeek;
+            if (rowNum < SCHEDULES_FRIDAY_ROW) {
+                dayOfWeek = FRIDAY;
+            } else if (rowNum < SCHEDULES_SATURDAY_ROW) {
+                dayOfWeek = SATURDAY;
+            } else {
+                dayOfWeek = SUNDAY;
+            }
+
+            var scheduleTimes = getCellStringValue(row, SCHEDULES_TIMES_COLUMN);
+
+            if (isBlank(scheduleTimes)) {
+                break;
+            }
+
+            var matcher = TIME_PATTERN.matcher(scheduleTimes);
+            if (matcher.find()) {
+                addSchedule(dayOfWeek, row, matcher);
+            } else {
+                log.warn("Incorrect row {}", rowNum);
+            }
+        }
+    }
+
+    private void addSchedule(DayOfWeek dayOfWeek, Row row, Matcher matcher) {
+        var start = parse(matcher.group("start"), TIME_FORMATTER);
+        var end = parse(matcher.group("end"), TIME_FORMATTER);
+        var expectedBracelet = getNumericCellValue(row, SCHEDULES_BRACELET_COLUMN);
+        var expectedFouille = getNumericCellValue(row, SCHEDULES_FOUILLES_COLUMN);
+        var expectedLitiges = getNumericCellValue(row, SCHEDULES_LITIGES_COLUMN);
+        var description = getCellStringValue(row, SCHEDULES_DESCRIPTION_COLUMN);
+
+        var builder = XlsSchedule.builder()
+                .ref(UUID.randomUUID().toString())
+                .dayOfWeek(dayOfWeek)
+                .start(start)
+                .end(end)
+                .expectedBracelet(expectedBracelet)
+                .expectedFouille(expectedFouille)
+                .expectedLitiges(expectedLitiges)
+                .description(description);
+
+        plannings.put(schedulesTitle(dayOfWeek, start, end), builder);
     }
 
     private void readVolunteers(Workbook workbook) {
-        var planning = parameters.getPlanning();
-        log.info("Reading '{}'", planning.getSheetName());
-        var datatypeSheet = workbook.getSheet(planning.getSheetName());
+        log.info("Parsing Timetables");
+        var datatypeSheet = workbook.getSheet("EP_planning_général");
 
-        var rowNum = planning.getFirstRow();
+        var rowNum = VOLUNTEER_START_ROW;
         var rowHeader = datatypeSheet.getRow(rowNum++);
 
-        for (var i = SCHEDULES_COLUMN_START; i <= SCHEDULES_COLUMN_END; i++) {
-            var cellValue = rowHeader.getCell(i).getRichStringCellValue().toString();
-            var matcher = SCHEDULE_PATTERN.matcher(cellValue);
+        for (var colNum = TIMETABLE_FRIDAY_COLUMN_START; colNum <= TIMETABLE_SUNDAY_COLUMN_END; colNum++) {
+            var cellValue = rowHeader.getCell(colNum).getRichStringCellValue().toString();
+            var matcher = TIME_PATTERN.matcher(cellValue);
             if (matcher.find()) {
 
-                String dayDate;
-                if (i <= planning.getFriday().getEnd()) {
-                    dayDate = planning.getFriday().getDate();
-                } else if (i <= planning.getSaturday().getEnd()) {
-                    dayDate = planning.getSaturday().getDate();
+                DayOfWeek dayOfWeek;
+                if (colNum <= TIMETABLE_FRIDAY_COLUMN_END) {
+                    dayOfWeek = FRIDAY;
+                } else if (colNum <= TIMETABLE_SATURDAY_COLUMN_END) {
+                    dayOfWeek = SATURDAY;
                 } else {
-                    dayDate = planning.getSunday().getDate();
+                    dayOfWeek = SUNDAY;
                 }
 
-                LocalDateTime start = LocalDateTime.parse(format(dayDate, matcher.group("from")), DATE_TIME_FORMATTER);
-                LocalDateTime end = LocalDateTime.parse(format(dayDate, matcher.group("to")), DATE_TIME_FORMATTER);
-                planningsByColumn.put(i, plannings.get(schedulesTitle(start, end)));
+                var start = parse(matcher.group("start"), TIME_FORMATTER);
+                var end = parse(matcher.group("end"), TIME_FORMATTER);
+                planningsByColumn.put(colNum, plannings.get(schedulesTitle(dayOfWeek, start, end)));
             } else {
                 log.warn("No date matching with {}", cellValue);
             }
         }
 
-        while (true) {
+        var read = true;
+        while (read) {
             var row = datatypeSheet.getRow(rowNum++);
 
             if (row == null) {
@@ -216,16 +226,16 @@ class ExcelReader {
                 break;
             }
 
-            readVolunteer(row);
+            read = readVolunteer(row);
         }
     }
 
-    private void readVolunteer(Row row) {
+    private boolean readVolunteer(Row row) {
         var cellLastName = getCellStringValue(row, VOLUNTEER_LAST_NAME_COLUMN);
 
         if (isAnyBlank(cellLastName)) {
-            log.warn("Missing data, skipping row {}", row.getRowNum());
-            return;
+            log.warn("Missing data, stopping reading at row {}", row.getRowNum());
+            return false;
         }
 
         var cellFirstName = getCellStringValue(row, VOLUNTEER_FIRST_NAME_COLUMN);
@@ -243,24 +253,22 @@ class ExcelReader {
 
         volunteers.add(volunteer);
 
-        for (var i = SCHEDULES_COLUMN_START; i <= SCHEDULES_COLUMN_END; i++) {
+        for (var i = TIMETABLE_FRIDAY_COLUMN_START; i <= TIMETABLE_SUNDAY_COLUMN_END; i++) {
             var value = getCellStringValue(row, i);
             if (isNotBlank(value)) {
-                var schedule = XlsSchedule.builder()
+                var timetable = XlsTimetable.builder()
                         .location(value)
                         .volunteerRef(volunteer.getRef())
                         .build();
-                planningsByColumn.get(i).schedule(schedule);
+                planningsByColumn.get(i).timetable(timetable);
             }
         }
+
+        return true;
     }
 
-    private static String schedulesTitle(LocalDateTime start, LocalDateTime end) {
-        return String.format("%s - %s", start.toString(), end.toString());
-    }
-
-    private static String format(String dayDate, String split) {
-        return String.format("%s %s", dayDate, split.trim());
+    private static String schedulesTitle(DayOfWeek dayOfWeek, LocalTime start, LocalTime end) {
+        return String.format("%s: %s - %s", dayOfWeek, start.toString(), end.toString());
     }
 
     private static String getCellStringValue(Row row, int i) {
