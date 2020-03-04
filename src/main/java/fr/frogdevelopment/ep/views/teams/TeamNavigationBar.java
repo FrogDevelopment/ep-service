@@ -49,7 +49,7 @@ class TeamNavigationBar extends Tabs {
     enum Navigation {
         //        DASHBOARD("Dashboard", "team/dashboard/"),
         MEMBERS(USER, "Membres", "team/members/"),
-        PLANNING(CALENDAR_USER, "Schedule", "team/planning/"),
+        PLANNING(CALENDAR_USER, "Timetable", "team/planning/"),
         STATS(ABACUS, "Stats", "team/stats/");
 
         private final VaadinIcon icon;

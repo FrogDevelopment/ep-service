@@ -12,8 +12,8 @@ import lombok.Data;
 @Builder
 public class Result {
 
-    private List<XlsSchedule> schedules;
+    private List<XlsTimetable> timetables;
     private List<XlsTeam> teams;
     private List<XlsVolunteer> volunteers;
-    private List<XlsTimetable> timetables;
+    private List<XlsSchedule> schedules;
 }

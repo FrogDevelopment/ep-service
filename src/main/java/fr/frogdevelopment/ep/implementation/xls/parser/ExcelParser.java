@@ -73,12 +73,12 @@ public class ExcelParser {
     private static final int TIMETABLE_SATURDAY_COLUMN_END = 17;
     private static final int TIMETABLE_SUNDAY_COLUMN_END = 20;
 
-    private final Map<String, String> scheduleRefsByTitle = new HashMap<>();
-    private final Map<Integer, String> scheduleRefsByColumn = new HashMap<>();
+    private final Map<String, String> timetableRefsByTitle = new HashMap<>();
+    private final Map<Integer, String> timetableRefsByColumn = new HashMap<>();
     private final List<XlsTeam> teams = new ArrayList<>();
-    private final List<XlsSchedule> schedules = new ArrayList<>();
+    private final List<XlsTimetable> timetables = new ArrayList<>();
     private final List<XlsVolunteer> volunteers = new ArrayList<>();
-    private final List<XlsTimetable> xlsTimetables = new ArrayList<>();
+    private final List<XlsSchedule> schedules = new ArrayList<>();
 
     public static Result read(InputStream inputStream) {
         return new ExcelParser().execute(inputStream);
@@ -86,15 +86,15 @@ public class ExcelParser {
 
     private Result execute(InputStream inputStream) {
         try (Workbook workbook = new HSSFWorkbook(inputStream)) {
+            readTimeTables(workbook);
             readTeams(workbook);
-            readSchedules(workbook);
             readVolunteers(workbook);
 
             return Result.builder()
+                    .timetables(timetables)
                     .teams(teams)
-                    .schedules(schedules)
                     .volunteers(volunteers)
-                    .timetables(xlsTimetables)
+                    .schedules(schedules)
                     .build();
 
         } catch (IOException e) {
@@ -131,8 +131,8 @@ public class ExcelParser {
         }
     }
 
-    private void readSchedules(Workbook workbook) {
-        log.info("Parsing timetables");
+    private void readTimeTables(Workbook workbook) {
+        log.info("Parsing schedules");
         var datatypeSheet = workbook.getSheet("horaires");
 
         var rowNum = SCHEDULES_START_ROW;
@@ -160,14 +160,14 @@ public class ExcelParser {
 
             var matcher = TIME_PATTERN.matcher(scheduleTimes);
             if (matcher.find()) {
-                addSchedule(dayOfWeek, row, matcher);
+                addTimetable(dayOfWeek, row, matcher);
             } else {
                 log.warn("Incorrect row {}", rowNum);
             }
         }
     }
 
-    private void addSchedule(DayOfWeek dayOfWeek, Row row, Matcher matcher) {
+    private void addTimetable(DayOfWeek dayOfWeek, Row row, Matcher matcher) {
         var start = parse(matcher.group("start"), TIME_FORMATTER);
         var end = parse(matcher.group("end"), TIME_FORMATTER);
         var expectedBracelet = getNumericCellValue(row, SCHEDULES_BRACELET_COLUMN);
@@ -175,7 +175,7 @@ public class ExcelParser {
         var expectedLitiges = getNumericCellValue(row, SCHEDULES_LITIGES_COLUMN);
         var description = getCellStringValue(row, SCHEDULES_DESCRIPTION_COLUMN);
 
-        var schedule = XlsSchedule.builder()
+        var schedule = XlsTimetable.builder()
                 .ref(UUID.randomUUID().toString())
                 .dayOfWeek(dayOfWeek)
                 .start(start)
@@ -186,9 +186,9 @@ public class ExcelParser {
                 .description(description)
                 .build();
 
-        schedules.add(schedule);
+        timetables.add(schedule);
 
-        scheduleRefsByTitle.put(schedulesTitle(dayOfWeek, start, end), schedule.getRef());
+        timetableRefsByTitle.put(schedulesTitle(dayOfWeek, start, end), schedule.getRef());
     }
 
     private void readVolunteers(Workbook workbook) {
@@ -214,7 +214,7 @@ public class ExcelParser {
 
                 var start = parse(matcher.group("start"), TIME_FORMATTER);
                 var end = parse(matcher.group("end"), TIME_FORMATTER);
-                scheduleRefsByColumn.put(colNum, scheduleRefsByTitle.get(schedulesTitle(dayOfWeek, start, end)));
+                timetableRefsByColumn.put(colNum, timetableRefsByTitle.get(schedulesTitle(dayOfWeek, start, end)));
             } else {
                 log.warn("No date matching with {}", cellValue);
             }
@@ -259,13 +259,13 @@ public class ExcelParser {
         for (var i = TIMETABLE_FRIDAY_COLUMN_START; i <= TIMETABLE_SUNDAY_COLUMN_END; i++) {
             var value = getCellStringValue(row, i);
             if (isNotBlank(value)) {
-                var timetable = XlsTimetable.builder()
+                var schedule = XlsSchedule.builder()
                         .location(value)
-                        .scheduleRef(scheduleRefsByColumn.get(i))
+                        .timetableRef(timetableRefsByColumn.get(i))
                         .volunteerRef(volunteer.getRef())
                         .build();
 
-                xlsTimetables.add(timetable);
+                schedules.add(schedule);
             }
         }
 

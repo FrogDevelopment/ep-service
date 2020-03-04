@@ -22,8 +22,8 @@ class ExcelParserTest {
         // then
         assertThat(result).isNotNull();
         assertThat(result.getTeams()).hasSize(7);
-//        Assertions.assertThat(result.getTimetables()).hasSize(17); // fixme 22:00 - ?
-        assertThat(result.getSchedules()).hasSize(16);
+//        Assertions.assertThat(result.getSchedules()).hasSize(17); // fixme 22:00 - ?
+        assertThat(result.getTimetables()).hasSize(16);
         assertThat(result.getVolunteers()).hasSize(175);
     }
 

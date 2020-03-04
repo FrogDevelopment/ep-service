@@ -20,10 +20,10 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.function.ValueProvider;
 import fr.frogdevelopment.ep.implementation.stats.StatsRepository.TimeSlot;
 import fr.frogdevelopment.ep.model.Location;
-import fr.frogdevelopment.ep.model.Timetable;
+import fr.frogdevelopment.ep.model.Schedule;
 import fr.frogdevelopment.ep.model.Volunteer;
 import java.time.DayOfWeek;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,7 +69,7 @@ public class StatisticsGrid extends Grid<Volunteer> {
 
         var headerRow = prependHeaderRow();
         timeSlots.stream()
-                .collect(groupingBy(ts -> ts.getStart().getDayOfWeek(), () -> new EnumMap<>(DayOfWeek.class),
+                .collect(groupingBy(TimeSlot::getDayOfWeek, () -> new EnumMap<>(DayOfWeek.class),
                         mapping(ts -> addColumn(getLocationBySlot(ts))
                                 .setTextAlign(CENTER)
                                 .setHeader(getHeader(ts))
@@ -143,18 +143,17 @@ public class StatisticsGrid extends Grid<Volunteer> {
     private ValueProvider<Volunteer, String> getLocationBySlot(TimeSlot ts) {
         return volunteer -> mapLocationBySlot
                 .computeIfAbsent(volunteer.getRef(), computeLocationBySlot(volunteer))
-                .getOrDefault(slotsToLabel(ts.getStart(), ts.getEnd()), "-");
+                .getOrDefault(slotsToLabel(ts.getDayOfWeek(), ts.getStart(), ts.getEnd()), "-");
     }
 
     private Function<String, Map<String, String>> computeLocationBySlot(Volunteer volunteer) {
-        return key -> volunteer.getTimetables()
+        return key -> volunteer.getSchedules()
                 .stream()
                 .collect(toMap(schedule -> slotsToLabel(schedule.getStart(), schedule.getEnd()),
                         schedule -> schedule.getLocation().getCode(), (a, b) -> b, HashMap::new));
     }
 
-    private static String slotsToLabel(LocalDateTime start, LocalDateTime end) {
-        var dayOfWeek = start.getDayOfWeek();
+    private static String slotsToLabel(DayOfWeek dayOfWeek, LocalTime start, LocalTime end) {
         var startHour = start.getHour();
         var startMinute = start.getMinute();
         var endHour = end.getHour();
@@ -164,9 +163,9 @@ public class StatisticsGrid extends Grid<Volunteer> {
 
     private ValueProvider<Volunteer, Integer> getCountForLocation(Location location) {
         return volunteer -> mapSumLocationsByVolunteers.computeIfAbsent(volunteer.getRef(),
-                key -> volunteer.getTimetables()
+                key -> volunteer.getSchedules()
                         .stream()
-                        .collect(toMap(Timetable::getLocation, schedule -> 1, Integer::sum, HashMap::new)))
+                        .collect(toMap(Schedule::getLocation, schedule -> 1, Integer::sum, HashMap::new)))
                 .getOrDefault(location, 0);
     }
 
@@ -181,9 +180,9 @@ public class StatisticsGrid extends Grid<Volunteer> {
 
     private ValueProvider<Volunteer, Double> getDurationForLocation(Location location) {
         return volunteer -> mapDurationsByVolunteers.computeIfAbsent(volunteer.getRef(),
-                key -> volunteer.getTimetables()
+                key -> volunteer.getSchedules()
                         .stream()
-                        .collect(toMap(Timetable::getLocation,
+                        .collect(toMap(Schedule::getLocation,
                                 schedule -> (double) between(schedule.getStart(), schedule.getEnd()).toMinutes() / 60,
                                 Double::sum, HashMap::new)))
                 .getOrDefault(location, 0D);

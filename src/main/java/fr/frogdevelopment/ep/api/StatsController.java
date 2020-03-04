@@ -26,10 +26,10 @@ public class StatsController {
 
     @GetMapping("/with-all-schedules")
     public List<Volunteer> getAllWithSchedules() {
-        return statsRepository.getAllWithSchedules();
+        return statsRepository.getVolunteersWithSchedules();
     }
     @GetMapping("/with-all-schedules/{teamCode}")
     public List<Volunteer> getWithSchedules(@PathVariable String teamCode) {
-        return statsRepository.getWithSchedules(teamCode);
+        return statsRepository.getVolunteersWithSchedules(teamCode);
     }
 }

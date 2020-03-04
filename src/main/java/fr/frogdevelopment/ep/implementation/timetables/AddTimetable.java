@@ -4,28 +4,31 @@ import fr.frogdevelopment.ep.model.Timetable;
 import javax.sql.DataSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-@Component
+@Repository
 public class AddTimetable {
 
     private final SimpleJdbcInsert simpleJdbcInsert;
 
     public AddTimetable(DataSource dataSource) {
-        this.simpleJdbcInsert = new SimpleJdbcInsert(dataSource)
-                .usingGeneratedKeyColumns("timetable_id")
-                .withTableName("timetables");
+        simpleJdbcInsert = new SimpleJdbcInsert(dataSource)
+                .withTableName("timetables")
+                .usingGeneratedKeyColumns("timetable_id");
     }
 
+    @Transactional(propagation = Propagation.MANDATORY)
     public void call(Timetable timetable) {
-        var paramSource = new MapSqlParameterSource()
-                .addValue("location", timetable.getLocation().name())
-                .addValue("schedules_ref", timetable.getScheduleRef())
-                .addValue("volunteer_ref", timetable.getVolunteerRef());
-
-        var returnedKey = simpleJdbcInsert.executeAndReturnKey(paramSource);
-
-        timetable.setId(returnedKey.intValue());
+        simpleJdbcInsert.execute(new MapSqlParameterSource()
+                .addValue("timetable_ref", timetable.getRef())
+                .addValue("day_of_week", timetable.getDayOfWeek())
+                .addValue("start_time", timetable.getStart())
+                .addValue("end_time", timetable.getEnd())
+                .addValue("expected_bracelet", timetable.getExpectedBracelet())
+                .addValue("expected_fouille", timetable.getExpectedFouille())
+                .addValue("expected_litiges", timetable.getExpectedLitiges())
+                .addValue("description", timetable.getDescription()));
     }
-
 }

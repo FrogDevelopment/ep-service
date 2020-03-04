@@ -14,6 +14,6 @@ class CleanUpTimetables {
 
     void call() {
         jdbcTemplate.update("DELETE FROM timetables");
-        jdbcTemplate.update("ALTER SEQUENCE timetables_timetables_id_seq RESTART WITH 1");
+        jdbcTemplate.update("ALTER SEQUENCE timetables_timetable_id_seq RESTART WITH 1");
     }
 }

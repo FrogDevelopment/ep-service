@@ -22,11 +22,11 @@ CREATE TABLE volunteers
     referent      BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE schedules
+CREATE TABLE timetables
 (
-    schedules_id      SERIAL PRIMARY KEY,
-    schedules_ref     TEXT    NOT NULL
-        CONSTRAINT unique_schedules_ref UNIQUE,
+    timetable_id      SERIAL PRIMARY KEY,
+    timetable_ref     TEXT    NOT NULL
+        CONSTRAINT unique_timetable_ref UNIQUE,
     day_of_week       TEXT    NOT NULL,
     start_time        TIME    NOT NULL,
     end_time          TIME    NOT NULL,
@@ -36,10 +36,10 @@ CREATE TABLE schedules
     description       TEXT
 );
 
-CREATE TABLE timetable
+CREATE TABLE schedules
 (
-    timetable_id  SERIAL PRIMARY KEY,
-    location      TEXT    NOT NULL,
-    schedules_ref NUMERIC NOT NULL REFERENCES schedules (schedules_ref),
-    volunteer_ref TEXT    NULL REFERENCES volunteers (volunteer_ref)
+    schedule_id   SERIAL PRIMARY KEY,
+    location      TEXT NOT NULL,
+    timetable_ref TEXT NOT NULL REFERENCES timetables (timetable_ref),
+    volunteer_ref TEXT NULL REFERENCES volunteers (volunteer_ref)
 );

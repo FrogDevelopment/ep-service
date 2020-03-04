@@ -1,12 +1,13 @@
 package fr.frogdevelopment.ep.model;
 
 import java.io.Serializable;
-import java.util.Set;
+import java.time.DayOfWeek;
+import java.time.LocalTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Singular;
+import lombok.NonNull;
 
 @Data
 @Builder
@@ -15,11 +16,20 @@ import lombok.Singular;
 public class Timetable implements Serializable {
 
     private int id;
-    private Location location;
-    private String scheduleRef;
-    private String volunteerRef;
+    @NonNull
+    private String ref;
+    @NonNull
+    private DayOfWeek dayOfWeek;
+    @NonNull
+    private LocalTime start;
+    @NonNull
+    private LocalTime end;
+    private int expectedBracelet;
+    private int expectedFouille;
+    private int expectedLitiges;
+    private String description;
 
-    @Singular("volunteer")
-    private Set<String> volunteers;
-
+    private String title;
+    private double duration;
+    private int expectedTotal;
 }

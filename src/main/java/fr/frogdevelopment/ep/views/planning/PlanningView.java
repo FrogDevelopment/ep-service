@@ -10,52 +10,52 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
-import fr.frogdevelopment.ep.implementation.schedules.SchedulesRepository;
-import fr.frogdevelopment.ep.model.Schedule;
+import fr.frogdevelopment.ep.implementation.timetables.TimetablesRepository;
+import fr.frogdevelopment.ep.model.Timetable;
 import fr.frogdevelopment.ep.views.MainView;
 import java.time.DayOfWeek;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@PageTitle("Schedule Générale")
+@PageTitle("Timetable Générale")
 @Route(value = "planning", layout = MainView.class)
 @RouteAlias(value = "", layout = MainView.class)
 @CssImport("./styles/views/planning/planning-view.css")
 public class PlanningView extends Div implements AfterNavigationObserver {
 
-    private final transient SchedulesRepository schedulesRepository;
+    private final transient TimetablesRepository timetablesRepository;
 
-    private final Map<DayOfWeek, Grid<Schedule>> grids = new HashMap<>();
+    private final Map<DayOfWeek, Grid<Timetable>> grids = new HashMap<>();
 
-    public PlanningView(SchedulesRepository schedulesRepository) {
-        this.schedulesRepository = schedulesRepository;
+    public PlanningView(TimetablesRepository timetablesRepository) {
+        this.timetablesRepository = timetablesRepository;
 
         setId("planning-view");
     }
 
-    private void addGridFor(DayOfWeek dayOfWeek, List<Schedule> schedules) {
-        var grid = new Grid<Schedule>();
+    private void addGridFor(DayOfWeek dayOfWeek, List<Timetable> timetables) {
+        var grid = new Grid<Timetable>();
         grid.setId("grid-" + dayOfWeek.name());
         grid.addThemeVariants(LUMO_NO_BORDER);
         grid.setHeight("33%");
 
-        grid.addColumn(Schedule::getTitle)
+        grid.addColumn(Timetable::getTitle)
                 .setHeader("Horaire");
-        grid.addColumn(Schedule::getDuration)
+        grid.addColumn(Timetable::getDuration)
                 .setHeader("Nb heures");
-        grid.addColumn(Schedule::getExpectedBracelet)
+        grid.addColumn(Timetable::getExpectedBracelet)
                 .setHeader("Effectif bracelet");
-        grid.addColumn(Schedule::getExpectedFouille)
+        grid.addColumn(Timetable::getExpectedFouille)
                 .setHeader("Effectif fouille");
-        grid.addColumn(Schedule::getExpectedLitiges)
+        grid.addColumn(Timetable::getExpectedLitiges)
                 .setHeader("Effectif litiges");
-        grid.addColumn(Schedule::getExpectedTotal)
+        grid.addColumn(Timetable::getExpectedTotal)
                 .setHeader("Effectif Total");
-        grid.addColumn(Schedule::getDescription)
+        grid.addColumn(Timetable::getDescription)
                 .setHeader("Description");
 
-        grid.setItems(schedules);
+        grid.setItems(timetables);
 
         add(grid);
         grids.put(dayOfWeek, grid);
@@ -63,7 +63,7 @@ public class PlanningView extends Div implements AfterNavigationObserver {
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
-        schedulesRepository.getPlanning().forEach(this::addGridFor);
+        timetablesRepository.getPlanning().forEach(this::addGridFor);
     }
 
 }

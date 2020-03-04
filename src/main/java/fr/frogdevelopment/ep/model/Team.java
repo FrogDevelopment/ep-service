@@ -24,7 +24,7 @@ public class Team implements Serializable {
     @Default
     private List<Volunteer> volunteers = new ArrayList<>();
     @Default
-    private Set<Timetable> timetables = new HashSet<>();
+    private Set<Schedule> schedules = new HashSet<>();
 
     public String getFullName() {
         return String.join(" - ", code, name);

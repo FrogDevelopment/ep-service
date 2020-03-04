@@ -12,8 +12,8 @@ import fr.frogdevelopment.ep.views.components.SchedulesCalendar;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@PageTitle("Schedule Global")
-@Route(value = "timetables", layout = MainView.class)
+@PageTitle("Timetable Global")
+@Route(value = "schedules", layout = MainView.class)
 @CssImport("./styles/views/teams/teams-view.css")
 public class SchedulesView extends VerticalLayout implements AfterNavigationObserver {
 
@@ -24,7 +24,7 @@ public class SchedulesView extends VerticalLayout implements AfterNavigationObse
     public SchedulesView(SchedulesClient schedulesClient) {
         this.schedulesClient = schedulesClient;
 
-        setId("timetables-view");
+        setId("schedules-view");
 
         add(calendar);
     }

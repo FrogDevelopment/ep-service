@@ -3,9 +3,10 @@ package fr.frogdevelopment.ep.implementation.stats;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.frogdevelopment.ep.model.Timetable;
+import fr.frogdevelopment.ep.model.Schedule;
 import fr.frogdevelopment.ep.model.Volunteer;
-import java.time.LocalDateTime;
+import java.time.DayOfWeek;
+import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -33,24 +34,28 @@ public class StatsRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public List<TimeSlot> getTimeSlots() {
-        var sql = "SELECT DISTINCT from_datetime, to_datetime FROM schedules ORDER BY from_datetime";
+        var sql = "SELECT DISTINCT day_of_week, start_time, end_time FROM timetables ORDER BY day_of_week, start_time";
         return jdbcTemplate.query(sql, (rs, rowNum) -> TimeSlot.builder()
-                .start(rs.getTimestamp("from_datetime").toLocalDateTime())
-                .end(rs.getTimestamp("to_datetime").toLocalDateTime())
+                .dayOfWeek(DayOfWeek.valueOf(rs.getString("day_of_week")))
+                .start(rs.getTime("from_datetime").toLocalTime())
+                .end(rs.getTime("to_datetime").toLocalTime())
                 .build());
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public List<Volunteer> getAllWithSchedules() {
+    public List<Volunteer> getVolunteersWithSchedules() {
         var sql = "SELECT v.volunteer_ref, v.last_name, v.first_name, v.team_code,"
                 + "       json_agg(json_build_object("
-                + "               'start', s.from_datetime,"
-                + "               'end', s.to_datetime,"
+                + "               'dayOfWeek', t.day_of_week,"
+                + "               'start', t.start_time,"
+                + "               'end', t.end_time,"
                 + "               'location', s.location"
                 + "           )) AS schedules"
                 + " FROM volunteers v"
                 + "         INNER JOIN schedules s ON v.volunteer_ref = s.volunteer_ref"
+                + "         INNER JOIN timetables t ON s.timetable_ref = t.timetable_ref"
                 + " GROUP BY v.volunteer_ref, v.last_name, v.first_name, v.team_code"
                 + " ORDER BY v.last_name, v.first_name;";
 
@@ -58,16 +63,18 @@ public class StatsRepository {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public List<Volunteer> getWithSchedules(String teamCode) {
+    public List<Volunteer> getVolunteersWithSchedules(String teamCode) {
         var sql = "SELECT v.volunteer_ref, v.last_name, v.first_name, v.team_code,"
                 + "       json_agg(json_build_object("
-                + "               'start', s.from_datetime,"
-                + "               'end', s.to_datetime,"
+                + "               'dayOfWeek', t.day_of_week,"
+                + "               'start', t.start_time,"
+                + "               'end', t.end_time,"
                 + "               'location', s.location"
                 + "           )) AS schedules"
                 + " FROM volunteers v"
                 + "         INNER JOIN schedules s ON v.volunteer_ref = s.volunteer_ref"
-                + " WHERE s.team_code = :teamCode"
+                + "         INNER JOIN timetables t ON s.timetable_ref = t.timetable_ref"
+                + " WHERE v.team_code = :teamCode"
                 + " GROUP BY v.volunteer_ref, v.last_name, v.first_name, v.team_code"
                 + " ORDER BY v.last_name, v.first_name;";
 
@@ -82,28 +89,29 @@ public class StatsRepository {
                 .lastName(rs.getString("last_name"))
                 .firstName(rs.getString("first_name"))
                 .teamCode(rs.getString("team_code"))
-                .timetables(getSchedules(rs.getString("timetables")))
+                .schedules(getSchedules(rs.getString("schedules")))
                 .build();
     }
 
-    private Set<Timetable> getSchedules(String schedulesJson) {
-        Set<Timetable> timetables = Collections.emptySet();
+    private Set<Schedule> getSchedules(String schedulesJson) {
+        Set<Schedule> schedules = Collections.emptySet();
         if (StringUtils.isNotBlank(schedulesJson)) {
             try {
-                timetables = objectMapper.readValue(schedulesJson, new TypeReference<>() {
+                schedules = objectMapper.readValue(schedulesJson, new TypeReference<>() {
                 });
             } catch (JsonProcessingException e) {
-                log.error("Error timetables", e);
+                log.error("Error schedules", e);
             }
         }
-        return timetables;
+        return schedules;
     }
 
     @Data
     @Builder
     public static class TimeSlot {
 
-        private LocalDateTime start;
-        private LocalDateTime end;
+        private DayOfWeek dayOfWeek;
+        private LocalTime start;
+        private LocalTime end;
     }
 }
