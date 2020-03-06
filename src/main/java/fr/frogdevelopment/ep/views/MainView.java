@@ -6,7 +6,6 @@ import static com.vaadin.flow.component.icon.VaadinIcon.CALENDAR_BRIEFCASE;
 import static com.vaadin.flow.component.icon.VaadinIcon.EXIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.GROUP;
 import static com.vaadin.flow.component.icon.VaadinIcon.HEART;
-import static com.vaadin.flow.component.icon.VaadinIcon.QUESTION_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.UPLOAD;
 
 import com.vaadin.flow.component.Component;
@@ -27,7 +26,6 @@ import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
-import fr.frogdevelopment.ep.views.about.AboutView;
 import fr.frogdevelopment.ep.views.planning.PlanningView;
 import fr.frogdevelopment.ep.views.schedules.SchedulesView;
 import fr.frogdevelopment.ep.views.stats.StatsView;
@@ -75,7 +73,6 @@ public class MainView extends AppLayout {
         tabs.add(createTab(GROUP, TeamsView.class));
         tabs.add(createTab(CALENDAR, SchedulesView.class));
         tabs.add(createTab(ABACUS, StatsView.class));
-        tabs.add(createTab(QUESTION_CIRCLE, AboutView.class));
         tabs.add(createTab(EXIT, new Anchor("logout", "Logout")));
         return tabs.toArray(new Tab[0]);
     }

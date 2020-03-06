@@ -1,7 +1,7 @@
 package fr.frogdevelopment.ep.api;
 
 import fr.frogdevelopment.ep.implementation.stats.StatsRepository;
-import fr.frogdevelopment.ep.implementation.stats.StatsRepository.TimeSlot;
+import fr.frogdevelopment.ep.implementation.stats.TimeSlot;
 import fr.frogdevelopment.ep.model.Volunteer;
 import java.util.List;
 import org.springframework.stereotype.Component;

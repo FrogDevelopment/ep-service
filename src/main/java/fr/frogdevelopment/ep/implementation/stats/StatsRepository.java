@@ -6,12 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.frogdevelopment.ep.model.Schedule;
 import fr.frogdevelopment.ep.model.Volunteer;
 import java.time.DayOfWeek;
-import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import lombok.Builder;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.RowMapper;
@@ -106,12 +103,4 @@ public class StatsRepository {
         return schedules;
     }
 
-    @Data
-    @Builder
-    public static class TimeSlot {
-
-        private DayOfWeek dayOfWeek;
-        private LocalTime start;
-        private LocalTime end;
-    }
 }

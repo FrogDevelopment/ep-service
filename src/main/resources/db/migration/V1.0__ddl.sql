@@ -22,6 +22,13 @@ CREATE TABLE volunteers
     referent      BOOLEAN DEFAULT FALSE
 );
 
+-- depending of the current edition, we calculate the datetimes for each dayOfWeek
+CREATE TABLE edition (
+    day_of_week       TEXT    NOT NULL,
+    start_datetime    TIME    NULL,
+    end_datetime      TIME    NULL
+);
+
 CREATE TABLE timetables
 (
     timetable_id      SERIAL PRIMARY KEY,

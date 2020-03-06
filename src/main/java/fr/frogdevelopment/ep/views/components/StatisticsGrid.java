@@ -18,7 +18,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.function.ValueProvider;
-import fr.frogdevelopment.ep.implementation.stats.StatsRepository.TimeSlot;
+import fr.frogdevelopment.ep.implementation.stats.TimeSlot;
 import fr.frogdevelopment.ep.model.Location;
 import fr.frogdevelopment.ep.model.Schedule;
 import fr.frogdevelopment.ep.model.Volunteer;
@@ -149,10 +149,13 @@ public class StatisticsGrid extends Grid<Volunteer> {
     private Function<String, Map<String, String>> computeLocationBySlot(Volunteer volunteer) {
         return key -> volunteer.getSchedules()
                 .stream()
-                .collect(toMap(schedule -> slotsToLabel(schedule.getStart(), schedule.getEnd()),
+                .collect(toMap(StatisticsGrid::slotsToLabel,
                         schedule -> schedule.getLocation().getCode(), (a, b) -> b, HashMap::new));
     }
 
+    private static String slotsToLabel(Schedule schedule) {
+        return slotsToLabel(schedule.getDayOfWeek(), schedule.getStart(), schedule.getEnd());
+    }
     private static String slotsToLabel(DayOfWeek dayOfWeek, LocalTime start, LocalTime end) {
         var startHour = start.getHour();
         var startMinute = start.getMinute();

@@ -14,7 +14,7 @@ import fr.frogdevelopment.ep.implementation.timetables.TimetablesRepository;
 import fr.frogdevelopment.ep.model.Timetable;
 import fr.frogdevelopment.ep.views.MainView;
 import java.time.DayOfWeek;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +26,7 @@ public class PlanningView extends Div implements AfterNavigationObserver {
 
     private final transient TimetablesRepository timetablesRepository;
 
-    private final Map<DayOfWeek, Grid<Timetable>> grids = new HashMap<>();
+    private final Map<DayOfWeek, Grid<Timetable>> grids = new EnumMap<>(DayOfWeek.class);
 
     public PlanningView(TimetablesRepository timetablesRepository) {
         this.timetablesRepository = timetablesRepository;

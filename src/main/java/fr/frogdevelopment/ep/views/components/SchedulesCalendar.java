@@ -47,7 +47,7 @@ public class SchedulesCalendar extends VerticalLayout {
     public void setSchedules(@NotNull List<Schedule> schedules) {
         calendar.removeAllEntries();
         if (CollectionUtils.isNotEmpty(schedules)) {
-            calendar.gotoDate(schedules.get(0).getStart().toLocalDate());
+            calendar.gotoDate(schedules.get(0).getStartFull().toLocalDate());
             calendar.setEntries(toEntries(schedules));
         }
     }
@@ -62,13 +62,12 @@ public class SchedulesCalendar extends VerticalLayout {
     private Entry toEntry(Schedule schedule) {
         var entryId = UUID.randomUUID().toString();
         var location = schedule.getLocation();
-        var title = String.format("%s%n%s", location, schedule.getTeamCode());
-        var start = schedule.getStart();
-        var end = schedule.getEnd();
+        var title = String.format("%s%n%s", location, schedule.getVolunteerRef());
+        var start = schedule.getStartFull();
+        var end = schedule.getEndFull();
         var color = colorByLocation(location);
-        var description = schedule.getTeamCode();
 
-        return new Entry(entryId, title, start, end, false, false, color, description);
+        return new Entry(entryId, title, start, end, false, false, color, null);
     }
 
     private static String colorByLocation(Location location) {
