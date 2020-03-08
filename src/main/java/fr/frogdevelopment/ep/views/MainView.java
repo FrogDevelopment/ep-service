@@ -68,11 +68,11 @@ public class MainView extends AppLayout {
     private static Tab[] getAvailableTabs() {
         final var tabs = new ArrayList<Tab>();
         tabs.add(createTab(CALENDAR_BRIEFCASE, PlanningView.class));
-        tabs.add(createTab(UPLOAD, UploadView.class));
         tabs.add(createTab(HEART, VolunteersView.class));
         tabs.add(createTab(GROUP, TeamsView.class));
         tabs.add(createTab(CALENDAR, SchedulesView.class));
         tabs.add(createTab(ABACUS, StatsView.class));
+        tabs.add(createTab(UPLOAD, UploadView.class));
         tabs.add(createTab(EXIT, new Anchor("logout", "Logout")));
         return tabs.toArray(new Tab[0]);
     }
