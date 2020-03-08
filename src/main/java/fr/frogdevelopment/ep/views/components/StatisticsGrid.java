@@ -154,7 +154,8 @@ public class StatisticsGrid extends Grid<Volunteer> {
     }
 
     private static String slotsToLabel(Schedule schedule) {
-        return slotsToLabel(schedule.getDayOfWeek(), schedule.getStart(), schedule.getEnd());
+        return slotsToLabel(schedule.getDayOfWeek(), schedule.getStart().toLocalTime(),
+                schedule.getEnd().toLocalTime());
     }
     private static String slotsToLabel(DayOfWeek dayOfWeek, LocalTime start, LocalTime end) {
         var startHour = start.getHour();

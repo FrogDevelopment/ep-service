@@ -3,7 +3,6 @@ package fr.frogdevelopment.ep.model;
 import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,10 +21,7 @@ public class Schedule implements Serializable {
 
     // UI
     private DayOfWeek dayOfWeek;
-    private LocalTime start;
-    private LocalTime end;
-
-    // UI
-    private LocalDateTime startFull;
-    private LocalDateTime endFull;
+    private LocalDateTime start;
+    private LocalDateTime end;
+    private String teamCode;
 }

@@ -15,12 +15,22 @@ public class SchedulesRepository {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
-    private final RowMapper<Schedule> scheduleRowMapper = (rs, rowNum) -> Schedule.builder()
-//            .start(rs.getTime("from_datetime").toLocalTime())
-//            .end(rs.getTime("to_datetime").toLocalTime())
-            .location(Location.valueOf(rs.getString("location")))
-//            .teamCode(rs.getString("team_code"))
-            .build();
+    private final RowMapper<Schedule> scheduleRowMapper = (rs, rowNum) -> {
+        var dayDate = rs.getDate("day_date").toLocalDate();
+        var startTime = rs.getTime("start_time").toLocalTime();
+        var endTime = rs.getTime("end_time").toLocalTime();
+        var start = dayDate.atTime(startTime);
+        var end = dayDate.atTime(endTime);
+        if (end.isBefore(start)) {
+            end = end.plusDays(1);
+        }
+        return Schedule.builder()
+                .start(start)
+                .end(end)
+                .location(Location.valueOf(rs.getString("location")))
+                .teamCode(rs.getString("team_code"))
+                .build();
+    };
 
     public SchedulesRepository(NamedParameterJdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -28,29 +38,36 @@ public class SchedulesRepository {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public List<Schedule> getGroupedSchedulesByTeam() {
-        var sql = "SELECT from_datetime,"
-                + " to_datetime,"
-                + " location,"
-                + " team_code,"
-                + " array_agg(volunteer_ref) AS volunteers"
-                + " FROM schedules"
-                + " GROUP BY from_datetime, to_datetime, location, team_code"
-                + " ORDER BY from_datetime;";
+        var sql = "SELECT e.day_date,"
+                + " t.start_time,"
+                + " t.end_time,"
+                + " s.location,"
+                + " v.team_code,"
+                + " array_agg(s.volunteer_ref) AS volunteers"
+                + " FROM schedules s"
+                + " INNER JOIN volunteers v ON s.volunteer_ref = v.volunteer_ref"
+                + " INNER JOIN timetables t ON s.timetable_ref = t.timetable_ref"
+                + " INNER JOIN edition e ON t.day_of_week = e.day_of_week"
+                + " GROUP BY e.day_date, t.start_time, t.end_time, s.location, v.team_code"
+                + " ORDER BY e.day_date, t.start_time;";
 
         return jdbcTemplate.query(sql, scheduleRowMapper);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     public List<Schedule> getGroupedSchedulesByTeam(String teamCode) {
-        var sql = "SELECT from_datetime,"
-                + " to_datetime,"
-                + " location,"
-                + " team_code,"
-                + " array_agg(volunteer_ref) AS volunteers"
-                + " FROM schedules"
-                + " WHERE team_code = :teamCode"
-                + " GROUP BY from_datetime, to_datetime, location, team_code"
-                + " ORDER BY from_datetime;";
+        var sql = "SELECT e.day_date,"
+                + " t.start_time,"
+                + " t.end_time,"
+                + " s.location,"
+                + " v.team_code,"
+                + " array_agg(s.volunteer_ref) AS volunteers"
+                + " FROM schedules s"
+                + " INNER JOIN timetables t ON s.timetable_ref = t.timetable_ref"
+                + " INNER JOIN volunteers v ON s.volunteer_ref = v.volunteer_ref"
+                + " WHERE v.team_code = :teamCode"
+                + " GROUP BY e.day_date, t.start_time, t.end_time, s.location, v.team_code"
+                + " ORDER BY e.day_date, t.start_time;";
 
         var paramSource = new MapSqlParameterSource("teamCode", teamCode);
 
