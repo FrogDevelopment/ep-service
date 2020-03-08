@@ -17,7 +17,7 @@ class ExcelParserTest {
         var inputStream = getClass().getClassLoader().getResourceAsStream("PLANNING_EP_2019_V3.0.xls");
 
         // when
-        var result = ExcelParser.read(inputStream);
+        var result = new ExcelParser().read(inputStream);
 
         // then
         assertThat(result).isNotNull();

@@ -40,7 +40,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 
 @Slf4j
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class ExcelParser {
 
     private static final Pattern TIME_PATTERN = compile("(?<start>\\d{1,2}:\\d{1,2}) . (?<end>\\d{1,2}:\\d{1,2})");
@@ -80,11 +80,7 @@ public class ExcelParser {
     private final List<XlsVolunteer> volunteers = new ArrayList<>();
     private final List<XlsSchedule> schedules = new ArrayList<>();
 
-    public static Result read(InputStream inputStream) {
-        return new ExcelParser().execute(inputStream);
-    }
-
-    private Result execute(InputStream inputStream) {
+    Result read(InputStream inputStream) {
         try (Workbook workbook = new HSSFWorkbook(inputStream)) {
             readTimeTables(workbook);
             readTeams(workbook);
@@ -98,8 +94,7 @@ public class ExcelParser {
                     .build();
 
         } catch (IOException e) {
-            log.error(e.getMessage(), e);
-            return null;
+            throw new IllegalStateException("Unparsable file", e);
         }
     }
 

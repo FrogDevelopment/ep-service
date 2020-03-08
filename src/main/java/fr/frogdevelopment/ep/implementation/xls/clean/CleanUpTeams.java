@@ -1,4 +1,4 @@
-package fr.frogdevelopment.ep.implementation.clean;
+package fr.frogdevelopment.ep.implementation.xls.clean;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
