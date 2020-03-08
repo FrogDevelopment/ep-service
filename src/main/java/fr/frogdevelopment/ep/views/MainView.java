@@ -35,7 +35,7 @@ import fr.frogdevelopment.ep.views.volunteers.VolunteersView;
 import java.util.ArrayList;
 
 @JsModule("./styles/shared-styles.js")
-@PWA(name = "Solidays - EP", shortName = "Solidays - EP")
+@PWA(name = "Solidays - EP", shortName = "Solidays - EP", enableInstallPrompt = false)
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 public class MainView extends AppLayout {
 

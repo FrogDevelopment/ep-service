@@ -1,0 +1,12 @@
+/* Background needs a stronger selector to not be overridden */
+[part~="cell"].friday {
+  background: #bd8b32;
+}
+
+[part~="cell"].saturday {
+  background: #549fb6;
+}
+
+[part~="cell"].sunday {
+  background: #2e762e;
+}

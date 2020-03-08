@@ -23,10 +23,11 @@ CREATE TABLE volunteers
 );
 
 -- depending of the current edition, we calculate the datetimes for each dayOfWeek
-CREATE TABLE edition (
-    day_of_week       TEXT    NOT NULL,
-    start_datetime    TIME    NULL,
-    end_datetime      TIME    NULL
+CREATE TABLE edition
+(
+    day_of_week TEXT NOT NULL
+        CONSTRAINT unique_edition_day_of_week UNIQUE,
+    day_date    DATE NULL
 );
 
 CREATE TABLE timetables
