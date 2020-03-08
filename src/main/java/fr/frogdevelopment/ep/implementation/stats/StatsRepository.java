@@ -33,11 +33,13 @@ public class StatsRepository {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public List<TimeSlot> getTimeSlots() {
-        var sql = "SELECT DISTINCT day_of_week, start_time, end_time FROM timetables ORDER BY day_of_week, start_time";
+        var sql = "SELECT day_of_week, start_time, end_time"
+                + " FROM timetables"
+                + " ORDER BY day_of_week, start_time";
         return jdbcTemplate.query(sql, (rs, rowNum) -> TimeSlot.builder()
                 .dayOfWeek(DayOfWeek.valueOf(rs.getString("day_of_week")))
-                .start(rs.getTime("from_datetime").toLocalTime())
-                .end(rs.getTime("to_datetime").toLocalTime())
+                .start(rs.getTime("start_time").toLocalTime())
+                .end(rs.getTime("end_time").toLocalTime())
                 .build());
     }
 
