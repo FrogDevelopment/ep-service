@@ -1,5 +1,6 @@
 package fr.frogdevelopment.ep.views;
 
+import static com.vaadin.flow.component.applayout.AppLayout.Section.DRAWER;
 import static com.vaadin.flow.component.icon.VaadinIcon.ABACUS;
 import static com.vaadin.flow.component.icon.VaadinIcon.CALENDAR;
 import static com.vaadin.flow.component.icon.VaadinIcon.CALENDAR_BRIEFCASE;
@@ -11,13 +12,11 @@ import static com.vaadin.flow.component.icon.VaadinIcon.UPLOAD;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.applayout.AppLayout;
-import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.PageTitle;
@@ -42,20 +41,20 @@ public class MainView extends AppLayout {
     private final Tabs menu;
 
     public MainView() {
-        setPrimarySection(AppLayout.Section.DRAWER);
+        setPrimarySection(DRAWER);
 
-        var navBarWrapper = new HorizontalLayout();
-        navBarWrapper.setWidthFull();
-        var img = new Image("icons/icon.png", "Solidays Logo");
-        img.setHeight("44px");
-        var title = new Label(" Solidays - EP");
+        var logo = new Image("icons/icon.png", "Solidays Logo");
+        logo.setHeight("100px");
+        logo.getStyle().set("display", "block");
+        logo.getStyle().set("margin-top", "5px");
+        logo.getStyle().set("margin", "0 auto");
+
+        var title = new H4(" Entrées Public");
+        title.getStyle().set("margin-top", "5px");
+        title.getStyle().set("text-align", "center");
         title.setWidthFull();
-        navBarWrapper.add(new DrawerToggle(), img, title);
-
-        addToNavbar(navBarWrapper);
-
         menu = createMenuTabs();
-        addToDrawer(menu);
+        addToDrawer(logo, title, menu);
     }
 
     private static Tabs createMenuTabs() {
