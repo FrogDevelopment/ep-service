@@ -30,7 +30,7 @@ public class Timetable implements Serializable {
     private String description;
 
     private String title;
-    private double duration;
+    private String duration;
     private int expectedTotal;
 
     private int actualBracelet;

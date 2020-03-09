@@ -8,5 +8,19 @@
 }
 
 [part~="cell"].sunday {
-  background: #2e762e;
+  background: #905493;
+}
+
+[part~="cell"].right-border {
+  border-right: solid 1px black;
+}
+
+[part~="cell"].actual-ok {
+  font-weight: bold;
+  color: #0d6604
+}
+
+[part~="cell"].actual-ko {
+  font-weight: bold;
+  color: #710202
 }

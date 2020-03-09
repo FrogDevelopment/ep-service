@@ -1,5 +1,7 @@
 package fr.frogdevelopment.ep.views.planning;
 
+import static com.vaadin.flow.component.grid.ColumnTextAlign.CENTER;
+import static com.vaadin.flow.component.grid.ColumnTextAlign.END;
 import static com.vaadin.flow.component.grid.GridVariant.LUMO_NO_BORDER;
 import static java.time.DayOfWeek.FRIDAY;
 import static java.time.DayOfWeek.MONDAY;
@@ -13,13 +15,16 @@ import static java.time.format.TextStyle.SHORT;
 import static java.util.Locale.FRANCE;
 import static java.util.stream.Collectors.toList;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.datepicker.DatePicker.DatePickerI18n;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
@@ -100,65 +105,97 @@ public class PlanningView extends VerticalLayout implements AfterNavigationObser
         grid.setId("grid-timetable");
         grid.addThemeVariants(LUMO_NO_BORDER);
         grid.getStyle().set("margin-left", "0px");
-        grid.setHeightFull();
+        grid.setHeight("550px");
         grid.setClassNameGenerator(item -> item.getDayOfWeek().name().toLowerCase());
 
         grid.addColumn(item -> item.getDayOfWeek().getDisplayName(FULL, FRANCE))
                 .setAutoWidth(true)
+                .setTextAlign(CENTER)
                 .setHeader("Jour")
                 .setFlexGrow(0);
         grid.addColumn(Timetable::getTitle)
                 .setAutoWidth(true)
+                .setTextAlign(CENTER)
                 .setHeader("Horaire")
                 .setFlexGrow(0);
         grid.addColumn(Timetable::getDuration)
                 .setAutoWidth(true)
-                .setHeader("Nb heures")
-                .setFlexGrow(0);
+                .setTextAlign(CENTER)
+                .setHeader("Durée")
+                .setFlexGrow(0)
+                .setClassNameGenerator(item -> "right-border");
         var braceletExpected = grid.addColumn(Timetable::getExpectedBracelet)
                 .setAutoWidth(true)
-                .setHeader("voulu")
+                .setTextAlign(END)
+                .setHeader("Voulu")
                 .setFlexGrow(0);
         var braceletActual = grid.addColumn(Timetable::getActualBracelet)
                 .setAutoWidth(true)
-                .setHeader("réel")
-                .setFlexGrow(0);
+                .setTextAlign(END)
+                .setHeader("Réel")
+                .setFlexGrow(0)
+                .setClassNameGenerator(item -> getEffectifClassName(item.getActualBracelet(), item.getExpectedBracelet()));
         var fouillesExpected = grid.addColumn(Timetable::getExpectedFouille)
                 .setAutoWidth(true)
-                .setHeader("voulu")
+                .setTextAlign(END)
+                .setHeader("Voulu")
                 .setFlexGrow(0);
         var fouillesActual = grid.addColumn(Timetable::getActualFouille)
                 .setAutoWidth(true)
-                .setHeader("réel")
-                .setFlexGrow(0);
+                .setTextAlign(END)
+                .setHeader("Réel")
+                .setFlexGrow(0)
+                .setClassNameGenerator(item -> getEffectifClassName(item.getActualFouille(), item.getExpectedFouille()));
         var litigesExpected = grid.addColumn(Timetable::getExpectedLitiges)
                 .setAutoWidth(true)
-                .setHeader("voulu")
+                .setTextAlign(END)
+                .setHeader("Voulu")
                 .setFlexGrow(0);
         var litigesActual = grid.addColumn(Timetable::getActualLitiges)
                 .setAutoWidth(true)
-                .setHeader("réel")
-                .setFlexGrow(0);
+                .setTextAlign(END)
+                .setHeader("Réel")
+                .setFlexGrow(0)
+                .setClassNameGenerator(item -> getEffectifClassName(item.getActualLitiges(), item.getExpectedLitiges()));
         var totalExpected = grid.addColumn(Timetable::getExpectedTotal)
                 .setAutoWidth(true)
-                .setHeader("voulu")
+                .setTextAlign(END)
+                .setHeader("Voulu")
                 .setFlexGrow(0);
         var totalActual = grid.addColumn(Timetable::getActualTotal)
                 .setAutoWidth(true)
-                .setHeader("réel")
-                .setFlexGrow(0);
+                .setTextAlign(END)
+                .setHeader("Réel")
+                .setFlexGrow(0)
+                .setClassNameGenerator(item -> getEffectifClassName(item.getActualTotal(), item.getExpectedTotal()));
         grid.addColumn(Timetable::getDescription)
                 .setHeader("Description")
                 .setFlexGrow(1);
 
         var headerRow = grid.prependHeaderRow();
-        headerRow.join(braceletExpected, braceletActual).setText("Effectif bracelets");
-        headerRow.join(fouillesExpected, fouillesActual).setText("Effectif fouilles");
-        headerRow.join(litigesExpected, litigesActual).setText("Effectif litiges");
-        headerRow.join(totalExpected, totalActual).setText("Effectif total");
+        headerRow.join(braceletExpected, braceletActual).setComponent(getHeaderTitle("Bracelets"));
+        headerRow.join(fouillesExpected, fouillesActual).setComponent(getHeaderTitle("Fouilles"));
+        headerRow.join(litigesExpected, litigesActual).setComponent(getHeaderTitle("Litiges"));
+        headerRow.join(totalExpected, totalActual).setComponent(getHeaderTitle("Total"));
 
         grid.setItems(timetablesRepository.getPlanning());
+
         add(grid);
+    }
+
+    private Component getHeaderTitle(String title ) {
+        Div header = new Div(new Span(title));
+        header.getStyle().set("text-align", "center");
+        header.setSizeFull();
+        return header;
+    }
+
+    private String getEffectifClassName(int actual, int expected) {
+        if (actual < expected) {
+            return "right-border actual-ko";
+        } else {
+            return "right-border actual-ok";
+        }
     }
 
     private void setTitle(LocalDate edition) {

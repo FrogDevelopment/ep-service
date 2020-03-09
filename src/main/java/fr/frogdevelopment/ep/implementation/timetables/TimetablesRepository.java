@@ -92,7 +92,9 @@ public class TimetablesRepository {
                 endDateTime = endDateTime.plusDays(1);
             }
             var title = String.format("%s - %s", startTime.format(ISO_TIME), endTime.format(ISO_TIME));
-            var duration = (double) Duration.between(startDateTime, endDateTime).toMinutes() / 60;
+            var duration = Duration.between(startDateTime, endDateTime);
+            var hoursPart = duration.toHoursPart();
+            var minutesPart = duration.minusHours(hoursPart).toMinutesPart();
             var expectedTotal = expectedBracelet + expectedFouille + expectedLitiges;
             var actualTotal = actualBracelet + actualFouille + actualLitiges;
 
@@ -107,7 +109,7 @@ public class TimetablesRepository {
                     .expectedLitiges(expectedLitiges)
                     .description(rs.getString("description"))
                     .title(title)
-                    .duration(duration)
+                    .duration(String.format("%sh%02dmin", hoursPart, minutesPart))
                     .expectedTotal(expectedTotal)
                     .actualBracelet(actualBracelet)
                     .actualFouille(actualFouille)
