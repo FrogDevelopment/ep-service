@@ -92,7 +92,6 @@ public class PlanningView extends VerticalLayout implements AfterNavigationObser
                         .map(d -> d.getDisplayName(SHORT, FRANCE))
                         .collect(toList()))
         );
-//        datePicker.setWeekNumbersVisible(false);
 
         add(datePicker);
     }
@@ -116,25 +115,47 @@ public class PlanningView extends VerticalLayout implements AfterNavigationObser
                 .setAutoWidth(true)
                 .setHeader("Nb heures")
                 .setFlexGrow(0);
-        grid.addColumn(Timetable::getExpectedBracelet)
+        var braceletExpected = grid.addColumn(Timetable::getExpectedBracelet)
                 .setAutoWidth(true)
-                .setHeader("Effectif bracelet")
+                .setHeader("voulu")
                 .setFlexGrow(0);
-        grid.addColumn(Timetable::getExpectedFouille)
+        var braceletActual = grid.addColumn(Timetable::getActualBracelet)
                 .setAutoWidth(true)
-                .setHeader("Effectif fouille")
+                .setHeader("réel")
                 .setFlexGrow(0);
-        grid.addColumn(Timetable::getExpectedLitiges)
+        var fouillesExpected = grid.addColumn(Timetable::getExpectedFouille)
                 .setAutoWidth(true)
-                .setHeader("Effectif litiges")
+                .setHeader("voulu")
                 .setFlexGrow(0);
-        grid.addColumn(Timetable::getExpectedTotal)
+        var fouillesActual = grid.addColumn(Timetable::getActualFouille)
                 .setAutoWidth(true)
-                .setHeader("Effectif Total")
+                .setHeader("réel")
+                .setFlexGrow(0);
+        var litigesExpected = grid.addColumn(Timetable::getExpectedLitiges)
+                .setAutoWidth(true)
+                .setHeader("voulu")
+                .setFlexGrow(0);
+        var litigesActual = grid.addColumn(Timetable::getActualLitiges)
+                .setAutoWidth(true)
+                .setHeader("réel")
+                .setFlexGrow(0);
+        var totalExpected = grid.addColumn(Timetable::getExpectedTotal)
+                .setAutoWidth(true)
+                .setHeader("voulu")
+                .setFlexGrow(0);
+        var totalActual = grid.addColumn(Timetable::getActualTotal)
+                .setAutoWidth(true)
+                .setHeader("réel")
                 .setFlexGrow(0);
         grid.addColumn(Timetable::getDescription)
                 .setHeader("Description")
                 .setFlexGrow(1);
+
+        var headerRow = grid.prependHeaderRow();
+        headerRow.join(braceletExpected, braceletActual).setText("Effectif bracelets");
+        headerRow.join(fouillesExpected, fouillesActual).setText("Effectif fouilles");
+        headerRow.join(litigesExpected, litigesActual).setText("Effectif litiges");
+        headerRow.join(totalExpected, totalActual).setText("Effectif total");
 
         grid.setItems(timetablesRepository.getPlanning());
         add(grid);

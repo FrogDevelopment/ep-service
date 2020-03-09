@@ -62,9 +62,16 @@ public class TimetablesRepository {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public List<Timetable> getPlanning() {
-        var sql = "SELECT e.day_date, t.*"
+        var sql = "SELECT e.day_date,"
+                + "       t.*,"
+                + "       sum (CASE when s.location = 'BRACELET' then 1 else 0 end) as actual_bracelet,"
+                + "       sum (CASE when s.location = 'FOUILLES' then 1 else 0 end) as actual_fouille,"
+                + "       sum (CASE when s.location = 'LITIGES' then 1 else 0 end) as actual_litiges"
                 + " FROM timetables t"
-                + " INNER JOIN edition e ON t.day_of_week = e.day_of_week";
+                + "         INNER JOIN edition e ON t.day_of_week = e.day_of_week"
+                + "         INNER JOIN schedules s ON t.timetable_ref = s.timetable_ref"
+                + " GROUP BY e.day_date, t.timetable_id, t.day_of_week, t.start_time, t.end_time, t.description"
+                + " ORDER BY day_date";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             var localDate = rs.getDate("day_date").toLocalDate();
@@ -74,6 +81,9 @@ public class TimetablesRepository {
             var expectedBracelet = rs.getInt("expected_bracelet");
             var expectedFouille = rs.getInt("expected_fouille");
             var expectedLitiges = rs.getInt("expected_litiges");
+            var actualBracelet = rs.getInt("actual_bracelet");
+            var actualFouille = rs.getInt("actual_fouille");
+            var actualLitiges = rs.getInt("actual_litiges");
 
             // computed for UI
             var startDateTime = localDate.atTime(startTime);
@@ -84,6 +94,7 @@ public class TimetablesRepository {
             var title = String.format("%s - %s", startTime.format(ISO_TIME), endTime.format(ISO_TIME));
             var duration = (double) Duration.between(startDateTime, endDateTime).toMinutes() / 60;
             var expectedTotal = expectedBracelet + expectedFouille + expectedLitiges;
+            var actualTotal = actualBracelet + actualFouille + actualLitiges;
 
             return Timetable.builder()
                     .id(rs.getInt("timetable_id"))
@@ -98,6 +109,10 @@ public class TimetablesRepository {
                     .title(title)
                     .duration(duration)
                     .expectedTotal(expectedTotal)
+                    .actualBracelet(actualBracelet)
+                    .actualFouille(actualFouille)
+                    .actualLitiges(actualLitiges)
+                    .actualTotal(actualTotal)
                     .build();
         });
     }
