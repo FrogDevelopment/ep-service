@@ -112,7 +112,7 @@ public class TimetableView extends VerticalLayout implements AfterNavigationObse
         grid.setId("grid-timetable");
         grid.addThemeVariants(LUMO_NO_BORDER);
         grid.getStyle().set("margin-left", "0px");
-        grid.setHeightFull();
+        grid.setHeight("75%");
         grid.setClassNameGenerator(item -> item.getDayOfWeek().name().toLowerCase());
 
         grid.addColumn(item -> item.getDayOfWeek().getDisplayName(FULL, FRANCE))
