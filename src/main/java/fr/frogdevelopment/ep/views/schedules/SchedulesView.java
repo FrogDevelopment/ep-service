@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @PageTitle("Calendrier")
-@Route(value = "schedules", layout = MainView.class)
+@Route(value = "calendar", layout = MainView.class)
 @CssImport("./styles/views/teams/teams-view.css")
 public class SchedulesView extends VerticalLayout implements AfterNavigationObserver {
 
