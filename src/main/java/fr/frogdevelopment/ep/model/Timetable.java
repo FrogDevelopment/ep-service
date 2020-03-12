@@ -21,9 +21,9 @@ public class Timetable implements Serializable {
     @NonNull
     private DayOfWeek dayOfWeek;
     @NonNull
-    private LocalTime start;
+    private LocalTime startTime;
     @NonNull
-    private LocalTime end;
+    private LocalTime endTime;
     private int expectedBracelet;
     private int expectedFouille;
     private int expectedLitiges;

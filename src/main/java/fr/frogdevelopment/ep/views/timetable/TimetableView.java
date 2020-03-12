@@ -1,5 +1,6 @@
-package fr.frogdevelopment.ep.views.planning;
+package fr.frogdevelopment.ep.views.timetable;
 
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
 import static com.vaadin.flow.component.grid.ColumnTextAlign.CENTER;
 import static com.vaadin.flow.component.grid.ColumnTextAlign.END;
 import static com.vaadin.flow.component.grid.GridVariant.LUMO_NO_BORDER;
@@ -16,6 +17,7 @@ import static java.util.Locale.FRANCE;
 import static java.util.stream.Collectors.toList;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.datepicker.DatePicker.DatePickerI18n;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -25,8 +27,8 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
@@ -43,12 +45,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Stream;
 
-@PageTitle("Planning Générale")
-@Route(value = "planning", layout = MainView.class)
+@PageTitle("Créneaux horaires")
+@Route(value = "timetables", layout = MainView.class)
 @RouteAlias(value = "", layout = MainView.class)
 @CssImport("./styles/views/planning/planning-view.css")
 @CssImport(value = "./styles/views/planning/grid-cell.css", themeFor = "vaadin-grid")
-public class PlanningView extends VerticalLayout implements AfterNavigationObserver {
+public class TimetableView extends VerticalLayout implements AfterNavigationObserver {
 
     private final transient TimetablesRepository timetablesRepository;
 
@@ -62,16 +64,19 @@ public class PlanningView extends VerticalLayout implements AfterNavigationObser
             SATURDAY
     );
 
+    private final VerticalLayout title = new VerticalLayout();
+    private final HorizontalLayout actionWrapper = new HorizontalLayout();
     private final DatePicker datePicker = new DatePicker();
     private final Grid<Timetable> grid = new Grid<>();
-    private final VerticalLayout title = new VerticalLayout();
 
-    public PlanningView(TimetablesRepository timetablesRepository) {
+    public TimetableView(TimetablesRepository timetablesRepository) {
         this.timetablesRepository = timetablesRepository;
 
         setId("planning-view");
 
         add(title);
+
+        add(actionWrapper);
 
         addDatePicker();
     }
@@ -100,14 +105,14 @@ public class PlanningView extends VerticalLayout implements AfterNavigationObser
                         .collect(toList()))
         );
 
-        add(datePicker);
+        actionWrapper.add(datePicker);
     }
 
     private void addGrid() {
         grid.setId("grid-timetable");
         grid.addThemeVariants(LUMO_NO_BORDER);
         grid.getStyle().set("margin-left", "0px");
-        grid.setHeight("550px");
+        grid.setHeightFull();
         grid.setClassNameGenerator(item -> item.getDayOfWeek().name().toLowerCase());
 
         grid.addColumn(item -> item.getDayOfWeek().getDisplayName(FULL, FRANCE))
@@ -136,7 +141,8 @@ public class PlanningView extends VerticalLayout implements AfterNavigationObser
                 .setTextAlign(END)
                 .setHeader("Réel")
                 .setFlexGrow(0)
-                .setClassNameGenerator(item -> getEffectifClassName(item.getActualBracelet(), item.getExpectedBracelet()));
+                .setClassNameGenerator(
+                        item -> getEffectifClassName(item.getActualBracelet(), item.getExpectedBracelet()));
         var fouillesExpected = grid.addColumn(Timetable::getExpectedFouille)
                 .setAutoWidth(true)
                 .setTextAlign(END)
@@ -147,7 +153,8 @@ public class PlanningView extends VerticalLayout implements AfterNavigationObser
                 .setTextAlign(END)
                 .setHeader("Réel")
                 .setFlexGrow(0)
-                .setClassNameGenerator(item -> getEffectifClassName(item.getActualFouille(), item.getExpectedFouille()));
+                .setClassNameGenerator(
+                        item -> getEffectifClassName(item.getActualFouille(), item.getExpectedFouille()));
         var litigesExpected = grid.addColumn(Timetable::getExpectedLitiges)
                 .setAutoWidth(true)
                 .setTextAlign(END)
@@ -158,7 +165,8 @@ public class PlanningView extends VerticalLayout implements AfterNavigationObser
                 .setTextAlign(END)
                 .setHeader("Réel")
                 .setFlexGrow(0)
-                .setClassNameGenerator(item -> getEffectifClassName(item.getActualLitiges(), item.getExpectedLitiges()));
+                .setClassNameGenerator(
+                        item -> getEffectifClassName(item.getActualLitiges(), item.getExpectedLitiges()));
         var totalExpected = grid.addColumn(Timetable::getExpectedTotal)
                 .setAutoWidth(true)
                 .setTextAlign(END)
@@ -188,15 +196,27 @@ public class PlanningView extends VerticalLayout implements AfterNavigationObser
     }
 
     private void onEdit(Timetable timetable) {
-        var dialog = new PlanningDialog(timetable, updatedTimetable -> {
-            timetablesRepository.updateTimetable(updatedTimetable);
-            Notification.show("Tableau mis à jour", 5000, Position.TOP_CENTER);
+        var dialog = new TimetableDialog(timetable,
+                toUpdate -> {
+                    timetablesRepository.updateTimetable(toUpdate);
+                    grid.setItems(timetablesRepository.getPlanning());
+                },
+                toDelete -> {
+                    timetablesRepository.delete(toDelete);
+                    grid.setItems(timetablesRepository.getPlanning());
+                });
+        dialog.open();
+    }
+
+    private void onAddTimetable() {
+        var dialog = new TimetableDialog(updatedTimetable -> {
+            timetablesRepository.insertTimetable(updatedTimetable);
             grid.setItems(timetablesRepository.getPlanning());
         });
         dialog.open();
     }
 
-    private Component getHeaderTitle(String title ) {
+    private Component getHeaderTitle(String title) {
         Div header = new Div(new Span(title));
         header.getStyle().set("text-align", "center");
         header.setSizeFull();
@@ -217,6 +237,7 @@ public class PlanningView extends VerticalLayout implements AfterNavigationObser
         h1.getStyle().set("margin-bottom", "0px");
         title.add(h1);
 
+        var wrapper = new HorizontalLayout();
         var formatter = DateTimeFormatter.ofPattern("EEEE dd MMMM").localizedBy(FRANCE);
         var h2 = new H2(String.join(", ",
                 edition.format(formatter),
@@ -247,6 +268,11 @@ public class PlanningView extends VerticalLayout implements AfterNavigationObser
         if (edition != null) {
             setTitle(edition);
             addGrid();
+
+            var newButton = new Button("Ajouter un créneau", VaadinIcon.PLAY_CIRCLE.create());
+            newButton.addThemeVariants(LUMO_PRIMARY);
+            newButton.addClickListener(event -> onAddTimetable());
+            actionWrapper.add(newButton);
         } else {
             title.add(new H4("Précisez la date de l'édition"));
         }

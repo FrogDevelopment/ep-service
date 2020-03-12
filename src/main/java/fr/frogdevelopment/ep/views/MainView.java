@@ -25,7 +25,7 @@ import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
-import fr.frogdevelopment.ep.views.planning.PlanningView;
+import fr.frogdevelopment.ep.views.timetable.TimetableView;
 import fr.frogdevelopment.ep.views.schedules.SchedulesView;
 import fr.frogdevelopment.ep.views.stats.StatsView;
 import fr.frogdevelopment.ep.views.teams.TeamsView;
@@ -66,7 +66,7 @@ public class MainView extends AppLayout {
 
     private static Tab[] getAvailableTabs() {
         final var tabs = new ArrayList<Tab>();
-        tabs.add(createTab(CALENDAR_BRIEFCASE, PlanningView.class));
+        tabs.add(createTab(CALENDAR_BRIEFCASE, TimetableView.class));
         tabs.add(createTab(HEART, VolunteersView.class));
         tabs.add(createTab(GROUP, TeamsView.class));
         tabs.add(createTab(CALENDAR, SchedulesView.class));
