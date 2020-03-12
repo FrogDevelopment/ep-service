@@ -48,13 +48,14 @@ public class StatsRepository {
         var sql = "SELECT v.volunteer_ref, v.last_name, v.first_name, v.team_code,"
                 + "       json_agg(json_build_object("
                 + "               'dayOfWeek', t.day_of_week,"
-                + "               'start', t.start_time,"
-                + "               'end', t.end_time,"
+                + "               'start', e.day_date + t.start_time,"
+                + "               'end', e.day_date + t.end_time,"
                 + "               'location', s.location"
                 + "           )) AS schedules"
                 + " FROM volunteers v"
                 + "         INNER JOIN schedules s ON v.volunteer_ref = s.volunteer_ref"
                 + "         INNER JOIN timetables t ON s.timetable_ref = t.timetable_ref"
+                + "         INNER JOIN edition e ON t.day_of_week = e.day_of_week"
                 + " GROUP BY v.volunteer_ref, v.last_name, v.first_name, v.team_code"
                 + " ORDER BY v.last_name, v.first_name;";
 
@@ -66,13 +67,15 @@ public class StatsRepository {
         var sql = "SELECT v.volunteer_ref, v.last_name, v.first_name, v.team_code,"
                 + "       json_agg(json_build_object("
                 + "               'dayOfWeek', t.day_of_week,"
-                + "               'start', t.start_time,"
-                + "               'end', t.end_time,"
+                + "               'dayOfWeek', t.day_of_week,"
+                + "               'start', e.day_date + t.start_time,"
+                + "               'end', e.day_date + t.end_time,"
                 + "               'location', s.location"
                 + "           )) AS schedules"
                 + " FROM volunteers v"
                 + "         INNER JOIN schedules s ON v.volunteer_ref = s.volunteer_ref"
                 + "         INNER JOIN timetables t ON s.timetable_ref = t.timetable_ref"
+                + "         INNER JOIN edition e ON t.day_of_week = e.day_of_week"
                 + " WHERE v.team_code = :teamCode"
                 + " GROUP BY v.volunteer_ref, v.last_name, v.first_name, v.team_code"
                 + " ORDER BY v.last_name, v.first_name;";
@@ -102,6 +105,9 @@ public class StatsRepository {
                 log.error("Error schedules", e);
             }
         }
+        schedules.stream()
+                .filter(schedule -> schedule.getEnd().isBefore(schedule.getStart()))
+                .forEach(schedule -> schedule.setEnd(schedule.getEnd().plusDays(1)));
         return schedules;
     }
 
