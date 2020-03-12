@@ -38,17 +38,16 @@ public class SchedulesRepository {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public List<Schedule> getGroupedSchedulesByTeam() {
-        var sql = "SELECT e.day_date,"
+        var sql = "SELECT DISTINCT"
+                + " e.day_date,"
                 + " t.start_time,"
                 + " t.end_time,"
                 + " s.location,"
-                + " v.team_code,"
-                + " array_agg(s.volunteer_ref) AS volunteers"
+                + " v.team_code"
                 + " FROM schedules s"
                 + " INNER JOIN volunteers v ON s.volunteer_ref = v.volunteer_ref"
                 + " INNER JOIN timetables t ON s.timetable_ref = t.timetable_ref"
                 + " INNER JOIN edition e ON t.day_of_week = e.day_of_week"
-                + " GROUP BY e.day_date, t.start_time, t.end_time, s.location, v.team_code"
                 + " ORDER BY e.day_date, t.start_time;";
 
         return jdbcTemplate.query(sql, scheduleRowMapper);
@@ -56,17 +55,17 @@ public class SchedulesRepository {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public List<Schedule> getGroupedSchedulesByTeam(String teamCode) {
-        var sql = "SELECT e.day_date,"
+        var sql = "SELECT DISTINCT"
+                + " e.day_date,"
                 + " t.start_time,"
                 + " t.end_time,"
                 + " s.location,"
-                + " v.team_code,"
-                + " array_agg(s.volunteer_ref) AS volunteers"
+                + " v.team_code"
                 + " FROM schedules s"
                 + " INNER JOIN timetables t ON s.timetable_ref = t.timetable_ref"
                 + " INNER JOIN volunteers v ON s.volunteer_ref = v.volunteer_ref"
+                + " INNER JOIN edition e ON t.day_of_week = e.day_of_week"
                 + " WHERE v.team_code = :teamCode"
-                + " GROUP BY e.day_date, t.start_time, t.end_time, s.location, v.team_code"
                 + " ORDER BY e.day_date, t.start_time;";
 
         var paramSource = new MapSqlParameterSource("teamCode", teamCode);
