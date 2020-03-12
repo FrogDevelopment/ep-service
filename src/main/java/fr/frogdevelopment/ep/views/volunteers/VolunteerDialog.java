@@ -14,11 +14,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.data.validator.StringLengthValidator;
-import com.vaadin.flow.function.ValueProvider;
 import fr.frogdevelopment.ep.model.Team;
 import fr.frogdevelopment.ep.model.Volunteer;
 import java.util.List;
@@ -118,12 +116,12 @@ public class VolunteerDialog extends Dialog {
         // Bind fields. This where you'd define e.g. validation rules
         binder.bindInstanceFields(this);
         binder.bind(teams,
-                (ValueProvider<Volunteer, Team>) volunteer -> teamValues
+                volunteer -> teamValues
                         .stream()
                         .filter(t -> t.getCode().equals(volunteer.getTeamCode()))
                         .findFirst()
                         .orElse(null),
-                (Setter<Volunteer, Team>) (volunteer, team) -> volunteer.setTeamCode(team.getCode()));
+                (volunteer, team) -> volunteer.setTeamCode(team.getCode()));
         binder.readBean(volunteerBeingEdited);
 
         // First name and last name are required fields

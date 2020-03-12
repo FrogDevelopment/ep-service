@@ -7,12 +7,14 @@ import static java.time.DayOfWeek.valueOf;
 
 import fr.frogdevelopment.ep.model.Timetable;
 import java.sql.Date;
+import java.sql.Types;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -61,12 +63,29 @@ public class TimetablesRepository {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
+    public void updateTimetable(Timetable timetable) {
+        var sql = "UPDATE timetables SET"
+                + " start_time = :start,"
+                + " end_time = :end,"
+                + " day_of_week = :dayOfWeek,"
+                + " expected_bracelet = :expectedBracelet,"
+                + " expected_fouille = :expectedFouille,"
+                + " expected_litiges = :expectedLitiges,"
+                + " description = :description"
+                + " WHERE timetable_ref = :ref";
+
+        var paramSource = new BeanPropertySqlParameterSource(timetable);
+        paramSource.registerSqlType("dayOfWeek", Types.VARCHAR);
+        jdbcTemplate.update(sql, paramSource);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
     public List<Timetable> getPlanning() {
         var sql = "SELECT e.day_date,"
                 + "       t.*,"
-                + "       sum (CASE when s.location = 'BRACELET' then 1 else 0 end) as actual_bracelet,"
-                + "       sum (CASE when s.location = 'FOUILLES' then 1 else 0 end) as actual_fouille,"
-                + "       sum (CASE when s.location = 'LITIGES' then 1 else 0 end) as actual_litiges"
+                + "       sum (CASE WHEN s.location = 'BRACELET' THEN 1 ELSE 0 END) AS actual_bracelet,"
+                + "       sum (CASE WHEN s.location = 'FOUILLES' THEN 1 ELSE 0 END) AS actual_fouille,"
+                + "       sum (CASE WHEN s.location = 'LITIGES' THEN 1 ELSE 0 END) AS actual_litiges"
                 + " FROM timetables t"
                 + "         INNER JOIN edition e ON t.day_of_week = e.day_of_week"
                 + "         INNER JOIN schedules s ON t.timetable_ref = s.timetable_ref"
@@ -99,7 +118,6 @@ public class TimetablesRepository {
             var actualTotal = actualBracelet + actualFouille + actualLitiges;
 
             return Timetable.builder()
-                    .id(rs.getInt("timetable_id"))
                     .ref(rs.getString("timetable_ref"))
                     .dayOfWeek(dayOfWeek)
                     .start(startTime)

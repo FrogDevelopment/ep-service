@@ -25,6 +25,8 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
@@ -172,6 +174,8 @@ public class PlanningView extends VerticalLayout implements AfterNavigationObser
                 .setHeader("Description")
                 .setFlexGrow(1);
 
+        grid.addItemDoubleClickListener(event -> onEdit(event.getItem()));
+
         var headerRow = grid.prependHeaderRow();
         headerRow.join(braceletExpected, braceletActual).setComponent(getHeaderTitle("Bracelets"));
         headerRow.join(fouillesExpected, fouillesActual).setComponent(getHeaderTitle("Fouilles"));
@@ -181,6 +185,15 @@ public class PlanningView extends VerticalLayout implements AfterNavigationObser
         grid.setItems(timetablesRepository.getPlanning());
 
         add(grid);
+    }
+
+    private void onEdit(Timetable timetable) {
+        var dialog = new PlanningDialog(timetable, updatedTimetable -> {
+            timetablesRepository.updateTimetable(updatedTimetable);
+            Notification.show("Tableau mis à jour", 5000, Position.TOP_CENTER);
+            grid.setItems(timetablesRepository.getPlanning());
+        });
+        dialog.open();
     }
 
     private Component getHeaderTitle(String title ) {
@@ -223,7 +236,7 @@ public class PlanningView extends VerticalLayout implements AfterNavigationObser
             if (localDate != null) {
                 if (localDate.getDayOfWeek().equals(FRIDAY)) {
                     timetablesRepository.setEdition(localDate);
-                    getUI().get().getPage().reload();
+                    getUI().ifPresent(ui -> ui.getPage().reload());
                 } else {
                     datePicker.setErrorMessage("Veuillez sélectionner un vendredi");
                     datePicker.setInvalid(true);
