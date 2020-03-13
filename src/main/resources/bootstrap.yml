@@ -2,6 +2,7 @@ spring:
   application:
     name: ep-service
 
+
   main:
     banner-mode: 'off'
 
@@ -13,6 +14,8 @@ spring:
         enabled: true
       username: ${FROG_ADMIN_USER}
       password: ${FROG_ADMIN_PWD}
+  devtools:
+    add-properties: false
 
 eureka:
   instance:
@@ -33,6 +36,8 @@ spring:
       enabled: false
       discovery:
         enabled: false
+  devtools:
+    add-properties: true
 
 eureka:
   client:
