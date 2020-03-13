@@ -133,7 +133,7 @@ project.tasks["sonarqube"].dependsOn "jacocoTestReport"
 
 jib {
     from {
-        image = 'adoptopenjdk:11.0.5_10-jre-openj9-0.17.0-bionic'
+        image = 'frogdevelopment/adoptopenjdk-node:latest'
     }
     to {
         image = "frogdevelopment/${name}"
