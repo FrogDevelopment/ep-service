@@ -24,8 +24,8 @@ public class CleanUpData {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void call() {
-        cleanUpTimetables.call();
         cleanUpSchedules.call();
+        cleanUpTimetables.call();
         cleanUpVolunteers.call();
         cleanUpTeams.call();
     }
