@@ -180,7 +180,11 @@ public class TimetableDialog extends Dialog {
         if (binder.writeBeanIfValid(timetableBeingEdited)) {
             var total = timetableBeingEdited.getExpectedBracelet() + timetableBeingEdited.getExpectedFouille()
                     + timetableBeingEdited.getExpectedLitiges();
+            var duration = Duration.between(timetableBeingEdited.getStartTime(), timetableBeingEdited.getEndTime());
+            var hoursPart = duration.toHoursPart();
+            var minutesPart = duration.minusHours(hoursPart).toMinutesPart();
             timetableBeingEdited.setExpectedTotal(total);
+            timetableBeingEdited.setDuration(String.format("%sh%02dmin", hoursPart, minutesPart));
             onValidListener.onValid(timetableBeingEdited);
             this.close();
         }
