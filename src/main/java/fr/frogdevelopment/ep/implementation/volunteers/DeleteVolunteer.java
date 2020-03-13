@@ -18,11 +18,9 @@ public class DeleteVolunteer {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void call(Volunteer volunteer) {
-        var sql = "DELETE FROM volunteers WHERE volunteer_id = :id";
-
-        MapSqlParameterSource paramSource = new MapSqlParameterSource("id", volunteer.getId());
-
-        namedParameterJdbcTemplate.update(sql, paramSource);
+        var paramSource = new MapSqlParameterSource("ref", volunteer.getRef());
+        namedParameterJdbcTemplate.update("DELETE FROM schedules WHERE volunteer_ref = :ref", paramSource);
+        namedParameterJdbcTemplate.update("DELETE FROM volunteers WHERE volunteer_ref = :ref", paramSource);
     }
 
 }
