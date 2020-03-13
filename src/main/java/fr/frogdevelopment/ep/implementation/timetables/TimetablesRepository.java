@@ -159,8 +159,9 @@ public class TimetablesRepository {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void delete(Timetable timetable) {
-        var sql = "DELETE FROM timetables WHERE timetable_ref = :ref";
         var paramSource = new MapSqlParameterSource("ref", timetable.getRef());
-        jdbcTemplate.update(sql, paramSource);
+        jdbcTemplate.update("DELETE FROM schedules WHERE timetable_ref = :ref", paramSource);
+        jdbcTemplate.update("DELETE FROM timetables WHERE timetable_ref = :ref", paramSource);
     }
+
 }
