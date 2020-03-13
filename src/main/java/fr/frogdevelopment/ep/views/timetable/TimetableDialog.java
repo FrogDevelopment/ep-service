@@ -36,14 +36,7 @@ public class TimetableDialog extends Dialog {
         void onValid(Timetable timetable);
     }
 
-    @FunctionalInterface
-    public interface OnDeleteListener {
-
-        void onDelete(Timetable timetable);
-    }
-
     private final transient OnValidListener onValidListener;
-    private final transient OnDeleteListener onDeleteListener;
 
     // The object that will be edited
     private final Timetable timetableBeingEdited;
@@ -58,18 +51,16 @@ public class TimetableDialog extends Dialog {
     private final IntegerField expectedLitiges = new IntegerField();
     private final TextArea description = new TextArea();
 
-    private final Button delete = new Button("Supprimer");
     private final Button cancel = new Button("Annuler");
     private final Button save = new Button("Sauvegarder");
 
     public TimetableDialog(OnValidListener onValidListener) {
-        this(null, onValidListener, null);
+        this(null, onValidListener);
     }
 
-    public TimetableDialog(Timetable timetable, OnValidListener onValidListener, OnDeleteListener onDeleteListener) {
+    public TimetableDialog(Timetable timetable, OnValidListener onValidListener) {
         super();
         this.onValidListener = onValidListener;
-        this.onDeleteListener = onDeleteListener;
         timetableBeingEdited = timetable == null ? new Timetable() : timetable;
 
         this.setCloseOnEsc(false);
@@ -173,8 +164,7 @@ public class TimetableDialog extends Dialog {
         buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        if (timetableBeingEdited != null) {
-            buttonLayout.add(delete);
+        if (timetableBeingEdited.getRef() != null) {
             save.setText("Mettre à jour");
         }
         buttonLayout.add(cancel);
@@ -182,13 +172,15 @@ public class TimetableDialog extends Dialog {
 
         wrapper.add(buttonLayout);
 
-        delete.addClickListener(e -> onDelete());
         cancel.addClickListener(e -> onCancel());
         save.addClickListener(e -> onValidate());
     }
 
     private void onValidate() {
         if (binder.writeBeanIfValid(timetableBeingEdited)) {
+            var total = timetableBeingEdited.getExpectedBracelet() + timetableBeingEdited.getExpectedFouille()
+                    + timetableBeingEdited.getExpectedLitiges();
+            timetableBeingEdited.setExpectedTotal(total);
             onValidListener.onValid(timetableBeingEdited);
             this.close();
         }
@@ -196,12 +188,6 @@ public class TimetableDialog extends Dialog {
 
     private void onCancel() {
         // clear fields by setting null
-        binder.readBean(null);
-        this.close();
-    }
-
-    private void onDelete() {
-        onDeleteListener.onDelete(timetableBeingEdited);
         binder.readBean(null);
         this.close();
     }

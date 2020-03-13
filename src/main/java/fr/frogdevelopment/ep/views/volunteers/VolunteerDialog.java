@@ -44,8 +44,8 @@ public class VolunteerDialog extends Dialog {
     private final ComboBox<Team> teams = new ComboBox<>();
     private final Checkbox referent = new Checkbox();
 
-    private final Button cancel = new Button("Cancel");
-    private final Button save = new Button("Save");
+    private final Button cancel = new Button("Annuler");
+    private final Button save = new Button("Sauvegarder");
 
     private final List<Team> teamValues;
 
@@ -155,6 +155,9 @@ public class VolunteerDialog extends Dialog {
         buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+         if (volunteerBeingEdited.getRef() != null) {
+            save.setText("Mettre à jour");
+        }
         buttonLayout.add(cancel);
         buttonLayout.add(save);
 

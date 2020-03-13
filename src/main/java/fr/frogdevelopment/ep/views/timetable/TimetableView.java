@@ -22,14 +22,21 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.datepicker.DatePicker.DatePickerI18n;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -38,10 +45,12 @@ import com.vaadin.flow.router.RouteAlias;
 import fr.frogdevelopment.ep.implementation.timetables.TimetablesRepository;
 import fr.frogdevelopment.ep.model.Timetable;
 import fr.frogdevelopment.ep.views.MainView;
+import fr.frogdevelopment.ep.views.components.ConfirmDialog;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -68,6 +77,8 @@ public class TimetableView extends VerticalLayout implements AfterNavigationObse
     private final HorizontalLayout actionWrapper = new HorizontalLayout();
     private final DatePicker datePicker = new DatePicker();
     private final Grid<Timetable> grid = new Grid<>();
+
+    private ListDataProvider<Timetable> dataProvider = DataProvider.ofCollection(Collections.emptyList());
 
     public TimetableView(TimetablesRepository timetablesRepository) {
         this.timetablesRepository = timetablesRepository;
@@ -110,6 +121,7 @@ public class TimetableView extends VerticalLayout implements AfterNavigationObse
 
     private void addGrid() {
         grid.setId("grid-timetable");
+        grid.setSelectionMode(SelectionMode.NONE);
         grid.addThemeVariants(LUMO_NO_BORDER);
         grid.getStyle().set("margin-left", "0px");
         grid.setHeight("75%");
@@ -182,30 +194,47 @@ public class TimetableView extends VerticalLayout implements AfterNavigationObse
                 .setHeader("Description")
                 .setFlexGrow(1);
 
-        grid.addItemDoubleClickListener(event -> onEdit(event.getItem()));
-
         var headerRow = grid.prependHeaderRow();
         headerRow.join(braceletExpected, braceletActual).setComponent(getHeaderTitle("Bracelets"));
         headerRow.join(fouillesExpected, fouillesActual).setComponent(getHeaderTitle("Fouilles"));
         headerRow.join(litigesExpected, litigesActual).setComponent(getHeaderTitle("Litiges"));
         headerRow.join(totalExpected, totalActual).setComponent(getHeaderTitle("Total"));
 
-        grid.setItems(timetablesRepository.getPlanning());
+        dataProvider = DataProvider.ofCollection(timetablesRepository.getPlanning());
+        grid.setDataProvider(dataProvider);
+
+        GridContextMenu<Timetable> contextMenu = new GridContextMenu<>(grid);
+        var edit = new HorizontalLayout(VaadinIcon.EDIT.create(), new Label("Modifier"));
+        contextMenu.addItem(edit, event -> event.getItem().ifPresentOrElse(this::onEdit, this::smallError));
+        var delete = new HorizontalLayout(VaadinIcon.TRASH.create(), new Label("Supprimer"));
+        contextMenu.addItem(delete, event -> event.getItem().ifPresentOrElse(this::onDelete, this::smallError));
 
         add(grid);
     }
 
+    private void smallError() {
+        Notification.show("Petit problème ! ", 5000, Position.TOP_CENTER);
+    }
+
     private void onEdit(Timetable timetable) {
-        var dialog = new TimetableDialog(timetable,
-                toUpdate -> {
-                    timetablesRepository.updateTimetable(toUpdate);
-                    grid.setItems(timetablesRepository.getPlanning());
-                },
-                toDelete -> {
-                    timetablesRepository.delete(toDelete);
-                    grid.setItems(timetablesRepository.getPlanning());
-                });
-        dialog.open();
+        new TimetableDialog(timetable, toUpdate -> {
+            timetablesRepository.updateTimetable(toUpdate);
+            Notification.show("Créneau mis à jour", 5000, Position.TOP_CENTER);
+            dataProvider.refreshItem(toUpdate);
+            dataProvider.refreshAll();
+        }).open();
+    }
+
+    private void onDelete(Timetable timetable) {
+        ConfirmDialog.builder()
+                .message("Supprimer le créneau ?")
+                .confirmButton("Supprimer", () -> {
+                    timetablesRepository.delete(timetable);
+                    Notification.show("Créneau supprimé", 5000, Position.TOP_CENTER);
+                    dataProvider.getItems().remove(timetable);
+                    dataProvider.refreshAll();
+                })
+                .open();
     }
 
     private void onAddTimetable() {
@@ -237,7 +266,6 @@ public class TimetableView extends VerticalLayout implements AfterNavigationObse
         h1.getStyle().set("margin-bottom", "0px");
         title.add(h1);
 
-        var wrapper = new HorizontalLayout();
         var formatter = DateTimeFormatter.ofPattern("EEEE dd MMMM").localizedBy(FRANCE);
         var h2 = new H2(String.join(", ",
                 edition.format(formatter),
@@ -269,7 +297,7 @@ public class TimetableView extends VerticalLayout implements AfterNavigationObse
             setTitle(edition);
             addGrid();
 
-            var newButton = new Button("Ajouter un créneau", VaadinIcon.PLAY_CIRCLE.create());
+            var newButton = new Button("Ajouter un créneau", VaadinIcon.PLUS_CIRCLE.create());
             newButton.addThemeVariants(LUMO_PRIMARY);
             newButton.addClickListener(event -> onAddTimetable());
             actionWrapper.add(newButton);

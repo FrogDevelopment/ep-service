@@ -23,8 +23,8 @@ public class VolunteersClient {
         return controller.getAll(teamCode);
     }
 
-    public void create(Volunteer volunteer) {
-        controller.create(volunteer);
+    public Volunteer create(Volunteer volunteer) {
+        return controller.create(volunteer);
     }
 
     public void update(Volunteer volunteer) {

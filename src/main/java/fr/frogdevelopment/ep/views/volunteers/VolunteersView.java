@@ -1,24 +1,28 @@
 package fr.frogdevelopment.ep.views.volunteers;
 
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.component.grid.ColumnTextAlign.CENTER;
 import static com.vaadin.flow.component.grid.GridVariant.LUMO_NO_BORDER;
 import static com.vaadin.flow.component.grid.GridVariant.LUMO_ROW_STRIPES;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 
-import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.grid.HeaderRow;
+import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -29,8 +33,8 @@ import fr.frogdevelopment.ep.model.Team;
 import fr.frogdevelopment.ep.model.Volunteer;
 import fr.frogdevelopment.ep.views.MainView;
 import fr.frogdevelopment.ep.views.components.ConfirmDialog;
-import fr.frogdevelopment.ep.views.volunteers.FilterDialog.Filter;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @PageTitle("Bénévoles")
@@ -42,11 +46,11 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
     private final transient TeamsClient teamsClient;
 
     private final Grid<Volunteer> grid = new Grid<>();
-    private final Button clearFilter = new Button("Enlever filtre", VaadinIcon.CLOSE_SMALL.create());
-    private final Button buttonFilter = new Button("Filtrer", VaadinIcon.FILTER.create());
 
-    private List<Volunteer> unfilteredData;
+    private ListDataProvider<Volunteer> dataProvider;
     private List<Team> teams;
+    private ComboBox<String> friendsFilter;
+    private ComboBox<Team> teamsFilter;
 
     public VolunteersView(VolunteersClient volunteersClient,
                           TeamsClient teamsClient) {
@@ -55,58 +59,35 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
 
         setId("volunteers-view");
 
-        createButtonLayout();
-
         createGrid();
-    }
-
-    private void createButtonLayout() {
-        var buttonLayout = new HorizontalLayout();
-        buttonLayout.addClassName("button-layout");
-        buttonLayout.setWidthFull();
-        buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-
-        clearFilter.addThemeVariants(LUMO_TERTIARY);
-        clearFilter.addClickListener(event -> clearFilter());
-        clearFilter.setVisible(false);
-        buttonLayout.add(clearFilter);
-        add(buttonLayout);
-
-        buttonFilter.addThemeVariants(LUMO_TERTIARY);
-        buttonFilter.addClickListener(event -> openFilterDialog());
-        buttonLayout.add(buttonFilter);
-
-        var buttonAdd = new Button("Ajouter un bénévole", VaadinIcon.PLUS_CIRCLE.create());
-        buttonAdd.addThemeVariants(LUMO_PRIMARY);
-        buttonAdd.addClickListener(event -> newVolunteer());
-        buttonLayout.add(buttonAdd);
     }
 
     private void createGrid() {
         grid.setId("list");
+        grid.setSelectionMode(SelectionMode.NONE);
         grid.addThemeVariants(LUMO_NO_BORDER, LUMO_ROW_STRIPES);
-        grid.setHeight("95%");
+        grid.setHeightFull();
 
-        grid.addComponentColumn(this::getReferentRenderer)
+        var referentColumn = grid.addComponentColumn(this::getReferentRenderer)
                 .setFlexGrow(0)
                 .setAutoWidth(true);
 
-        grid.addColumn(Volunteer::getLastName)
+        var lastNameColumn = grid.addColumn(Volunteer::getLastName)
                 .setHeader("Nom")
                 .setSortable(true);
 
-        grid.addColumn(Volunteer::getFirstName)
+        var firstNameColumn = grid.addColumn(Volunteer::getFirstName)
                 .setHeader("Prénom")
                 .setSortable(true);
 
-        grid.addColumn(Volunteer::getFriendsGroup)
+        var friendsColumn = grid.addColumn(Volunteer::getFriendsGroup)
                 .setHeader("Groupe\nd'amis")
                 .setSortable(true)
                 .setFlexGrow(0)
                 .setAutoWidth(true)
                 .setTextAlign(CENTER);
 
-        grid.addColumn(this::getVolunteerTeam)
+        var teamColumn = grid.addColumn(this::getVolunteerTeam)
                 .setHeader("Équipe")
                 .setSortable(true);
 
@@ -119,11 +100,84 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
         grid.addComponentColumn(this::getEmailToAnchor)
                 .setHeader("Email");
 
-        grid.addComponentColumn(this::getActionColumn)
-                .setFlexGrow(0)
-                .setAutoWidth(true);
+        HeaderRow filterRow = grid.appendHeaderRow();
+        // Referent filter
+        ComboBox<String> referentFilter = new ComboBox<>();
+        referentFilter.setItems("Oui", "Non");
+        referentFilter.setClearButtonVisible(true);
+        referentFilter.addValueChangeListener(event -> dataProvider.addFilter(person -> {
+            var value = referentFilter.getValue();
+            if (value == null) {
+                return true;
+            }
+            return person.isReferent() && event.getValue().equals("Oui");
+        }));
+        filterRow.getCell(referentColumn).setComponent(referentFilter);
+        referentFilter.setWidth("50px");
+        referentFilter.setPlaceholder("Filtrer");
+
+        // lastName filter
+        TextField lastNameFilter = new TextField();
+        lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
+        lastNameFilter.addValueChangeListener(event -> dataProvider.addFilter(
+                person -> containsIgnoreCase(person.getLastName(), lastNameFilter.getValue())));
+        filterRow.getCell(lastNameColumn).setComponent(lastNameFilter);
+        lastNameFilter.setSizeFull();
+        lastNameFilter.setPlaceholder("Filtrer");
+
+        // firstName filter
+        TextField firstNameFilter = new TextField();
+        firstNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
+        firstNameFilter.addValueChangeListener(event -> dataProvider.addFilter(
+                person -> containsIgnoreCase(person.getFirstName(), firstNameFilter.getValue())));
+        filterRow.getCell(firstNameColumn).setComponent(firstNameFilter);
+        firstNameFilter.setSizeFull();
+        firstNameFilter.setPlaceholder("Filter");
+
+        // Friends filter
+        friendsFilter = new ComboBox<>();
+        friendsFilter.setClearButtonVisible(true);
+        friendsFilter.addValueChangeListener(event -> dataProvider
+                .addFilter(person -> {
+                    var value = friendsFilter.getValue();
+                    if (value == null) {
+                        return true;
+                    }
+                    return value.equals(person.getFriendsGroup());
+                }));
+        filterRow.getCell(friendsColumn).setComponent(friendsFilter);
+//        teamsFilter.setSizeFull();
+        friendsFilter.setPlaceholder("Filtrer");
+
+        // Team filter
+        teamsFilter = new ComboBox<>();
+        teamsFilter.setClearButtonVisible(true);
+        teamsFilter.setItemLabelGenerator(Team::getName);
+        teamsFilter.addValueChangeListener(event -> dataProvider
+                .addFilter(person -> {
+                    var value = teamsFilter.getValue();
+                    if (value == null) {
+                        return true;
+                    }
+                    return value.getCode().equals(person.getTeamCode());
+                }));
+        filterRow.getCell(teamColumn).setComponent(teamsFilter);
+//        teamsFilter.setSizeFull();
+        teamsFilter.setPlaceholder("Filtrer");
 
         add(grid);
+
+        GridContextMenu<Volunteer> contextMenu = new GridContextMenu<>(grid);
+        var add = new HorizontalLayout(VaadinIcon.PLUS_CIRCLE.create(), new Label("Ajouter"));
+        contextMenu.addItem(add, event -> onAdd());
+        var edit = new HorizontalLayout(VaadinIcon.EDIT.create(), new Label("Modifier"));
+        contextMenu.addItem(edit, event -> event.getItem().ifPresentOrElse(this::onEdit, this::smallError));
+        var delete = new HorizontalLayout(VaadinIcon.TRASH.create(), new Label("Supprimer"));
+        contextMenu.addItem(delete, event -> event.getItem().ifPresentOrElse(this::onDelete, this::smallError));
+    }
+
+    private void smallError() {
+        Notification.show("Petit problème ! ", 5000, Position.TOP_CENTER);
     }
 
     private Icon getReferentRenderer(Volunteer volunteer) {
@@ -147,93 +201,54 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
         return new Anchor("mailto:" + volunteer.getEmail(), volunteer.getEmail());
     }
 
-    private HorizontalLayout getActionColumn(Volunteer volunteer) {
-        var wrapper = new HorizontalLayout();
-        var edit = new Button(VaadinIcon.EDIT.create());
-        edit.getStyle().set("cursor", "pointer");
-        edit.addClickListener(event -> onEditVolunteer(volunteer));
-        wrapper.add(edit);
-
-        var trash = new Button(VaadinIcon.TRASH.create());
-        trash.getStyle().set("cursor", "pointer");
-        trash.addClickListener(event -> onDeleteVolunteer(volunteer));
-        wrapper.add(trash);
-
-        return wrapper;
+    private void onAdd() {
+        new VolunteerDialog(teams, volunteer -> {
+            volunteer = volunteersClient.create(volunteer);
+            Notification.show("Bénévole ajouté", 5000, Position.TOP_CENTER);
+            dataProvider.getItems().add(volunteer);
+            dataProvider.refreshAll();
+        }).open();
     }
 
-    private void onEditVolunteer(Volunteer volunteer) {
+    private void onEdit(Volunteer volunteer) {
         var dialog = new VolunteerDialog(volunteer, teams, updatedVolunteer -> {
             volunteersClient.update(updatedVolunteer);
             Notification.show("Bénévole mis à jour", 5000, Position.TOP_CENTER);
-            fetchVolunteers();
+            dataProvider.refreshItem(volunteer);
+            dataProvider.refreshAll();
         });
         dialog.open();
     }
 
-    private void onDeleteVolunteer(Volunteer volunteer) {
+    private void onDelete(Volunteer volunteer) {
         ConfirmDialog.builder()
                 .message("Supprimer le bénévole ?")
                 .confirmButton("Supprimer", () -> {
                     volunteersClient.delete(volunteer);
                     Notification.show("Bénévole supprimé", 5000, Position.TOP_CENTER);
-                    fetchVolunteers();
+                    dataProvider.getItems().remove(volunteer);
+                    dataProvider.refreshAll();
                 })
                 .open();
-    }
-
-    private void newVolunteer() {
-        var dialog = new VolunteerDialog(teams, volunteer -> {
-            volunteersClient.create(volunteer);
-            Notification.show("Bénévole ajouté", 5000, Position.TOP_CENTER);
-            fetchVolunteers();
-        });
-        dialog.open();
-    }
-
-    private void openFilterDialog() {
-        new FilterDialog(teams, this::filterBy).open();
-    }
-
-    private void filterBy(Filter filter) {
-        var stream = unfilteredData.stream();
-
-        if (isNotBlank(filter.getLastName())) {
-            stream = stream.filter(v -> startsWithIgnoreCase(v.getLastName(), filter.getLastName()));
-        }
-
-        if (isNotBlank(filter.getFirstName())) {
-            stream = stream.filter(v -> startsWithIgnoreCase(v.getFirstName(), filter.getFirstName()));
-        }
-
-        if (isNotBlank(filter.getTeamCode())) {
-            stream = stream.filter(v -> startsWithIgnoreCase(v.getTeamCode(), filter.getTeamCode()));
-        }
-
-        if (filter.isReferent()) {
-            stream = stream.filter(Volunteer::isReferent);
-        }
-
-        grid.setItems(stream.collect(Collectors.toList()));
-        clearFilter.setVisible(true);
-        buttonFilter.setVisible(false);
-    }
-
-    private void clearFilter() {
-        grid.setItems(unfilteredData);
-        clearFilter.setVisible(false);
-        buttonFilter.setVisible(true);
     }
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
         teams = teamsClient.getAll();
-        fetchVolunteers();
-    }
+        teamsFilter.setItems(teams);
 
-    private void fetchVolunteers() {
-        unfilteredData = volunteersClient.getAll();
-        grid.setItems(unfilteredData);
+        var volunteers = volunteersClient.getAll();
+
+        friendsFilter.setItems(volunteers
+                .stream()
+                .map(Volunteer::getFriendsGroup)
+                .distinct()
+                .filter(Objects::nonNull)
+                .sorted()
+                .collect(Collectors.toList()));
+
+        dataProvider = DataProvider.ofCollection(volunteers);
+        grid.setDataProvider(dataProvider);
     }
 
 }

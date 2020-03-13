@@ -50,8 +50,8 @@ public class VolunteersController {
 
     @PostMapping
     @ResponseStatus(CREATED)
-    public void create(@RequestBody Volunteer volunteer) {
-        addVolunteer.call(volunteer);
+    public Volunteer create(@RequestBody Volunteer volunteer) {
+        return addVolunteer.call(volunteer);
     }
 
     @PutMapping
