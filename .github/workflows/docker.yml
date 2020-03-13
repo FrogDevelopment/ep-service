@@ -1,0 +1,26 @@
+name: Docker image
+
+on:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '**'
+    paths:
+      - Dockerfile
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Publish Docker
+          uses: elgohr/Publish-Docker-Github-Action@2.11
+          with:
+            name: frogdevelopment/adoptopenjdk-node
+            username: ${{ secrets.DOCKER_USR }}
+            password: ${{ secrets.DOCKER_PSW }}
+            dockerfile: Dockerfile
+            tag_names: true
