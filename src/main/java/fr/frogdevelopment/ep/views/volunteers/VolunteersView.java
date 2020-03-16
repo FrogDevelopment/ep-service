@@ -1,10 +1,17 @@
 package fr.frogdevelopment.ep.views.volunteers;
 
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
 import static com.vaadin.flow.component.grid.ColumnTextAlign.CENTER;
 import static com.vaadin.flow.component.grid.GridVariant.LUMO_NO_BORDER;
 import static com.vaadin.flow.component.grid.GridVariant.LUMO_ROW_STRIPES;
+import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
+import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static com.vaadin.flow.component.icon.VaadinIcon.USER;
+import static com.vaadin.flow.component.icon.VaadinIcon.USER_STAR;
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
@@ -15,9 +22,9 @@ import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.DataProvider;
@@ -59,14 +66,30 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
 
         setId("volunteers-view");
 
+        createButtonLayout();
+
         createGrid();
+    }
+
+    private void createButtonLayout() {
+        var buttonLayout = new HorizontalLayout();
+        buttonLayout.addClassName("button-layout");
+        buttonLayout.setWidthFull();
+        buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+
+        var buttonAdd = new Button("Ajouter un bénévole", PLUS_CIRCLE.create());
+        buttonAdd.addThemeVariants(LUMO_PRIMARY);
+        buttonAdd.addClickListener(event -> onAdd());
+        buttonLayout.add(buttonAdd);
+
+        add(buttonLayout);
     }
 
     private void createGrid() {
         grid.setId("list");
         grid.setSelectionMode(SelectionMode.NONE);
         grid.addThemeVariants(LUMO_NO_BORDER, LUMO_ROW_STRIPES);
-        grid.setHeightFull();
+        grid.setHeight("95%");
 
         var referentColumn = grid.addComponentColumn(this::getReferentRenderer)
                 .setFlexGrow(0)
@@ -110,10 +133,16 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
             if (value == null) {
                 return true;
             }
-            return person.isReferent() && event.getValue().equals("Oui");
+            switch (value) {
+                case "Oui":
+                    return person.isReferent();
+                case "Non":
+                default:
+                    return !person.isReferent();
+            }
         }));
         filterRow.getCell(referentColumn).setComponent(referentFilter);
-        referentFilter.setWidth("50px");
+        referentFilter.setWidth("70px");
         referentFilter.setPlaceholder("Filtrer");
 
         // lastName filter
@@ -146,7 +175,6 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
                     return value.equals(person.getFriendsGroup());
                 }));
         filterRow.getCell(friendsColumn).setComponent(friendsFilter);
-//        teamsFilter.setSizeFull();
         friendsFilter.setPlaceholder("Filtrer");
 
         // Team filter
@@ -162,17 +190,14 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
                     return value.getCode().equals(person.getTeamCode());
                 }));
         filterRow.getCell(teamColumn).setComponent(teamsFilter);
-//        teamsFilter.setSizeFull();
         teamsFilter.setPlaceholder("Filtrer");
 
         add(grid);
 
         GridContextMenu<Volunteer> contextMenu = new GridContextMenu<>(grid);
-        var add = new HorizontalLayout(VaadinIcon.PLUS_CIRCLE.create(), new Label("Ajouter"));
-        contextMenu.addItem(add, event -> onAdd());
-        var edit = new HorizontalLayout(VaadinIcon.EDIT.create(), new Label("Modifier"));
+        var edit = new HorizontalLayout(EDIT.create(), new Label("Modifier"));
         contextMenu.addItem(edit, event -> event.getItem().ifPresentOrElse(this::onEdit, this::smallError));
-        var delete = new HorizontalLayout(VaadinIcon.TRASH.create(), new Label("Supprimer"));
+        var delete = new HorizontalLayout(TRASH.create(), new Label("Supprimer"));
         contextMenu.addItem(delete, event -> event.getItem().ifPresentOrElse(this::onDelete, this::smallError));
     }
 
@@ -182,11 +207,11 @@ public class VolunteersView extends Div implements AfterNavigationObserver {
 
     private Icon getReferentRenderer(Volunteer volunteer) {
         if (volunteer.isReferent()) {
-            var icon = VaadinIcon.USER_STAR.create();
+            var icon = USER_STAR.create();
             icon.setColor("gold");
             return icon;
         }
-        return VaadinIcon.USER.create();
+        return USER.create();
     }
 
     private String getVolunteerTeam(Volunteer volunteer) {
