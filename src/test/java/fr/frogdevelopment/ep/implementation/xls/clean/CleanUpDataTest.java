@@ -32,8 +32,8 @@ class CleanUpDataTest {
 
         // then
         var inOrder = inOrder(cleanUpTimetables, cleanUpSchedules, cleanUpVolunteers, cleanUpTeams);
-        inOrder.verify(cleanUpTimetables).call();
         inOrder.verify(cleanUpSchedules).call();
+        inOrder.verify(cleanUpTimetables).call();
         inOrder.verify(cleanUpVolunteers).call();
         inOrder.verify(cleanUpTeams).call();
     }
