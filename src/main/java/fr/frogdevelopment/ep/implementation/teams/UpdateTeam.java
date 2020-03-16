@@ -1,8 +1,9 @@
 package fr.frogdevelopment.ep.implementation.teams;
 
 import fr.frogdevelopment.ep.model.Team;
-import org.springframework.jdbc.core.JdbcTemplate;
+import java.sql.Types;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,9 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class UpdateTeam {
 
-    private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate jdbcTemplate;
 
-    public UpdateTeam(JdbcTemplate jdbcTemplate) {
+    public UpdateTeam(NamedParameterJdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -20,7 +21,10 @@ public class UpdateTeam {
     public void call(Team team) {
         var sql = "UPDATE teams SET name = :name, code = :code WHERE team_id = :id";
 
-        jdbcTemplate.update(sql, new BeanPropertySqlParameterSource(team));
+        var beanPropertySqlParameterSource = new BeanPropertySqlParameterSource(team);
+        beanPropertySqlParameterSource.registerSqlType("id", Types.INTEGER);
+
+        jdbcTemplate.update(sql, beanPropertySqlParameterSource);
     }
 
 }

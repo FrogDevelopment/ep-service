@@ -84,9 +84,6 @@ public class TeamDialog extends Dialog {
     }
 
     private void createFormValidation() {
-        // Bind fields. This where you'd define e.g. validation rules
-        binder.bindInstanceFields(this);
-
         // required fields
         codeField.setRequiredIndicatorVisible(true);
         nameField.setRequiredIndicatorVisible(true);
