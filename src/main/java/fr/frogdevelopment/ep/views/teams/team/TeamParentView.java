@@ -1,4 +1,4 @@
-package fr.frogdevelopment.ep.views.teams;
+package fr.frogdevelopment.ep.views.teams.team;
 
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.router.ParentLayout;

@@ -1,30 +1,26 @@
 package fr.frogdevelopment.ep.implementation.teams;
 
 import fr.frogdevelopment.ep.model.Team;
-import java.util.List;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public class GetTeams {
+public class DeleteTeam {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public GetTeams(JdbcTemplate jdbcTemplate) {
+    public DeleteTeam(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public List<Team> getAll() {
-        var sql = "SELECT * FROM teams ORDER BY code";
+    public void call(Team team) {
+        var sql = "DELETE FROM teams WHERE code = :code";
 
-        return jdbcTemplate.query(sql, (rs, rowNum) -> Team.builder()
-                .id(rs.getInt("team_id"))
-                .name(rs.getString("name"))
-                .code(rs.getString("code"))
-                .build());
+        jdbcTemplate.update(sql, new MapSqlParameterSource("code", team.getCode()));
     }
 
 }

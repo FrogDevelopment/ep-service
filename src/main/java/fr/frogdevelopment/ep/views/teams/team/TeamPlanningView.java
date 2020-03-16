@@ -1,10 +1,10 @@
-package fr.frogdevelopment.ep.views.teams;
+package fr.frogdevelopment.ep.views.teams.team;
 
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
 import fr.frogdevelopment.ep.client.SchedulesClient;
 import fr.frogdevelopment.ep.views.components.SchedulesCalendar;
-import fr.frogdevelopment.ep.views.teams.TeamNavigationBar.Navigation;
+import fr.frogdevelopment.ep.views.teams.team.TeamNavigationBar.Navigation;
 
 @Route(value = "team/planning", layout = TeamParentView.class)
 public class TeamPlanningView extends AbstractTeamView {

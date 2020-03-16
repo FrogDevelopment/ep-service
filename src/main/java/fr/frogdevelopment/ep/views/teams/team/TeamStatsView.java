@@ -1,11 +1,11 @@
-package fr.frogdevelopment.ep.views.teams;
+package fr.frogdevelopment.ep.views.teams.team;
 
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
 import fr.frogdevelopment.ep.client.StatsClient;
 import fr.frogdevelopment.ep.views.components.StatisticsGrid;
-import fr.frogdevelopment.ep.views.teams.TeamNavigationBar.Navigation;
+import fr.frogdevelopment.ep.views.teams.team.TeamNavigationBar.Navigation;
 
 @Route(value = "team/stats", layout = TeamParentView.class)
 @CssImport("./styles/views/stats/stats-view.css")

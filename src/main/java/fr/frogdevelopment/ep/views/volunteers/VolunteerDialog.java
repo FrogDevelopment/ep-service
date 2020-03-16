@@ -101,7 +101,7 @@ public class VolunteerDialog extends Dialog {
         teams.setLabel("Équipe");
         teams.setItems(teamValues);
         teams.setClearButtonVisible(true);
-        teams.setItemLabelGenerator(Team::getFullName);
+        teams.setItemLabelGenerator(item -> String.join(" - ", item.getCode(), item.getName()));
         formLayout.add(teams);
 
         referent.setLabel("Référent d'équipe");
@@ -155,7 +155,7 @@ public class VolunteerDialog extends Dialog {
         buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-         if (volunteerBeingEdited.getRef() != null) {
+        if (volunteerBeingEdited.getRef() != null) {
             save.setText("Mettre à jour");
         }
         buttonLayout.add(cancel);

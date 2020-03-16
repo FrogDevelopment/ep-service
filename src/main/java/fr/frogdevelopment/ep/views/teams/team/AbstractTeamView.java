@@ -1,11 +1,11 @@
-package fr.frogdevelopment.ep.views.teams;
+package fr.frogdevelopment.ep.views.teams.team;
 
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.HasUrlParameter;
-import fr.frogdevelopment.ep.views.teams.TeamNavigationBar.Navigation;
+import fr.frogdevelopment.ep.views.teams.team.TeamNavigationBar.Navigation;
 
 public abstract class AbstractTeamView extends HorizontalLayout implements HasUrlParameter<String>, HasDynamicTitle,
         AfterNavigationObserver {

@@ -1,4 +1,4 @@
-package fr.frogdevelopment.ep.views.teams;
+package fr.frogdevelopment.ep.views.teams.team;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.H4;
@@ -11,7 +11,7 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
 import fr.frogdevelopment.ep.client.VolunteersClient;
 import fr.frogdevelopment.ep.model.Volunteer;
-import fr.frogdevelopment.ep.views.teams.TeamNavigationBar.Navigation;
+import fr.frogdevelopment.ep.views.teams.team.TeamNavigationBar.Navigation;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;

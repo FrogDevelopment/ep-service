@@ -1,4 +1,4 @@
-package fr.frogdevelopment.ep.views.teams;
+package fr.frogdevelopment.ep.views.teams.team;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.ABACUS;
 import static com.vaadin.flow.component.icon.VaadinIcon.CALENDAR_USER;
