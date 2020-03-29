@@ -26,7 +26,7 @@ import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 import fr.frogdevelopment.ep.views.timetable.TimetableView;
-import fr.frogdevelopment.ep.views.schedules.SchedulesView;
+import fr.frogdevelopment.ep.views.calendar.CalendarView;
 import fr.frogdevelopment.ep.views.stats.StatsView;
 import fr.frogdevelopment.ep.views.teams.TeamsView;
 import fr.frogdevelopment.ep.views.upload.UploadView;
@@ -69,7 +69,7 @@ public class MainView extends AppLayout {
         tabs.add(createTab(CALENDAR_BRIEFCASE, TimetableView.class));
         tabs.add(createTab(HEART, VolunteersView.class));
         tabs.add(createTab(GROUP, TeamsView.class));
-        tabs.add(createTab(CALENDAR, SchedulesView.class));
+        tabs.add(createTab(CALENDAR, CalendarView.class));
         tabs.add(createTab(ABACUS, StatsView.class));
         tabs.add(createTab(UPLOAD, UploadView.class));
         tabs.add(createTab(EXIT, new Anchor("logout", "Logout")));

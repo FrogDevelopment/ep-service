@@ -1,6 +1,5 @@
-package fr.frogdevelopment.ep.views.schedules;
+package fr.frogdevelopment.ep.views.calendar;
 
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
@@ -12,16 +11,15 @@ import fr.frogdevelopment.ep.views.components.SchedulesCalendar;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@PageTitle("Calendrier")
+@PageTitle("Calendrier Global")
 @Route(value = "calendar", layout = MainView.class)
-@CssImport("./styles/views/teams/teams-view.css")
-public class SchedulesView extends VerticalLayout implements AfterNavigationObserver {
+public class CalendarView extends VerticalLayout implements AfterNavigationObserver {
 
     private final transient SchedulesClient schedulesClient;
 
     private final SchedulesCalendar calendar = new SchedulesCalendar();
 
-    public SchedulesView(SchedulesClient schedulesClient) {
+    public CalendarView(SchedulesClient schedulesClient) {
         this.schedulesClient = schedulesClient;
 
         setId("schedules-view");
