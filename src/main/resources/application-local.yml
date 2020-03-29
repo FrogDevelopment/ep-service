@@ -19,7 +19,8 @@ logging:
     org.atmosphere: WARN
 
 
-# Ensure application is run in Vaadin 14/npm mode
 vaadin:
-  compatibilityMode: false
+  whitelisted-packages: fr/frogdevelopment/ep/views
+  servlet:
+    productionMode: true
 
