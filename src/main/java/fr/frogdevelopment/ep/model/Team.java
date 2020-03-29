@@ -18,4 +18,8 @@ public class Team implements Serializable {
     private String name;
     @NonNull
     private String code;
+
+    // for UI
+    private int countMembers;
+    private String referents;
 }

@@ -66,15 +66,30 @@ public class TeamsView extends Div implements AfterNavigationObserver {
         grid.setId("list");
         grid.addThemeVariants(LUMO_NO_BORDER, LUMO_NO_ROW_BORDERS);
         grid.setHeight("95%");
+
         grid.addItemClickListener(this::onItemClick);
+
         grid.addColumn(Team::getCode)
                 .setHeader("Code")
                 .setSortable(true)
                 .setFlexGrow(0)
                 .setAutoWidth(true);
+
         grid.addColumn(Team::getName)
                 .setHeader("Nom")
                 .setSortable(true)
+                .setFlexGrow(0)
+                .setAutoWidth(true);
+
+        grid.addColumn(Team::getCountMembers)
+                .setHeader("Membres")
+                .setSortable(true)
+                .setFlexGrow(0)
+                .setAutoWidth(true);
+
+        grid.addColumn(Team::getReferents)
+                .setHeader("Référents")
+                .setSortable(false)
                 .setFlexGrow(0)
                 .setAutoWidth(true);
 
