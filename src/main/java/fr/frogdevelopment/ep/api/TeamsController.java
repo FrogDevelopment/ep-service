@@ -2,7 +2,7 @@ package fr.frogdevelopment.ep.api;
 
 import fr.frogdevelopment.ep.implementation.teams.AddTeam;
 import fr.frogdevelopment.ep.implementation.teams.DeleteTeam;
-import fr.frogdevelopment.ep.implementation.teams.GetTeams;
+import fr.frogdevelopment.ep.implementation.teams.TeamsRepository;
 import fr.frogdevelopment.ep.implementation.teams.UpdateTeam;
 import fr.frogdevelopment.ep.model.Team;
 import java.util.List;
@@ -17,14 +17,14 @@ import org.springframework.web.bind.annotation.PutMapping;
 @Component
 public class TeamsController {
 
-    private final GetTeams getTeams;
+    private final TeamsRepository teamsRepository;
     private final AddTeam addTeam;
     private final DeleteTeam deleteTeam;
     private final UpdateTeam updateTeam;
 
-    public TeamsController(GetTeams getTeams, AddTeam addTeam,
+    public TeamsController(TeamsRepository teamsRepository, AddTeam addTeam,
                            DeleteTeam deleteTeam, UpdateTeam updateTeam) {
-        this.getTeams = getTeams;
+        this.teamsRepository = teamsRepository;
         this.addTeam = addTeam;
         this.deleteTeam = deleteTeam;
         this.updateTeam = updateTeam;
@@ -32,7 +32,7 @@ public class TeamsController {
 
     @GetMapping
     public List<Team> getAll() {
-        return getTeams.getAll();
+        return teamsRepository.getAll();
     }
 
     @PostMapping

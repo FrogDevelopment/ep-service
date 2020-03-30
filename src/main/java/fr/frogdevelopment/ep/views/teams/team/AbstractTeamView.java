@@ -15,6 +15,7 @@ public abstract class AbstractTeamView extends HorizontalLayout implements HasUr
     private final TeamNavigationBar teamNavigationBar;
 
     public AbstractTeamView(Navigation current) {
+        setHeightFull();
         this.teamNavigationBar = new TeamNavigationBar(current);
 
         add(teamNavigationBar);

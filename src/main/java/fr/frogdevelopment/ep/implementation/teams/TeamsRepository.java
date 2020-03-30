@@ -1,23 +1,40 @@
 package fr.frogdevelopment.ep.implementation.teams;
 
+import static java.util.Collections.emptySet;
+
+import fr.frogdevelopment.ep.model.Schedule;
 import fr.frogdevelopment.ep.model.Team;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public class GetTeams {
+public class TeamsRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public GetTeams(JdbcTemplate jdbcTemplate) {
+    public TeamsRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     public List<Team> getAll() {
+        var sql = "SELECT * FROM teams ORDER BY code";
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> Team.builder()
+                .id(rs.getInt("team_id"))
+                .name(rs.getString("name"))
+                .code(rs.getString("code"))
+                .build());
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public List<Team> getAllWithInformation(
+            Map<String, Set<Schedule>> teamsWithSchedules) {
         var sql = "WITH referents AS (SELECT concat_ws(' ', v.last_name, v.first_name) AS names,\n"
                 + "                          v.team_code\n"
                 + "                   FROM volunteers v\n"
@@ -43,6 +60,7 @@ public class GetTeams {
                 .code(rs.getString("code"))
                 .referents(rs.getString("referents"))
                 .countMembers(rs.getInt("countMembers"))
+                .schedules(teamsWithSchedules.getOrDefault(rs.getString("code"), emptySet()))
                 .build());
     }
 

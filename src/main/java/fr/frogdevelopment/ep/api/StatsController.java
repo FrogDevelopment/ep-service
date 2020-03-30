@@ -6,7 +6,6 @@ import fr.frogdevelopment.ep.model.Volunteer;
 import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 //@RestController
 //@RequestMapping(path = "stats", produces = APPLICATION_JSON_VALUE)
@@ -27,9 +26,5 @@ public class StatsController {
     @GetMapping("/with-all-schedules")
     public List<Volunteer> getAllWithSchedules() {
         return statsRepository.getVolunteersWithSchedules();
-    }
-    @GetMapping("/with-all-schedules/{teamCode}")
-    public List<Volunteer> getWithSchedules(@PathVariable String teamCode) {
-        return statsRepository.getVolunteersWithSchedules(teamCode);
     }
 }

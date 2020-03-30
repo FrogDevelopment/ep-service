@@ -1,6 +1,6 @@
-package fr.frogdevelopment.ep.model;
+package fr.frogdevelopment.ep.implementation.stats;
 
-import java.io.Serializable;
+import fr.frogdevelopment.ep.model.Schedule;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,16 +12,10 @@ import lombok.NonNull;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Team implements Serializable {
+public class TeamStats {
 
-    private int id;
-    @NonNull
-    private String name;
     @NonNull
     private String code;
-
-    // for UI
-    private int countMembers;
-    private String referents;
     private Set<Schedule> schedules;
+
 }

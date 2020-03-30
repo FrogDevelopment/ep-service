@@ -10,4 +10,7 @@ import fr.frogdevelopment.ep.views.MainView;
 @Route(value = "team")
 public class TeamParentView extends Div implements RouterLayout {
 
+    public TeamParentView() {
+        setHeightFull();
+    }
 }

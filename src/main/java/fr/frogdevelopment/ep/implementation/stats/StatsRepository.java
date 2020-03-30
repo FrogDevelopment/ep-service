@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
@@ -59,14 +57,19 @@ public class StatsRepository {
                 + " GROUP BY v.volunteer_ref, v.last_name, v.first_name, v.team_code"
                 + " ORDER BY v.last_name, v.first_name;";
 
-        return jdbcTemplate.query(sql, volunteerWithSchedulesRowMapper());
+        return jdbcTemplate.query(sql, (rs, rowNum) -> Volunteer.builder()
+                .ref(rs.getString("volunteer_ref"))
+                .lastName(rs.getString("last_name"))
+                .firstName(rs.getString("first_name"))
+                .teamCode(rs.getString("team_code"))
+                .schedules(getSchedules(rs.getString("schedules")))
+                .build());
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public List<Volunteer> getVolunteersWithSchedules(String teamCode) {
-        var sql = "SELECT v.volunteer_ref, v.last_name, v.first_name, v.team_code,"
+    public List<TeamStats> getTeamsWithSchedules() {
+        var sql = "SELECT v.team_code,"
                 + "       json_agg(json_build_object("
-                + "               'dayOfWeek', t.day_of_week,"
                 + "               'dayOfWeek', t.day_of_week,"
                 + "               'start', e.day_date + t.start_time,"
                 + "               'end', e.day_date + t.end_time,"
@@ -76,23 +79,12 @@ public class StatsRepository {
                 + "         INNER JOIN schedules s ON v.volunteer_ref = s.volunteer_ref"
                 + "         INNER JOIN timetables t ON s.timetable_ref = t.timetable_ref"
                 + "         INNER JOIN edition e ON t.day_of_week = e.day_of_week"
-                + " WHERE v.team_code = :teamCode"
-                + " GROUP BY v.volunteer_ref, v.last_name, v.first_name, v.team_code"
-                + " ORDER BY v.last_name, v.first_name;";
+                + " GROUP BY v.team_code;";
 
-        var paramSources = new MapSqlParameterSource("teamCode", teamCode);
-
-        return jdbcTemplate.query(sql, paramSources, volunteerWithSchedulesRowMapper());
-    }
-
-    private RowMapper<Volunteer> volunteerWithSchedulesRowMapper() {
-        return (rs, rowNum) -> Volunteer.builder()
-                .ref(rs.getString("volunteer_ref"))
-                .lastName(rs.getString("last_name"))
-                .firstName(rs.getString("first_name"))
-                .teamCode(rs.getString("team_code"))
+        return jdbcTemplate.query(sql, (rs, rowNum) -> TeamStats.builder()
+                .code(rs.getString("team_code"))
                 .schedules(getSchedules(rs.getString("schedules")))
-                .build();
+                .build());
     }
 
     private Set<Schedule> getSchedules(String schedulesJson) {

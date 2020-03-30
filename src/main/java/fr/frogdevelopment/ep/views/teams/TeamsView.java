@@ -6,6 +6,7 @@ import static com.vaadin.flow.component.grid.GridVariant.LUMO_NO_ROW_BORDERS;
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static java.time.Duration.between;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -20,14 +21,21 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import fr.frogdevelopment.ep.client.TeamsClient;
+import fr.frogdevelopment.ep.implementation.stats.GetTeamStats;
+import fr.frogdevelopment.ep.model.Location;
+import fr.frogdevelopment.ep.model.Schedule;
 import fr.frogdevelopment.ep.model.Team;
 import fr.frogdevelopment.ep.views.MainView;
 import fr.frogdevelopment.ep.views.components.ConfirmDialog;
+import java.time.DayOfWeek;
+import java.util.List;
+import java.util.stream.Stream;
 
 @PageTitle("Équipes")
 @Route(value = "teams", layout = MainView.class)
@@ -35,17 +43,18 @@ import fr.frogdevelopment.ep.views.components.ConfirmDialog;
 public class TeamsView extends Div implements AfterNavigationObserver {
 
     private final transient TeamsClient teamsClient;
+    private final transient GetTeamStats getTeamStats;
 
     private final Grid<Team> grid = new Grid<>();
     private ListDataProvider<Team> dataProvider;
 
-    public TeamsView(TeamsClient teamsClient) {
+    public TeamsView(TeamsClient teamsClient, GetTeamStats getTeamStats) {
         this.teamsClient = teamsClient;
+        this.getTeamStats = getTeamStats;
 
         setId("teams-view");
 
         createButtonLayout();
-        createGrid();
     }
 
     private void createButtonLayout() {
@@ -93,6 +102,29 @@ public class TeamsView extends Div implements AfterNavigationObserver {
                 .setFlexGrow(0)
                 .setAutoWidth(true);
 
+        grid.addColumn(getTotal())
+                .setHeader("Nb heures")
+                .setSortable(false)
+                .setFlexGrow(0)
+                .setAutoWidth(true);
+
+        // fixme make it dynamic
+        var locations = List.of(Location.BRACELET, Location.LITIGES, Location.FOUILLES);
+        Stream.of(DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
+                .forEach(dayOfWeek -> {
+                    locations.forEach(location -> grid.addColumn(getCountByDayOfWeekAndLocation(dayOfWeek, location))
+                            .setHeader(String.format("%s - %s", dayOfWeek.toString(), location.toString()))
+                            .setSortable(false)
+                            .setFlexGrow(0)
+                            .setAutoWidth(true));
+
+                    grid.addColumn(getTotalByDayOfWeek(dayOfWeek))
+                            .setHeader("Total")
+                            .setSortable(false)
+                            .setFlexGrow(0)
+                            .setAutoWidth(true);
+                });
+
         add(grid);
 
         GridContextMenu<Team> contextMenu = new GridContextMenu<>(grid);
@@ -100,6 +132,50 @@ public class TeamsView extends Div implements AfterNavigationObserver {
         contextMenu.addItem(edit, event -> event.getItem().ifPresentOrElse(this::onEdit, this::smallError));
         var delete = new HorizontalLayout(TRASH.create(), new Label("Supprimer"));
         contextMenu.addItem(delete, event -> event.getItem().ifPresentOrElse(this::onDelete, this::smallError));
+
+        grid.setDataProvider(dataProvider);
+    }
+
+    private ValueProvider<Team, Double> getTotal() {
+        return team -> team.getSchedules()
+                .stream()
+                .map(s -> Schedule.builder()
+                        .dayOfWeek(s.getDayOfWeek())
+                        .start(s.getStart())
+                        .end(s.getEnd())
+                        .build())
+                .distinct()
+                .map(this::getDurationAsHours)
+                .mapToDouble(Double::doubleValue)
+                .sum();
+    }
+
+    private ValueProvider<Team, Double> getCountByDayOfWeekAndLocation(DayOfWeek dayOfWeek, Location location) {
+        return team -> team.getSchedules()
+                .stream()
+                .filter(s -> dayOfWeek.equals(s.getDayOfWeek()))
+                .filter(s -> location.equals(s.getLocation()))
+                .map(this::getDurationAsHours)
+                .mapToDouble(Double::doubleValue)
+                .sum();
+    }
+
+    private ValueProvider<Team, Double> getTotalByDayOfWeek(DayOfWeek dayOfWeek) {
+        return team -> team.getSchedules()
+                .stream()
+                .filter(s -> dayOfWeek.equals(s.getDayOfWeek()))
+                .map(s -> Schedule.builder()
+                        .start(s.getStart())
+                        .end(s.getEnd())
+                        .build())
+                .distinct()
+                .map(this::getDurationAsHours)
+                .mapToDouble(Double::doubleValue)
+                .sum();
+    }
+
+    private double getDurationAsHours(Schedule s) {
+        return (double) between(s.getStart(), s.getEnd()).toMinutes() / 60;
     }
 
     private void onAdd() {
@@ -141,7 +217,7 @@ public class TeamsView extends Div implements AfterNavigationObserver {
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
-        dataProvider = DataProvider.ofCollection(teamsClient.getAll());
-        grid.setDataProvider(dataProvider);
+        dataProvider = DataProvider.ofCollection(getTeamStats.call());
+        createGrid();
     }
 }

@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Tag("integrationTest")
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
-class GetTeamsTest {
+class TeamsRepositoryTest {
 
     @Value("classpath:sql/teams.sql")
     private Resource resource;
@@ -30,7 +30,7 @@ class GetTeamsTest {
     private DataSource dataSource;
 
     @Autowired
-    private GetTeams getTeams;
+    private TeamsRepository teamsRepository;
 
     @Test
     void shouldFetchTeams() {
@@ -38,7 +38,7 @@ class GetTeamsTest {
         DatabasePopulatorUtils.execute(new ResourceDatabasePopulator(resource), dataSource);
 
         // when
-        var teams = getTeams.getAll();
+        var teams = teamsRepository.getAllWithInformation(teamsWithSchedules);
 
         // then
         assertThat(teams).hasSize(2);
