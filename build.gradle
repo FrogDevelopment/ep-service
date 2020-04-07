@@ -98,6 +98,24 @@ test {
     }
 }
 
+task unitTest(type: Test) {
+    group 'verification'
+    reports.html.enabled = false
+
+    useJUnitPlatform {
+        includeTags 'unitTest'
+    }
+}
+
+task integrationTest(type: Test) {
+    group 'verification'
+    reports.html.enabled = false
+
+    useJUnitPlatform {
+        includeTags 'integrationTest'
+    }
+}
+
 jacocoTestReport {
     reports {
         xml.enabled true

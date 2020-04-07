@@ -2,7 +2,7 @@ package fr.frogdevelopment.ep.api;
 
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 
-import fr.frogdevelopment.ep.implementation.xls.UploadData;
+import fr.frogdevelopment.ep.application.xls.UploadData;
 import java.io.InputStream;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

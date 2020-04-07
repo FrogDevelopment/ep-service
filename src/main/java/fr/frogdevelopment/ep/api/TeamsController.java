@@ -2,10 +2,10 @@ package fr.frogdevelopment.ep.api;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-import fr.frogdevelopment.ep.implementation.teams.AddTeam;
-import fr.frogdevelopment.ep.implementation.teams.DeleteTeam;
-import fr.frogdevelopment.ep.implementation.teams.TeamsRepository;
-import fr.frogdevelopment.ep.implementation.teams.UpdateTeam;
+import fr.frogdevelopment.ep.application.teams.AddTeam;
+import fr.frogdevelopment.ep.application.teams.DeleteTeam;
+import fr.frogdevelopment.ep.application.teams.TeamsRepository;
+import fr.frogdevelopment.ep.application.teams.UpdateTeam;
 import fr.frogdevelopment.ep.model.Team;
 import java.util.List;
 import org.springframework.web.bind.annotation.DeleteMapping;

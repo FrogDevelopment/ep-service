@@ -2,7 +2,7 @@ package fr.frogdevelopment.ep.api;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-import fr.frogdevelopment.ep.implementation.timetables.TimetablesRepository;
+import fr.frogdevelopment.ep.application.timetables.TimetablesRepository;
 import fr.frogdevelopment.ep.model.Timetable;
 import java.time.LocalDate;
 import java.util.List;

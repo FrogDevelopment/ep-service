@@ -4,10 +4,10 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-import fr.frogdevelopment.ep.implementation.volunteers.AddVolunteer;
-import fr.frogdevelopment.ep.implementation.volunteers.DeleteVolunteer;
-import fr.frogdevelopment.ep.implementation.volunteers.GetVolunteers;
-import fr.frogdevelopment.ep.implementation.volunteers.UpdateVolunteer;
+import fr.frogdevelopment.ep.application.volunteers.AddVolunteer;
+import fr.frogdevelopment.ep.application.volunteers.DeleteVolunteer;
+import fr.frogdevelopment.ep.application.volunteers.GetVolunteers;
+import fr.frogdevelopment.ep.application.volunteers.UpdateVolunteer;
 import fr.frogdevelopment.ep.model.Volunteer;
 import java.util.List;
 import org.springframework.web.bind.annotation.DeleteMapping;

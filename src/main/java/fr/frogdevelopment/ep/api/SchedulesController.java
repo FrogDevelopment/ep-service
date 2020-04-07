@@ -2,7 +2,7 @@ package fr.frogdevelopment.ep.api;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-import fr.frogdevelopment.ep.implementation.schedules.SchedulesRepository;
+import fr.frogdevelopment.ep.application.schedules.SchedulesRepository;
 import fr.frogdevelopment.ep.model.Schedule;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
