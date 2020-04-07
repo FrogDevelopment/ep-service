@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(path = "planning", produces = APPLICATION_JSON_VALUE)
+@RequestMapping(path = "timetables", produces = APPLICATION_JSON_VALUE)
 public class PlanningController {
 
     private final TimetablesRepository timetablesRepository;

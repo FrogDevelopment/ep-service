@@ -38,7 +38,7 @@ class TeamsRepositoryTest {
         DatabasePopulatorUtils.execute(new ResourceDatabasePopulator(resource), dataSource);
 
         // when
-        var teams = teamsRepository.getAllWithInformation(teamsWithSchedules);
+        var teams = teamsRepository.getAll();
 
         // then
         assertThat(teams).hasSize(2);

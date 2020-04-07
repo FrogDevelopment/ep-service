@@ -7,8 +7,6 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 
-//@RestController
-//@RequestMapping(path = "stats", produces = APPLICATION_JSON_VALUE)
 @Component
 public class StatsController {
 

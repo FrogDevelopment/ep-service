@@ -1,6 +1,5 @@
 package fr.frogdevelopment.ep.configuration.security;
 
-import fr.frogdevelopment.ep.views.login.LoginView;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,11 +30,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
-    @Bean
-    public CustomRequestCache requestCache() {
-        return new CustomRequestCache();
-    }
-
     /**
      * Require login to access internal pages and configure login form.
      */
@@ -46,23 +40,24 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
                 // Register our CustomRequestCache, that saves unauthorized access attempts, so
                 // the user is redirected after login.
-                .requestCache().requestCache(new CustomRequestCache())
+//                .requestCache().requestCache(new CustomRequestCache())
 
                 // Restrict access to our application.
-                .and().authorizeRequests()
+               /* .and()*/.authorizeRequests()
 
                 // Allow all flow internal requests.
-                .requestMatchers(SecurityUtils::isFrameworkInternalRequest).permitAll()
+//                .requestMatchers(SecurityUtils::isFrameworkInternalRequest).permitAll()
 
                 // Allow all requests by logged in users.
-                .anyRequest().authenticated()
+//                .anyRequest().authenticated()
+                .anyRequest().permitAll();
 
                 // Configure the login page.
-                .and().formLogin().loginPage("/" + LoginView.ROUTE).permitAll().permitAll()
-                .failureUrl(LOGIN_FAILURE_URL)
-
-                // Configure logout
-                .and().logout().logoutSuccessUrl(LOGOUT_SUCCESS_URL);
+//                .and().formLogin().loginPage("/" + LoginView.ROUTE).permitAll().permitAll()
+//                .failureUrl(LOGIN_FAILURE_URL)
+//
+//                // Configure logout
+//                .and().logout().logoutSuccessUrl(LOGOUT_SUCCESS_URL);
     }
 
     @Bean
@@ -91,34 +86,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) {
         web.ignoring().antMatchers(
-                // Vaadin Flow static resources
-                "/VAADIN/**",
-
                 // the standard favicon URI
                 "/favicon.ico",
 
                 // the robots exclusion standard
-                "/robots.txt",
-
-                // web application manifest
-                "/manifest.webmanifest",
-                "/sw.js",
-                "/offline-page.html",
-
-                // icons and images
-                "/icons/**",
-                "/images/**",
-
-                // (development mode) static resources
-                "/frontend/**",
-
-                // (development mode) webjars
-                "/webjars/**",
-
-                // (development mode) H2 debugging console
-                "/h2-console/**",
-
-                // (production mode) static resources
-                "/frontend-es5/**", "/frontend-es6/**");
+                "/robots.txt"
+        );
     }
 }

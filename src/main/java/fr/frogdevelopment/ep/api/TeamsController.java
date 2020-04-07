@@ -1,20 +1,22 @@
 package fr.frogdevelopment.ep.api;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 import fr.frogdevelopment.ep.implementation.teams.AddTeam;
 import fr.frogdevelopment.ep.implementation.teams.DeleteTeam;
 import fr.frogdevelopment.ep.implementation.teams.TeamsRepository;
 import fr.frogdevelopment.ep.implementation.teams.UpdateTeam;
 import fr.frogdevelopment.ep.model.Team;
 import java.util.List;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-//@RestController
-//@RequestMapping(path = "teams", produces = APPLICATION_JSON_VALUE)
-@Component
+@RestController
+@RequestMapping(path = "teams", produces = APPLICATION_JSON_VALUE)
 public class TeamsController {
 
     private final TeamsRepository teamsRepository;
