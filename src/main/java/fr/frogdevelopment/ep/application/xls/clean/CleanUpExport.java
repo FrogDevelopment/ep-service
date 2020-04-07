@@ -13,6 +13,7 @@ class CleanUpExport {
     }
 
     void call() {
-        jdbcTemplate.update("DELETE FROM export_schedules");
+        jdbcTemplate.update("DELETE FROM export_schedules;");
+        jdbcTemplate.update("UPDATE export_version SET version = 0;");
     }
 }
