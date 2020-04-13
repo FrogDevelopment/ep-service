@@ -21,7 +21,6 @@ import fr.frogdevelopment.ep.application.xls.model.XlsTeam;
 import fr.frogdevelopment.ep.application.xls.model.XlsTimetable;
 import fr.frogdevelopment.ep.application.xls.model.XlsVolunteer;
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.DayOfWeek;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -38,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
@@ -80,8 +80,8 @@ public class ExcelParser {
     private final List<XlsVolunteer> volunteers = new ArrayList<>();
     private final List<XlsSchedule> schedules = new ArrayList<>();
 
-    Result read(InputStream inputStream) {
-        try (Workbook workbook = new HSSFWorkbook(inputStream)) {
+    Result read(MultipartFile file){
+        try (Workbook workbook = new HSSFWorkbook(file.getInputStream())) {
             readTimeTables(workbook);
             readTeams(workbook);
             readVolunteers(workbook);

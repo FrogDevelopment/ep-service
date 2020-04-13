@@ -7,10 +7,10 @@ import fr.frogdevelopment.ep.application.xls.add.AddData;
 import fr.frogdevelopment.ep.application.xls.clean.CleanUpData;
 import fr.frogdevelopment.ep.application.xls.parser.ExcelReader;
 import fr.frogdevelopment.ep.utils.UnitTest;
-import java.io.InputStream;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.web.multipart.MultipartFile;
 
 class UploadDataTest extends UnitTest {
 
@@ -25,7 +25,7 @@ class UploadDataTest extends UnitTest {
     private AddData addData;
 
     @Mock
-    private InputStream inputStream;
+    private MultipartFile file;
 
     private final Result result = Result.builder().build();
 
@@ -33,11 +33,11 @@ class UploadDataTest extends UnitTest {
     void shouldImport_clean_then_add() {
         // given
         given(excelReader
-                .read(inputStream))
+                .read(file))
                 .willReturn(result);
 
         // when
-        uploadData.call(inputStream);
+        uploadData.call(file);
 
         // then
         var inOrder = inOrder(cleanUpData, addData);
