@@ -1,4 +1,4 @@
-package fr.frogdevelopment.ep.configuration.security;
+package fr.frogdevelopment.ep.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

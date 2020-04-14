@@ -1,11 +1,7 @@
 package fr.frogdevelopment.ep.api;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
 import fr.frogdevelopment.ep.application.timetables.TimetablesRepository;
-import fr.frogdevelopment.ep.model.Timetable;
 import java.time.LocalDate;
-import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
@@ -16,27 +12,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(path = "timetables", produces = APPLICATION_JSON_VALUE)
-public class PlanningController {
+@RequestMapping(path = "edition")
+public class EditionController {
 
     private final TimetablesRepository timetablesRepository;
 
-    public PlanningController(TimetablesRepository timetablesRepository) {
+    public EditionController(TimetablesRepository timetablesRepository) {
         this.timetablesRepository = timetablesRepository;
     }
 
-    @GetMapping("edition")
+    @GetMapping
     public LocalDate getEdition() {
         return timetablesRepository.getEdition();
     }
 
-    @PutMapping("edition")
+    @PutMapping
     public void setEdition(@RequestBody @Valid @NotNull @Future LocalDate localDate) {
         timetablesRepository.setEdition(localDate);
-    }
-
-    @GetMapping
-    public List<Timetable> getPlanning() {
-        return timetablesRepository.getPlanning();
     }
 }

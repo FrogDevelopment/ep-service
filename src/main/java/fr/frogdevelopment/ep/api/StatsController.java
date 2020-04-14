@@ -1,13 +1,17 @@
 package fr.frogdevelopment.ep.api;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 import fr.frogdevelopment.ep.application.stats.StatsRepository;
 import fr.frogdevelopment.ep.application.stats.TimeSlot;
 import fr.frogdevelopment.ep.model.Volunteer;
 import java.util.List;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Component
+@RestController
+@RequestMapping(path = "stats", produces = APPLICATION_JSON_VALUE)
 public class StatsController {
 
     private final StatsRepository statsRepository;
