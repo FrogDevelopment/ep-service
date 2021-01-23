@@ -2,22 +2,18 @@ CREATE TABLE teams
 (
     team_id SERIAL PRIMARY KEY,
     name    TEXT NOT NULL,
-    code    TEXT NOT NULL
-        CONSTRAINT unique_teams_code UNIQUE
+    code    TEXT NOT NULL UNIQUE
 );
 
 CREATE TABLE volunteers
 (
     volunteer_id  SERIAL PRIMARY KEY,
-    volunteer_ref TEXT NOT NULL
-        CONSTRAINT unique_volunteer_ref UNIQUE,
+    volunteer_ref TEXT NOT NULL UNIQUE,
     last_name     TEXT NOT NULL,
     first_name    TEXT NOT NULL,
     friends_group TEXT NULL,
-    email         TEXT NOT NULL
-        CONSTRAINT unique_volunteer_email UNIQUE,
-    phone_number  TEXT NOT NULL
-        CONSTRAINT unique_volunteer_phone_number UNIQUE,
+    email         TEXT NOT NULL UNIQUE,
+    phone_number  TEXT NOT NULL UNIQUE,
     team_code     TEXT REFERENCES teams (code),
     referent      BOOLEAN DEFAULT FALSE
 );
@@ -25,16 +21,14 @@ CREATE TABLE volunteers
 -- depending of the current edition, we calculate the datetimes for each dayOfWeek
 CREATE TABLE edition
 (
-    day_of_week TEXT NOT NULL
-        CONSTRAINT unique_edition_day_of_week UNIQUE,
+    day_of_week TEXT NOT NULL UNIQUE,
     day_date    DATE NULL
 );
 
 CREATE TABLE timetables
 (
     timetable_id      SERIAL PRIMARY KEY,
-    timetable_ref     TEXT    NOT NULL
-        CONSTRAINT unique_timetable_ref UNIQUE,
+    timetable_ref     TEXT    NOT NULL UNIQUE,
     day_of_week       TEXT    NOT NULL,
     start_time        TIME    NOT NULL,
     end_time          TIME    NOT NULL,

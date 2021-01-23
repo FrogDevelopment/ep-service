@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class Application {
 
     public static void main(String[] args) {
-        new SpringApplicationBuilder(Application.class).run(args);
+        new SpringApplicationBuilder(Application.class).run();
     }
 
 }

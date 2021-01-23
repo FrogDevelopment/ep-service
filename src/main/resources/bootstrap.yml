@@ -1,8 +1,6 @@
 spring:
   application:
     name: ep-service
-
-
   main:
     banner-mode: 'off'
 
@@ -10,12 +8,10 @@ spring:
     config:
       name: ${spring.application.name}
       discovery:
-        service-id: service-config
+        service-id: support-config-server
         enabled: true
-      username: ${FROG_ADMIN_USER}
-      password: ${FROG_ADMIN_PWD}
-  devtools:
-    add-properties: false
+      username: ${docker-secrets.frog_admin_user}
+      password: ${docker-secrets.frog_admin_password}
 
 eureka:
   instance:
@@ -23,21 +19,18 @@ eureka:
     hostname: ${spring.application.name}
   client:
     service-url:
-      defaultZone: http://${FROG_ADMIN_USER}:${FROG_ADMIN_PWD}@service-registry:8080/eureka/
+      defaultZone: http://${docker-secrets.frog_admin_user}:${docker-secrets.frog_admin_password}@support-registry:8080/eureka/
 
 ---
 spring:
-  profiles: local
-  application:
-    admin:
-      enabled: false
+  config:
+    activate:
+      on-profile: local
   cloud:
     config:
       enabled: false
       discovery:
         enabled: false
-  devtools:
-    add-properties: true
 
 eureka:
   client:

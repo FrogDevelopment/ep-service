@@ -1,26 +1,35 @@
 server:
+  error:
+    include-message: always
   port: 8080
-
-frog:
-  database:
-    name: ep-data
 
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/${frog.database.name}?ApplicationName=${spring.application.name}
+    url: jdbc:postgresql://localhost:5432/ep-data?ApplicationName=${spring.application.name}
     username: postgres
     password: postgres
 
+    hikari:
+      maximum-pool-size: 2
+      minimum-idle: 1
+      idle-timeout: 120000
+      connection-test-query: SELECT 1
+
+  jpa:
+    generate-ddl: false
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+
 logging:
   level:
-    root: WARN
+    root: INFO
     fr.frogdevelopment: INFO
     org.atmosphere: WARN
 
 
 vaadin:
   whitelisted-packages: fr/frogdevelopment/ep/views
-  servlet:
-    productionMode: true
+#  pnpm-enabled: true
 

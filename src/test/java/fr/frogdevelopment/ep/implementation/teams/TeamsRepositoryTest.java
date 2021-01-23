@@ -1,8 +1,5 @@
 package fr.frogdevelopment.ep.implementation.teams;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import javax.sql.DataSource;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +12,11 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.sql.DataSource;
+import java.util.Collections;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Transactional
 @SpringBootTest
@@ -38,7 +40,7 @@ class TeamsRepositoryTest {
         DatabasePopulatorUtils.execute(new ResourceDatabasePopulator(resource), dataSource);
 
         // when
-        var teams = teamsRepository.getAllWithInformation(teamsWithSchedules);
+        var teams = teamsRepository.getAllWithInformation(Collections.emptyMap());
 
         // then
         assertThat(teams).hasSize(2);
